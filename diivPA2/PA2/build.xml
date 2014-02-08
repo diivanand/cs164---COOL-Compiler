@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="test" default="source">  
+  <description>
+    CS164 Programming Assignment #2
+  </description>
+
+  <!-- set global properties for this build -->
+  <property environment="env"/> 
+  <property name="classdir" value="${env.MASTERDIR}"/>
+  <property name="assn" value="2"/>
+  <property name="class" value="cs164"/>
+  <property name="src" value="cool.lex test.cl README"/>
+
+  <property name="csrc" value="AbstractSymbol.java AbstractTable.java BoolConst.java CgenSupport.java Flags.java IdSymbol.java IdTable.java IntSymbol.java IntTable.java Lexer.java StringSymbol.java StringTable.java TokenConstants.java Utilities.java"/>
+  <property name="libs" value="reference-parser-phase reference-semant-phase reference-cgen-phase"/>
+  <property name="cgen" value="CoolLexer.java"/>
+  <property name="cfil" value="${csrc} ${cgen}"/>
+
+  <property name="tsrc" value="mycoolc"/>
+  <property name="lsrc" value="build.xml tests/test1.cl tests/test2.cl tests/test3.cl tests/test4.cl tests/test5.cl tests/test1.out.reference tests/test2.out.reference tests/test3.out.reference tests/test4.out.reference tests/test5.out.reference"/>
+  <property name="output" value="test.output"/>
+
+  <property name="cupclasspath" value="${classdir}/lib"/>
+  <path id="classpath">
+    <dirset dir="${cupclasspath}"/>
+    <dirset dir="."/>
+    <fileset dir="/usr/java/lib" file="rt.jar"/>
+  </path>
+  <property name="classpath.unix" value="${cupclasspath}:.:/usr/java/lib/rt.java"/>
+
+
+  <!-- target: test -->
+  <target name="test" depends="lexer">
+    <exec executable="./lexer">
+      <arg line="test.cl"/>
+    </exec>
+  </target>
+
+  <target name="test.output" depends="lexer">
+    <delete file="./test.output"/>
+    <exec executable="./lexer" output="test.output" error="test.output">
+      <arg line="test.cl"/>
+    </exec>
+  </target>
+
+  <!-- target: test-all -->
+  <target name="test-all" depends="lexer">
+    <delete file="test-all.result"/>
+    <exec executable="./lexer" output="tests/test1.out"> <arg line="tests/test1.cl"/> </exec>
+    <exec executable="./lexer" output="tests/test2.out"> <arg line="tests/test2.cl"/> </exec>
+    <exec executable="./lexer" output="tests/test3.out"> <arg line="tests/test3.cl"/> </exec>
+    <exec executable="./lexer" output="tests/test4.out"> <arg line="tests/test4.cl"/> </exec>
+    <exec executable="./lexer" output="tests/test5.out"> <arg line="tests/test5.cl"/> </exec>
+    <echo>---------------
+Start 5 test cases:
+---------------</echo>
+    <exec executable="gdiff" output="test-all.result"><arg value="-q"/><arg line="tests/test1.out tests/test1.out.reference"/> </exec>
+    <exec executable="gdiff" output="test-all.result" append="true"><arg line="-q"/><arg line="tests/test2.out tests/test2.out.reference"/> </exec>
+    <exec executable="gdiff" output="test-all.result" append="true"><arg line="-q"/><arg line="tests/test3.out tests/test3.out.reference"/> </exec>
+    <exec executable="gdiff" output="test-all.result" append="true"><arg line="-q"/><arg line="tests/test4.out tests/test4.out.reference"/> </exec>
+    <exec executable="gdiff" output="test-all.result" append="true"><arg line="-q"/><arg line="tests/test5.out tests/test5.out.reference"/> </exec>
+    <echo>---------------
+Failed test cases:
+---------------</echo>
+    <exec executable="cat"><arg file="test-all.result"/></exec>
+    <echo>
+You can compare 'tests/testN.out' and 'tests/testN.out.reference'
+to know more about a failed test case.
+    </echo>
+  <delete file="test-all.result"/>
+  </target>
+
+  <!-- target: lexer -->
+  <target name="lexer" depends="cls" unless="sourceCheck">
+    <delete file="./lexer"/>
+    <echo file="./lexer">#!/bin/sh
+java -classpath ${classpath.unix}:`dirname $0` Lexer $*
+    </echo>
+    <chmod perm="u+rx" file="lexer"/>
+  </target>
+
+  <target name="cls" depends="CoolLexer.java, sourceCheck" unless="isSourceUpToDate">
+    <javac srcdir="." destdir="." includes="${cfil}">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <target name="CoolLexer.java" depends="lexFileCheck" unless="isLexFileUpToDate">
+    <exec executable="jlex">
+      <arg line="cool.lex"/>
+    </exec>
+    <move file="./cool.lex.java" tofile="./CoolLexer.java"/>
+  </target>
+
+  <target name="lexFileCheck">
+    <uptodate
+      property="isLexFileUpToDate"
+      targetfile="./CoolLexer.java"
+      srcfile="./cool.lex"/>
+  </target>
+
+  <target name="sourceCheck">
+    <uptodate 
+      property="isSourceUpToDate"
+      targetfile="./lexer">
+      <srcfiles dir="." includes="${cfil}"/>
+    </uptodate>
+  </target>
+
+
+  <!-- targe: source-->
+  <target name="source">
+    <mkdir dir="./tests"/>
+    <exec executable="${classdir}/etc/link-shared">
+      <arg line="${assn} ${lsrc}"/>
+    </exec>
+    <exec executable="${classdir}/etc/copy">
+      <arg line="${assn} ${src}"/>
+    </exec>
+    <apply executable="ln">
+      <arg value="-s"/>
+      <arg value="-f"/>
+      <fileset dir="${classdir}/bin" includes="${libs}"/>
+      <fileset dir="${classdir}/src/cool/PA2J" includes="${tsrc} ${csrc}"/>
+    </apply>
+    <move file="reference-parser-phase" tofile="parser"/>
+    <move file="reference-semant-phase" tofile="semant"/>
+    <move file="reference-cgen-phase" tofile="cgen"/>
+  </target>
+
+  <!-- target: clean -->
+  <target name="clean">
+    <delete>
+      <fileset dir="." includes="*~ *.s *.class ${output}"/>
+      <fileset dir="." includes="lexer parser cgen semant"/>
+    </delete>
+  </target>
+
+
+  <!-- target: submit-clean -->
+  <target name="submit-clean" depends="test.output">
+    <delete>
+      <fileset dir="." includes="*~ *.s *.class ${cgen}"/>
+      <fileset dir="." includes="lexer parser cgen semant"/> 
+    </delete>
+  </target>
+</project>
+
