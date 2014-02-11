@@ -95,8 +95,8 @@ NEWLINE		= \n
 WHITESPACE	= " "
 BACKSPACE = \b
 TAB = \t
-FORMFEED = \f
-CARRIAGE = \c
+FORMFEED = \f 
+CARRIAGE = \r
 
 
 /* This defines a new start condition for line comments.
@@ -162,11 +162,13 @@ CARRIAGE = \c
 
 <STRING_MODE>"\""         {
                             yybegin(YYINITIAL);
+//                  System.out.println("quote matched");
                             if(string_buf.length() > MAX_STR_CONST) {
                               return new Symbol(TokenConstants.ERROR, "String constant too long");
                             }else {
                               String s = string_buf.toString();
                               string_buf = new StringBuffer();
+ //                             System.out.println("string:"+s);
                               return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(s));
                             }
                           }
@@ -181,11 +183,13 @@ CARRIAGE = \c
                             return new Symbol(TokenConstants.ERROR, "String contains null character");
                           }
 <STRING_MODE>\\[{WHITESPACE}{TAB}{BACKSPACE}{FORMFEED}{CARRIAGE}{VTAB}]*\n {
+ //                 System.out.println("whitespace matched");
                                                                             string_buf = string_buf.append('\n');
                                                                             curr_lineno++;
                                                                           }
 
-<STRING_MODE>\n { 
+<STRING_MODE>\\\n { 
+                System.out.println("new line regex matched");
                   yybegin(YYINITIAL);
                   string_buf = new StringBuffer();
                   curr_lineno++;
