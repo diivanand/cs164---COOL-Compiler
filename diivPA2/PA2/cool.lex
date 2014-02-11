@@ -188,8 +188,7 @@ CARRIAGE = \r
                                                                             curr_lineno++;
                                                                           }
 
-<STRING_MODE>\\\n { 
-                System.out.println("new line regex matched");
+<STRING_MODE>\n { 
                   yybegin(YYINITIAL);
                   string_buf = new StringBuffer();
                   curr_lineno++;
@@ -208,15 +207,14 @@ CARRIAGE = \r
                         string_buf = string_buf.append('\t'); 
                     } else if (yytext().equals("\\f")){
                         string_buf = string_buf.append('\f'); 
-                    } else if (yytext().equals("\\r")){
-                        string_buf = string_buf.append('\r'); 
-                    } else if (yytext().equals("\\\'")) {
-                        string_buf = string_buf.append('\''); 
-                    } else if (yytext().equals("\\\"")){
-                        string_buf = string_buf.append('\"'); 
+                    //} else if (yytext().equals("\\r")){
+                    //    string_buf = string_buf.append('\r'); 
+                    //} else if (yytext().equals("\\\'")) {
+                    //    string_buf = string_buf.append('\''); 
+                    //} else if (yytext().equals("\\\"")){
+                    //    string_buf = string_buf.append('\"'); 
                     } else {
-                        System.out.println("this string = "+yytext());
-                                  return new Symbol(TokenConstants.ERROR, "Unrecognized escape character"); 
+                        string_buf = string_buf.append(yytext().charAt(1));
                     }
                 }
 

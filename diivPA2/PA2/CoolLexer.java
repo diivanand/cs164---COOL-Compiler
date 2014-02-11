@@ -93,8 +93,8 @@ class CoolLexer implements java_cup.runtime.Scanner {
 	private final int yy_state_dtrans[] = {
 		0,
 		57,
-		69,
-		93
+		70,
+		94
 	};
 	private void yybegin (int state) {
 		yy_lexical_state = state;
@@ -304,8 +304,8 @@ class CoolLexer implements java_cup.runtime.Scanner {
 		/* 66 */ YY_NO_ANCHOR,
 		/* 67 */ YY_NO_ANCHOR,
 		/* 68 */ YY_NO_ANCHOR,
-		/* 69 */ YY_NOT_ACCEPT,
-		/* 70 */ YY_NO_ANCHOR,
+		/* 69 */ YY_NO_ANCHOR,
+		/* 70 */ YY_NOT_ACCEPT,
 		/* 71 */ YY_NO_ANCHOR,
 		/* 72 */ YY_NO_ANCHOR,
 		/* 73 */ YY_NO_ANCHOR,
@@ -328,16 +328,16 @@ class CoolLexer implements java_cup.runtime.Scanner {
 		/* 90 */ YY_NO_ANCHOR,
 		/* 91 */ YY_NO_ANCHOR,
 		/* 92 */ YY_NO_ANCHOR,
-		/* 93 */ YY_NOT_ACCEPT,
-		/* 94 */ YY_NO_ANCHOR,
+		/* 93 */ YY_NO_ANCHOR,
+		/* 94 */ YY_NOT_ACCEPT,
 		/* 95 */ YY_NO_ANCHOR,
 		/* 96 */ YY_NO_ANCHOR,
 		/* 97 */ YY_NO_ANCHOR,
-		/* 98 */ YY_NOT_ACCEPT,
-		/* 99 */ YY_NO_ANCHOR,
+		/* 98 */ YY_NO_ANCHOR,
+		/* 99 */ YY_NOT_ACCEPT,
 		/* 100 */ YY_NO_ANCHOR,
-		/* 101 */ YY_NOT_ACCEPT,
-		/* 102 */ YY_NO_ANCHOR,
+		/* 101 */ YY_NO_ANCHOR,
+		/* 102 */ YY_NOT_ACCEPT,
 		/* 103 */ YY_NO_ANCHOR,
 		/* 104 */ YY_NO_ANCHOR,
 		/* 105 */ YY_NO_ANCHOR,
@@ -426,7 +426,8 @@ class CoolLexer implements java_cup.runtime.Scanner {
 		/* 188 */ YY_NO_ANCHOR,
 		/* 189 */ YY_NO_ANCHOR,
 		/* 190 */ YY_NO_ANCHOR,
-		/* 191 */ YY_NO_ANCHOR
+		/* 191 */ YY_NO_ANCHOR,
+		/* 192 */ YY_NO_ANCHOR
 	};
 	private int yy_cmap[] = unpackFromString(1,130,
 "14,13:7,4,3,1,7,5,6,13:18,2,13,12,13:5,9,11,10,58,62,8,60,59,19:10,64,63,18" +
@@ -434,67 +435,67 @@ class CoolLexer implements java_cup.runtime.Scanner {
 "55,56,46,43,46,13,15,13:2,42,13,21,57,20,34,23,25,57,29,27,57:2,24,57,28,33" +
 ",35,57,30,22,37,38,32,36,57:3,67,13,66,61,13,0:2")[0];
 
-	private int yy_rmap[] = unpackFromString(1,192,
+	private int yy_rmap[] = unpackFromString(1,193,
 "0,1:2,2,3,4,5,6,7,8,9,10,1:3,11,12,13,14,15,1:16,16:2,17,16:9,18,16:7,18,19" +
-",1:7,20,1:2,21,22,23,24,18:2,25,18:8,16,18:5,26,27,20,1,28,29,30,31,32,20,3" +
+",1:8,20,1:2,21,22,23,24,18:2,25,18:8,16,18:5,26,27,20,1,28,29,30,31,32,20,3" +
 "3,34,21,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,5" +
 "7,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,8" +
 "2,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,10" +
 "5,106,107,108,109,110,111,112,16,113,114,115,116,18,117,118,119,120,121,122")[0];
 
 	private int yy_nxt[][] = unpackFromString(123,68,
-"1,2,3,4,5,6,7,8,9,10,11,12,13,14:3,15,14,16,17,18,180,182,184,132,70,19,94," +
-"134,180:2,71,180,99,180,186,188,190,180,181,183,133,14,185,187,185:2,189,18" +
-"5:2,95,135,100,185:3,191,180,20,21,22,23,24,25,26,27,28,29,-1:70,3,-1:68,4," +
-"-1:68,5,-1:68,6,-1:68,7,-1:68,8,-1:68,30,-1:69,31,-1:68,32,-1:73,33,-1:58,3" +
-"4,-1:7,35,-1:70,17,-1:67,180:2,136,180:2,138,180:16,138,180:3,136,180:12,-1" +
-":29,185:8,72,185:22,72,185:7,-1:29,180:39,-1:29,180:10,166,180:19,166,180:8" +
-",-1:29,185:39,-1:10,1,58,89:66,-1,65,98:10,66,98:55,-1,67,101:6,-1:60,1,59," +
-"60:4,-1,60:2,90,96,60:57,-1:19,180:2,148,180:5,36,180:17,148,180:4,36,180:7" +
-",-1:29,185:10,137,185:19,137,185:8,-1:29,185:10,163,185:19,163,185:8,-1:12," +
-"89:66,-1:10,61,-1:57,1,-1,63:4,-1,63:5,64,63,91,97,63:52,-1:19,180:3,150,18" +
-"0:2,37:2,180,38,180:10,150,180:11,38,180:6,-1:29,185:3,153,185:2,73:2,185,7" +
-"4,185:10,153,185:11,74,185:6,-1:21,62,-1:57,67,68:4,101,68,92:60,-1:19,180:" +
-"6,39:2,180:31,-1:29,185:6,75:2,185:31,-1:29,180:12,40,180:5,40,180:20,-1:29" +
-",185:12,76,185:5,76,185:20,-1:29,180:17,41,180:19,41,180,-1:29,185:17,77,18" +
-"5:19,77,185,-1:29,180:12,42,180:5,42,180:20,-1:29,185:12,78,185:5,78,185:20" +
-",-1:29,180:4,43,180:16,43,180:17,-1:29,185:9,48,185:22,48,185:6,-1:29,180:6" +
-",44,180:32,-1:29,185,80,185:26,80,185:10,-1:29,180,45,180:26,45,180:10,-1:2" +
-"9,185:4,81,185:16,81,185:17,-1:29,180:4,46,180:16,46,180:17,-1:29,185:16,82" +
-",185:8,82,185:13,-1:29,180:16,47,180:8,47,180:13,-1:29,185:5,84,185:16,84,1" +
-"85:16,-1:29,180:5,49,180:16,49,180:16,-1:29,185:4,79,185:16,79,185:17,-1:29" +
-",180:9,83,180:22,83,180:6,-1:29,185:3,85,185:16,85,185:18,-1:29,180:4,50,18" +
-"0:16,50,180:17,-1:29,185:4,86,185:16,86,185:17,-1:29,180:3,51,180:16,51,180" +
-":18,-1:29,185:15,87,185:13,87,185:9,-1:29,180:4,52,180:16,52,180:17,-1:29,1" +
-"85:3,88,185:16,88,185:18,-1:29,180:4,53,180:16,53,180:17,-1:29,185:21,56,18" +
-"5:17,-1:29,180:15,54,180:13,54,180:9,-1:29,180:3,55,180:16,55,180:18,-1:29," +
-"180:4,102,180:9,146,180:6,102,180:11,146,180:5,-1:29,185:4,103,185:9,145,18" +
-"5:6,103,185:11,145,185:5,-1:29,180:4,104,180:9,106,180:6,104,180:11,106,180" +
-":5,-1:29,185:4,105,185:9,107,185:6,105,185:11,107,185:5,-1:29,180:3,108,180" +
-":16,108,180:18,-1:29,185:4,109,185:16,109,185:17,-1:29,180:2,160,180:23,160" +
-",180:12,-1:29,185:22,157,185:16,-1:29,180:5,110,180:33,-1:29,185:2,111,185:" +
-"23,111,185:12,-1:29,180:2,112,180:23,112,180:12,-1:29,185:3,113,185:16,113," +
-"185:18,-1:29,180:3,114,180:16,114,180:18,-1:29,185:14,115,185:18,115,185:5," +
-"-1:29,180:14,116,180:18,116,180:5,-1:29,185:14,117,185:18,117,185:5,-1:29,1" +
-"80:5,162,180:16,162,180:16,-1:29,185:3,119,185:16,119,185:18,-1:29,180:13,1" +
-"64,180:22,164,180:2,-1:29,185:2,159,185:23,159,185:12,-1:29,180:14,118,180:" +
-"18,118,180:5,-1:29,185:13,161,185:22,161,185:2,-1:29,180:8,168,180:22,168,1" +
-"80:7,-1:29,185:8,165,185:22,165,185:7,-1:29,180:4,120,180:16,120,180:17,-1:" +
-"29,185:7,167,185:31,-1:29,180:19,122,180:15,122,180:3,-1:29,185:3,121,185:1" +
-"6,121,185:18,-1:29,180:3,124,180:16,124,180:18,-1:29,185:14,169,185:18,169," +
-"185:5,-1:29,180:3,126,180:16,126,180:18,-1:29,185:4,171,185:16,171,185:17,-" +
-"1:29,180:14,170,180:18,170,180:5,-1:29,185:5,123,185:16,123,185:16,-1:29,18" +
-"0:4,172,180:16,172,180:17,-1:29,185:23,173,185:15,-1:29,180:5,128,180:16,12" +
-"8,180:16,-1:29,185:8,125,185:22,125,185:7,-1:29,180:8,130,180:22,130,180:7," +
-"-1:29,185:11,175,185:22,175,185:4,-1:29,180:11,174,180:22,174,180:4,-1:29,1" +
-"85:12,177,185:26,-1:29,180:8,176,180:22,176,180:7,-1:29,185:8,178,185:22,17" +
-"8,185:7,-1:29,180:12,131,180:5,131,180:20,-1:29,185:24,179,185:14,-1:29,185" +
-":12,127,185:5,127,185:20,-1:29,185:25,129,185:13,-1:29,185:21,139,185:17,-1" +
-":29,180:4,140,180:34,-1:29,185:3,141,185,143,185:14,141,185,143,185:16,-1:2" +
-"9,180:3,142,180,144,180:14,142,180,144,180:16,-1:29,180:14,152,180:18,152,1" +
-"80:5,-1:29,185:14,147,185:18,147,185:5,-1:29,180:10,154,180:19,154,180:8,-1" +
-":29,185:2,149,185:2,151,185:16,151,185:3,149,185:12,-1:29,180:10,156,158,18" +
-"0:18,156,180:3,158,180:4,-1:29,185:10,155,185:19,155,185:8,-1:10");
+"1,2,3,4,5,6,7,8,9,10,11,12,13,14:3,15,14,16,17,18,181,183,185,133,71,19,95," +
+"135,181:2,72,181,100,181,187,189,191,181,182,184,134,14,186,188,186:2,190,1" +
+"86:2,96,136,101,186:3,192,181,20,21,22,23,24,25,26,27,28,29,-1:70,3,-1:68,4" +
+",-1:68,5,-1:68,6,-1:68,7,-1:68,8,-1:68,30,-1:69,31,-1:68,32,-1:73,33,-1:58," +
+"34,-1:7,35,-1:70,17,-1:67,181:2,137,181:2,139,181:16,139,181:3,137,181:12,-" +
+"1:29,186:8,73,186:22,73,186:7,-1:29,181:39,-1:29,181:10,167,181:19,167,181:" +
+"8,-1:29,186:39,-1:10,1,58,90:66,-1,66,99:10,67,99:55,-1,68,102:6,-1:60,1,59" +
+",60:4,-1,60:2,91,97,60:57,-1:19,181:2,149,181:5,36,181:17,149,181:4,36,181:" +
+"7,-1:29,186:10,138,186:19,138,186:8,-1:29,186:10,164,186:19,164,186:8,-1:12" +
+",90:66,-1:10,61,-1:57,1,63,64:4,-1,64:5,65,64,92,98,64:52,-1:19,181:3,151,1" +
+"81:2,37:2,181,38,181:10,151,181:11,38,181:6,-1:29,186:3,154,186:2,74:2,186," +
+"75,186:10,154,186:11,75,186:6,-1:21,62,-1:57,68,69:4,102,69,93:60,-1:19,181" +
+":6,39:2,181:31,-1:29,186:6,76:2,186:31,-1:29,181:12,40,181:5,40,181:20,-1:2" +
+"9,186:12,77,186:5,77,186:20,-1:29,181:17,41,181:19,41,181,-1:29,186:17,78,1" +
+"86:19,78,186,-1:29,181:12,42,181:5,42,181:20,-1:29,186:12,79,186:5,79,186:2" +
+"0,-1:29,181:4,43,181:16,43,181:17,-1:29,186:9,48,186:22,48,186:6,-1:29,181:" +
+"6,44,181:32,-1:29,186,81,186:26,81,186:10,-1:29,181,45,181:26,45,181:10,-1:" +
+"29,186:4,82,186:16,82,186:17,-1:29,181:4,46,181:16,46,181:17,-1:29,186:16,8" +
+"3,186:8,83,186:13,-1:29,181:16,47,181:8,47,181:13,-1:29,186:5,85,186:16,85," +
+"186:16,-1:29,181:5,49,181:16,49,181:16,-1:29,186:4,80,186:16,80,186:17,-1:2" +
+"9,181:9,84,181:22,84,181:6,-1:29,186:3,86,186:16,86,186:18,-1:29,181:4,50,1" +
+"81:16,50,181:17,-1:29,186:4,87,186:16,87,186:17,-1:29,181:3,51,181:16,51,18" +
+"1:18,-1:29,186:15,88,186:13,88,186:9,-1:29,181:4,52,181:16,52,181:17,-1:29," +
+"186:3,89,186:16,89,186:18,-1:29,181:4,53,181:16,53,181:17,-1:29,186:21,56,1" +
+"86:17,-1:29,181:15,54,181:13,54,181:9,-1:29,181:3,55,181:16,55,181:18,-1:29" +
+",181:4,103,181:9,147,181:6,103,181:11,147,181:5,-1:29,186:4,104,186:9,146,1" +
+"86:6,104,186:11,146,186:5,-1:29,181:4,105,181:9,107,181:6,105,181:11,107,18" +
+"1:5,-1:29,186:4,106,186:9,108,186:6,106,186:11,108,186:5,-1:29,181:3,109,18" +
+"1:16,109,181:18,-1:29,186:4,110,186:16,110,186:17,-1:29,181:2,161,181:23,16" +
+"1,181:12,-1:29,186:22,158,186:16,-1:29,181:5,111,181:33,-1:29,186:2,112,186" +
+":23,112,186:12,-1:29,181:2,113,181:23,113,181:12,-1:29,186:3,114,186:16,114" +
+",186:18,-1:29,181:3,115,181:16,115,181:18,-1:29,186:14,116,186:18,116,186:5" +
+",-1:29,181:14,117,181:18,117,181:5,-1:29,186:14,118,186:18,118,186:5,-1:29," +
+"181:5,163,181:16,163,181:16,-1:29,186:3,120,186:16,120,186:18,-1:29,181:13," +
+"165,181:22,165,181:2,-1:29,186:2,160,186:23,160,186:12,-1:29,181:14,119,181" +
+":18,119,181:5,-1:29,186:13,162,186:22,162,186:2,-1:29,181:8,169,181:22,169," +
+"181:7,-1:29,186:8,166,186:22,166,186:7,-1:29,181:4,121,181:16,121,181:17,-1" +
+":29,186:7,168,186:31,-1:29,181:19,123,181:15,123,181:3,-1:29,186:3,122,186:" +
+"16,122,186:18,-1:29,181:3,125,181:16,125,181:18,-1:29,186:14,170,186:18,170" +
+",186:5,-1:29,181:3,127,181:16,127,181:18,-1:29,186:4,172,186:16,172,186:17," +
+"-1:29,181:14,171,181:18,171,181:5,-1:29,186:5,124,186:16,124,186:16,-1:29,1" +
+"81:4,173,181:16,173,181:17,-1:29,186:23,174,186:15,-1:29,181:5,129,181:16,1" +
+"29,181:16,-1:29,186:8,126,186:22,126,186:7,-1:29,181:8,131,181:22,131,181:7" +
+",-1:29,186:11,176,186:22,176,186:4,-1:29,181:11,175,181:22,175,181:4,-1:29," +
+"186:12,178,186:26,-1:29,181:8,177,181:22,177,181:7,-1:29,186:8,179,186:22,1" +
+"79,186:7,-1:29,181:12,132,181:5,132,181:20,-1:29,186:24,180,186:14,-1:29,18" +
+"6:12,128,186:5,128,186:20,-1:29,186:25,130,186:13,-1:29,186:21,140,186:17,-" +
+"1:29,181:4,141,181:34,-1:29,186:3,142,186,144,186:14,142,186,144,186:16,-1:" +
+"29,181:3,143,181,145,181:14,143,181,145,181:16,-1:29,181:14,153,181:18,153," +
+"181:5,-1:29,186:14,148,186:18,148,186:5,-1:29,181:10,155,181:19,155,181:8,-" +
+"1:29,186:2,150,186:2,152,186:16,152,186:3,150,186:12,-1:29,181:10,157,159,1" +
+"81:18,157,181:3,159,181:4,-1:29,186:10,156,186:19,156,186:8,-1:10");
 
 	public java_cup.runtime.Symbol next_token ()
 		throws java.io.IOException {
@@ -823,11 +824,20 @@ class CoolLexer implements java_cup.runtime.Scanner {
 						break;
 					case 63:
 						{ 
-                  string_buf = string_buf.append(yytext().charAt(0));
+                  yybegin(YYINITIAL);
+                  string_buf = new StringBuffer();
+                  curr_lineno++;
+                  return new Symbol(TokenConstants.ERROR, "Unterminated string constant"); 
                 }
 					case -64:
 						break;
 					case 64:
+						{ 
+                  string_buf = string_buf.append(yytext().charAt(0));
+                }
+					case -65:
+						break;
+					case 65:
 						{
                             yybegin(YYINITIAL);
 //                  System.out.println("quote matched");
@@ -840,14 +850,6 @@ class CoolLexer implements java_cup.runtime.Scanner {
                               return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(s));
                             }
                           }
-					case -65:
-						break;
-					case 65:
-						{ //eat up all characters after null and stop at ending quote (eat it too)
-                            yybegin(YYINITIAL);
-                            string_buf = new StringBuffer();
-                            return new Symbol(TokenConstants.ERROR, "String contains null character");
-                          }
 					case -66:
 						break;
 					case 66:
@@ -859,305 +861,291 @@ class CoolLexer implements java_cup.runtime.Scanner {
 					case -67:
 						break;
 					case 67:
+						{ //eat up all characters after null and stop at ending quote (eat it too)
+                            yybegin(YYINITIAL);
+                            string_buf = new StringBuffer();
+                            return new Symbol(TokenConstants.ERROR, "String contains null character");
+                          }
+					case -68:
+						break;
+					case 68:
 						{
  //                 System.out.println("whitespace matched");
                                                                             string_buf = string_buf.append('\n');
                                                                             curr_lineno++;
                                                                           }
-					case -68:
-						break;
-					case 68:
-						{ 
-                // System.out.println("escape reached");
-    if (yytext().equals("\\n")) {
-                //System.out.println("new line part");
-        string_buf = string_buf.append('\n'); 
-    } else if (yytext().equals("\\b")){
-                // System.out.println("b part");
-        string_buf = string_buf.append('\b'); 
-    } else if (yytext().equals("\\t")){
-                // System.out.println("t part");
-        string_buf = string_buf.append('\t'); 
-    } else if (yytext().equals("\\f")){
-                //System.out.println("f part");
-        string_buf = string_buf.append('\f'); 
-    } else if (yytext().equals("\\r")){
-                 //System.out.println("r part");
-        string_buf = string_buf.append('\r'); 
-    } else if (yytext().equals("\\\'")) {
-                 //System.out.println("single quote part");
-        string_buf = string_buf.append('\''); 
-    } else if (yytext().equals("\\\"")){
-                 //System.out.println("double quote part");
-        string_buf = string_buf.append('\"'); 
-    } else {
-        System.out.println("this string = "+yytext());
-                  return new Symbol(TokenConstants.ERROR, "Unrecognized escape character"); 
-    }
-                }
 					case -69:
 						break;
-					case 70:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+					case 69:
+						{ 
+                    if (yytext().equals("\\n")) {
+                        string_buf = string_buf.append('\n'); 
+                    } else if (yytext().equals("\\b")){
+                        string_buf = string_buf.append('\b'); 
+                    } else if (yytext().equals("\\t")){
+                        string_buf = string_buf.append('\t'); 
+                    } else if (yytext().equals("\\f")){
+                        string_buf = string_buf.append('\f'); 
+                    //} else if (yytext().equals("\\r")){
+                    //    string_buf = string_buf.append('\r'); 
+                    //} else if (yytext().equals("\\\'")) {
+                    //    string_buf = string_buf.append('\''); 
+                    //} else if (yytext().equals("\\\"")){
+                    //    string_buf = string_buf.append('\"'); 
+                    } else {
+                        string_buf = string_buf.append(yytext().charAt(1));
+                    }
+                }
 					case -70:
 						break;
 					case 71:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -71:
 						break;
 					case 72:
-						{ return new Symbol(TokenConstants.FI); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -72:
 						break;
 					case 73:
-						{ return new Symbol(TokenConstants.IF); }
+						{ return new Symbol(TokenConstants.FI); }
 					case -73:
 						break;
 					case 74:
-						{ return new Symbol(TokenConstants.IN); }
+						{ return new Symbol(TokenConstants.IF); }
 					case -74:
 						break;
 					case 75:
-						{ return new Symbol(TokenConstants.OF); }
+						{ return new Symbol(TokenConstants.IN); }
 					case -75:
 						break;
 					case 76:
-						{ return new Symbol(TokenConstants.LET); }
+						{ return new Symbol(TokenConstants.OF); }
 					case -76:
 						break;
 					case 77:
-						{ return new Symbol(TokenConstants.NEW); }
+						{ return new Symbol(TokenConstants.LET); }
 					case -77:
 						break;
 					case 78:
-						{ return new Symbol(TokenConstants.NOT); }
+						{ return new Symbol(TokenConstants.NEW); }
 					case -78:
 						break;
 					case 79:
-						{ return new Symbol(TokenConstants.CASE); }
+						{ return new Symbol(TokenConstants.NOT); }
 					case -79:
 						break;
 					case 80:
-						{ return new Symbol(TokenConstants.ESAC); }
+						{ return new Symbol(TokenConstants.CASE); }
 					case -80:
 						break;
 					case 81:
-						{ return new Symbol(TokenConstants.ELSE); }
+						{ return new Symbol(TokenConstants.ESAC); }
 					case -81:
 						break;
 					case 82:
-						{ return new Symbol(TokenConstants.LOOP); }
+						{ return new Symbol(TokenConstants.ELSE); }
 					case -82:
 						break;
 					case 83:
-						{ return new Symbol(TokenConstants.THEN); }
+						{ return new Symbol(TokenConstants.LOOP); }
 					case -83:
 						break;
 					case 84:
-						{ return new Symbol(TokenConstants.POOL); }
+						{ return new Symbol(TokenConstants.THEN); }
 					case -84:
 						break;
 					case 85:
-						{ return new Symbol(TokenConstants.CLASS); }
+						{ return new Symbol(TokenConstants.POOL); }
 					case -85:
 						break;
 					case 86:
-						{ return new Symbol(TokenConstants.WHILE); }
+						{ return new Symbol(TokenConstants.CLASS); }
 					case -86:
 						break;
 					case 87:
-						{ return new Symbol(TokenConstants.ISVOID); }
+						{ return new Symbol(TokenConstants.WHILE); }
 					case -87:
 						break;
 					case 88:
-						{ return new Symbol(TokenConstants.INHERITS); }
+						{ return new Symbol(TokenConstants.ISVOID); }
 					case -88:
 						break;
 					case 89:
-						{ /* do nothing eat it up anything that's not a newline */ }
+						{ return new Symbol(TokenConstants.INHERITS); }
 					case -89:
 						break;
 					case 90:
-						{ /* do nothing eat it up not doing .* because maximal munch will mess things up so one at a time instead */ }
+						{ /* do nothing eat it up anything that's not a newline */ }
 					case -90:
 						break;
 					case 91:
-						{ 
-                  string_buf = string_buf.append(yytext().charAt(0));
-                }
+						{ /* do nothing eat it up not doing .* because maximal munch will mess things up so one at a time instead */ }
 					case -91:
 						break;
 					case 92:
 						{ 
-                // System.out.println("escape reached");
-    if (yytext().equals("\\n")) {
-                //System.out.println("new line part");
-        string_buf = string_buf.append('\n'); 
-    } else if (yytext().equals("\\b")){
-                // System.out.println("b part");
-        string_buf = string_buf.append('\b'); 
-    } else if (yytext().equals("\\t")){
-                // System.out.println("t part");
-        string_buf = string_buf.append('\t'); 
-    } else if (yytext().equals("\\f")){
-                //System.out.println("f part");
-        string_buf = string_buf.append('\f'); 
-    } else if (yytext().equals("\\r")){
-                 //System.out.println("r part");
-        string_buf = string_buf.append('\r'); 
-    } else if (yytext().equals("\\\'")) {
-                 //System.out.println("single quote part");
-        string_buf = string_buf.append('\''); 
-    } else if (yytext().equals("\\\"")){
-                 //System.out.println("double quote part");
-        string_buf = string_buf.append('\"'); 
-    } else {
-        System.out.println("this string = "+yytext());
-                  return new Symbol(TokenConstants.ERROR, "Unrecognized escape character"); 
-    }
+                  string_buf = string_buf.append(yytext().charAt(0));
                 }
 					case -92:
 						break;
-					case 94:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+					case 93:
+						{ 
+                    if (yytext().equals("\\n")) {
+                        string_buf = string_buf.append('\n'); 
+                    } else if (yytext().equals("\\b")){
+                        string_buf = string_buf.append('\b'); 
+                    } else if (yytext().equals("\\t")){
+                        string_buf = string_buf.append('\t'); 
+                    } else if (yytext().equals("\\f")){
+                        string_buf = string_buf.append('\f'); 
+                    //} else if (yytext().equals("\\r")){
+                    //    string_buf = string_buf.append('\r'); 
+                    //} else if (yytext().equals("\\\'")) {
+                    //    string_buf = string_buf.append('\''); 
+                    //} else if (yytext().equals("\\\"")){
+                    //    string_buf = string_buf.append('\"'); 
+                    } else {
+                        string_buf = string_buf.append(yytext().charAt(1));
+                    }
+                }
 					case -93:
 						break;
 					case 95:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -94:
 						break;
 					case 96:
-						{ /* do nothing eat it up not doing .* because maximal munch will mess things up so one at a time instead */ }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -95:
 						break;
 					case 97:
+						{ /* do nothing eat it up not doing .* because maximal munch will mess things up so one at a time instead */ }
+					case -96:
+						break;
+					case 98:
 						{ 
                   string_buf = string_buf.append(yytext().charAt(0));
                 }
-					case -96:
-						break;
-					case 99:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -97:
 						break;
 					case 100:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -98:
 						break;
-					case 102:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+					case 101:
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -99:
 						break;
 					case 103:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -100:
 						break;
 					case 104:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -101:
 						break;
 					case 105:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -102:
 						break;
 					case 106:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -103:
 						break;
 					case 107:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -104:
 						break;
 					case 108:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -105:
 						break;
 					case 109:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -106:
 						break;
 					case 110:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -107:
 						break;
 					case 111:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -108:
 						break;
 					case 112:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -109:
 						break;
 					case 113:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -110:
 						break;
 					case 114:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -111:
 						break;
 					case 115:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -112:
 						break;
 					case 116:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -113:
 						break;
 					case 117:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -114:
 						break;
 					case 118:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -115:
 						break;
 					case 119:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -116:
 						break;
 					case 120:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -117:
 						break;
 					case 121:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -118:
 						break;
 					case 122:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -119:
 						break;
 					case 123:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -120:
 						break;
 					case 124:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -121:
 						break;
 					case 125:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -122:
 						break;
 					case 126:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -123:
 						break;
 					case 127:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -124:
 						break;
 					case 128:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -125:
 						break;
 					case 129:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -126:
 						break;
 					case 130:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -127:
 						break;
 					case 131:
@@ -1169,183 +1157,183 @@ class CoolLexer implements java_cup.runtime.Scanner {
 					case -129:
 						break;
 					case 133:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -130:
 						break;
 					case 134:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -131:
 						break;
 					case 135:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -132:
 						break;
 					case 136:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -133:
 						break;
 					case 137:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -134:
 						break;
 					case 138:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -135:
 						break;
 					case 139:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -136:
 						break;
 					case 140:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -137:
 						break;
 					case 141:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -138:
 						break;
 					case 142:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -139:
 						break;
 					case 143:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -140:
 						break;
 					case 144:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -141:
 						break;
 					case 145:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -142:
 						break;
 					case 146:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -143:
 						break;
 					case 147:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -144:
 						break;
 					case 148:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -145:
 						break;
 					case 149:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -146:
 						break;
 					case 150:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -147:
 						break;
 					case 151:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -148:
 						break;
 					case 152:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -149:
 						break;
 					case 153:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -150:
 						break;
 					case 154:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -151:
 						break;
 					case 155:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -152:
 						break;
 					case 156:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -153:
 						break;
 					case 157:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -154:
 						break;
 					case 158:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -155:
 						break;
 					case 159:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -156:
 						break;
 					case 160:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -157:
 						break;
 					case 161:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -158:
 						break;
 					case 162:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -159:
 						break;
 					case 163:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -160:
 						break;
 					case 164:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -161:
 						break;
 					case 165:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -162:
 						break;
 					case 166:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -163:
 						break;
 					case 167:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -164:
 						break;
 					case 168:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -165:
 						break;
 					case 169:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -166:
 						break;
 					case 170:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -167:
 						break;
 					case 171:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -168:
 						break;
 					case 172:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -169:
 						break;
 					case 173:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -170:
 						break;
 					case 174:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -171:
 						break;
 					case 175:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -172:
 						break;
 					case 176:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -173:
 						break;
 					case 177:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -174:
 						break;
 					case 178:
@@ -1357,52 +1345,56 @@ class CoolLexer implements java_cup.runtime.Scanner {
 					case -176:
 						break;
 					case 180:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -177:
 						break;
 					case 181:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -178:
 						break;
 					case 182:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -179:
 						break;
 					case 183:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -180:
 						break;
 					case 184:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -181:
 						break;
 					case 185:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -182:
 						break;
 					case 186:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -183:
 						break;
 					case 187:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -184:
 						break;
 					case 188:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -185:
 						break;
 					case 189:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -186:
 						break;
 					case 190:
-						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
 					case -187:
 						break;
 					case 191:
-						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+						{ /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 					case -188:
+						break;
+					case 192:
+						{ /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+					case -189:
 						break;
 					default:
 						yy_error(YY_E_INTERNAL,false);

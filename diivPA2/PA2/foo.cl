@@ -15,3 +15,8 @@ class {
 "This is a one line string constant"
 "This is an two line \
 String constant"
+
+"This is an two-line
+Which should be error"
+
+"\h\e\l\l\o"
