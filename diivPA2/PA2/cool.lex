@@ -136,6 +136,7 @@ CARRIAGE = \c
 
 <YYINITIAL>"--"         { yybegin(LINE_COMMENT); }
 <YYINITIAL>"(*"         { paren_len++; yybegin(BLOCK_COMMENT);}
+<YYINITIAL>"*)"         { return new Symbol(TokenConstants.ERROR, "Unmatched *)");}
 <YYINITIAL>"\""         { yybegin(STRING_MODE);}
 
 <LINE_COMMENT>[^\n]*        { /* do nothing eat it up anything that's not a newline */ }
@@ -154,7 +155,7 @@ CARRIAGE = \c
                                 /*do nothing eat up character still inside nesting*/
                             }
                         }
-<BLOCK_COMMENT>\n       { curr_lineno++; }
+<BLOCK_COMMENT>\n      { curr_lineno++; }
 <BLOCK_COMMENT>.       { /* do nothing eat it up not doing .* because maximal munch will mess things up so one at a time instead */ }
 
 
@@ -178,10 +179,10 @@ CARRIAGE = \c
                             string_buf = new StringBuffer();
                             return new Symbol(TokenConstants.ERROR, "String contains null character");
                           }
-<STRING_MODE>\\\n {
-                  string_buf = string_buf.append('\n');
-                  curr_lineno++;
-                }
+<STRING_MODE>\\[{WHITESPACE}{TAB}{BACKSPACE}{FORMFEED}{CARRIAGE}{VTAB}]*\n {
+                                                                            string_buf = string_buf.append('\n');
+                                                                            curr_lineno++;
+                                                                          }
 
 <STRING_MODE>\n { 
                   yybegin(YYINITIAL);
