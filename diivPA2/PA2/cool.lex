@@ -188,17 +188,44 @@ CARRIAGE = \r
                                                                             curr_lineno++;
                                                                           }
 
-<STRING_MODE>\\\n { 
-                System.out.println("new line regex matched");
-                  yybegin(YYINITIAL);
-                  string_buf = new StringBuffer();
-                  curr_lineno++;
-                  return new Symbol(TokenConstants.ERROR, "Unterminated string constant"); 
-                }
+//<STRING_MODE>\\\n { 
+//                System.out.println("new line regex matched");
+//                  yybegin(YYINITIAL);
+//                  string_buf = new StringBuffer();
+//                  curr_lineno++;
+//                  return new Symbol(TokenConstants.ERROR, "Unterminated string constant"); 
+//                }
 <STRING_MODE>.  { 
                   string_buf = string_buf.append(yytext().charAt(0));
                 }
 
+NEWLINE		= \n
+WHITESPACE	= " "
+BACKSPACE = \b
+TAB = \t
+FORMFEED = \f 
+CARRIAGE = \r
+<STRING_MODE>\\.  { 
+//                System.out.println("escape reached");
+//    if (yytext().equals("\\n")) {
+//                System.out.println("new line part");
+//        string_buf = string_buf.append('\n'); 
+//    } else if (yytext().equals("\\b")){
+//                System.out.println("b part");
+//        string_buf = string_buf.append('\b'); 
+//    } else if (yytext().equals("\\t")){
+//                System.out.println("t part");
+//        string_buf = string_buf.append('\t'); 
+//    } else if (yytext().equals("\\f")){
+//                System.out.println("f part");
+//        string_buf = string_buf.append('\f'); 
+//    } else if (yytext().equals("\\r")){
+//                System.out.println("r part");
+//        string_buf = string_buf.append('\r'); 
+//    } else {
+//                  return new Symbol(TokenConstants.ERROR, "Unrecognized escape character"); 
+//    }
+                }
 
 
 
