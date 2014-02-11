@@ -5,6 +5,7 @@
  * The scanner definition for Cool.
  *
  * Author: Diivanand Ramalingam
+ * Co-Author: Min Yoon Jung
  */
 
 import java_cup.runtime.Symbol;
