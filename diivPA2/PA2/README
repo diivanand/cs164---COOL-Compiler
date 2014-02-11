@@ -121,4 +121,50 @@ Instructions
 
 Write-up for PA2J
 -----------------
+DESIGN DECISIONS
 
+We created 4 states for our lexer, the lexer starts off in default mode known as YYINITIAL and moves on to state STRING_MODE
+when a double quote is first encountered, it moves on to state LINE_COMMENT when a -- is encountered, and goes into state
+BLOCK_COMMENT when a (* is encountered, and switches states depending on the lexical specification (E.g. like a '*)' for ending the block comment or an EOF in a string, etc.).
+
+This design design for multiple states allowed us to easily think about and design regular expressions that capture how the remaining characters should be read and lexed. For example Strings have a lot of potential error cases and by having a String mode we can handle these cases with regexs that we know won't affect the program when it's in a non-STRING_MODE state, which simplifies the design of our lex file code. It also allowed us to handle EOFs differently depending on what state we were in (using a switch statement) which was another benefit of this multiple state approach.
+
+WHY CODE IS CORRECT
+A code is only correct if it is true that the tests are complete (all test cases accounted for as specified by the COOL-AID manual and project specs) and if the code passes all these tests.
+Therefore my explanation for why the code is correct is that it passes our tests, and we will talk about why our tests are complete in the next section. 
+
+We also used mycoolc on a random subset of cool files in the examples folder as a sanity check and it managed to compile them in the same way the coolc compiler compiled them so that's also reassuring that our code is most likely correct.
+
+WHY TESTS ARE COMPLETE
+We argue our tests are complete because we test all the different issues/conditions mentioned in the COOL-AID manual for lexical structure in our file test.cl (THERE ARE LINE COMMENTS GIVING TITLES FOR EACH SECTION OF TESTS IN TEST.CL FOR VISUAL CONVENIENCE):
+
+Integers, Keywords, and Identifyers:
+Integers: TESTED
+type identifyers: TESTED
+object identifyers: TESTED
+self: TESTED
+SELF_TYPE: TESTED
+keywords: TESTED
+
+Strings:
+Within a string, a sequence ‘\c’ denotes the character ‘c’,
+with the exception of the following: \b \t \n \f : TESTED
+A non-escaped newline character may not appear in a string ok case: TESTED
+A non-escaped newline character may not appear in a string not ok case: TESTED
+A string may not contain EOF:TESTED 
+A string may not contain the null (character \0): TESTED 
+Any other character may be included in a string: PRETTY MUCH TESTED
+
+Comments:
+Line Comments:
+Any characters between two dashes “--” and the next newline as comments: TESTED
+Any characters between two dashes “--” and the EOF as comments: TESTED
+Block Comments:
+Comments may also be written by enclosing text in (∗ . . . ∗):TESTED 
+The latter form of comment may be nested: TESTED
+
+Whitespace:
+White space consists of any sequence of the characters: blank (ascii 32), \n (newline, ascii 10), \f (form
+feed, ascii 12), \r (carriage return, ascii 13), \t (tab, ascii 9), \v (vertical tab, ascii 11): TESTED
+
+Also our lexer passed all the tests in the tests folder as well, so we're pretty sure our program is correct.
