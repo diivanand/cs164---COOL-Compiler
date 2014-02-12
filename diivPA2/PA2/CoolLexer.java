@@ -840,13 +840,11 @@ class CoolLexer implements java_cup.runtime.Scanner {
 					case 65:
 						{
                             yybegin(YYINITIAL);
-//                  System.out.println("quote matched");
                             if(string_buf.length() > MAX_STR_CONST) {
                               return new Symbol(TokenConstants.ERROR, "String constant too long");
                             }else {
                               String s = string_buf.toString();
                               string_buf = new StringBuffer();
- //                             System.out.println("string:"+s);
                               return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(s));
                             }
                           }
@@ -870,7 +868,6 @@ class CoolLexer implements java_cup.runtime.Scanner {
 						break;
 					case 68:
 						{
- //                 System.out.println("whitespace matched");
                                                                             string_buf = string_buf.append('\n');
                                                                             curr_lineno++;
                                                                           }
@@ -886,12 +883,10 @@ class CoolLexer implements java_cup.runtime.Scanner {
                         string_buf = string_buf.append('\t'); 
                     } else if (yytext().equals("\\f")){
                         string_buf = string_buf.append('\f'); 
-                    //} else if (yytext().equals("\\r")){
-                    //    string_buf = string_buf.append('\r'); 
-                    //} else if (yytext().equals("\\\'")) {
-                    //    string_buf = string_buf.append('\''); 
-                    //} else if (yytext().equals("\\\"")){
-                    //    string_buf = string_buf.append('\"'); 
+                    } else if (yytext().equals("\\\000")){
+                        yybegin(YYINITIAL);
+                        string_buf = new StringBuffer();
+                        return new Symbol(TokenConstants.ERROR, "String contains null character");
                     } else {
                         string_buf = string_buf.append(yytext().charAt(1));
                     }
@@ -998,12 +993,10 @@ class CoolLexer implements java_cup.runtime.Scanner {
                         string_buf = string_buf.append('\t'); 
                     } else if (yytext().equals("\\f")){
                         string_buf = string_buf.append('\f'); 
-                    //} else if (yytext().equals("\\r")){
-                    //    string_buf = string_buf.append('\r'); 
-                    //} else if (yytext().equals("\\\'")) {
-                    //    string_buf = string_buf.append('\''); 
-                    //} else if (yytext().equals("\\\"")){
-                    //    string_buf = string_buf.append('\"'); 
+                    } else if (yytext().equals("\\\000")){
+                        yybegin(YYINITIAL);
+                        string_buf = new StringBuffer();
+                        return new Symbol(TokenConstants.ERROR, "String contains null character");
                     } else {
                         string_buf = string_buf.append(yytext().charAt(1));
                     }
