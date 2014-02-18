@@ -1,0 +1,73 @@
+-- A (typed) tree language for Cool abstract syntax trees
+
+module COOL[] begin
+  type AbstractSymbol;
+  type Boolean;
+
+  phylum Program;
+
+  phylum Class_;
+  phylum Classes = LIST[Class_];
+
+  phylum Feature;
+  phylum Features = LIST[Feature];
+
+  phylum Formal;
+  phylum Formals = LIST[Formal];
+
+  phylum Expression;
+  phylum Expressions = LIST[Expression];
+
+  phylum Case;
+  phylum Cases = LIST[Case];
+
+  constructor programc(classes : Classes) : Program;
+  constructor class_c(name : AbstractSymbol; parent: AbstractSymbol; 
+	             features : Features; filename : AbstractSymbol): Class_;
+
+  -- Features:
+  constructor method(name : AbstractSymbol;
+		     formals : Formals;
+		     return_type : AbstractSymbol;
+		     expr: Expression) : Feature;
+  constructor attr(name, type_decl : AbstractSymbol;
+		   init : Expression) : Feature;
+
+  -- Formals
+  constructor formalc(name, type_decl: AbstractSymbol) : Formal;
+
+  -- Case
+  constructor branch(name, type_decl: AbstractSymbol; expr: Expression): Case;
+
+  -- Expressions
+  constructor assign(name : AbstractSymbol; expr : Expression) : Expression;
+  constructor static_dispatch(expr: Expression; 
+                              type_name : AbstractSymbol;                              
+                              name : AbstractSymbol; 
+                              actual : Expressions) : Expression;
+  constructor dispatch(expr : Expression; 
+		       name : AbstractSymbol;
+		       actual : Expressions) : Expression;
+  constructor cond(pred, then_exp, else_exp : Expression): Expression;
+  constructor loop(pred, body: Expression) : Expression;
+  constructor typcase(expr: Expression; cases: Cases): Expression;
+  constructor block(body: Expressions) : Expression;
+  constructor let(identifier, type_decl: AbstractSymbol; 
+		  init, body: Expression): Expression;
+  constructor plus(e1, e2: Expression) : Expression;
+  constructor  sub(e1, e2: Expression) : Expression;
+  constructor  mul(e1, e2: Expression) : Expression;
+  constructor divide(e1, e2: Expression) : Expression;
+  constructor  neg(e1: Expression) : Expression;
+  constructor   lt(e1, e2: Expression) : Expression;
+  constructor   eq(e1, e2: Expression) : Expression;
+  constructor  leq(e1, e2: Expression) : Expression;
+  constructor comp(e1: Expression) : Expression;
+  constructor int_const(token: AbstractSymbol) : Expression;
+  constructor bool_const(val: Boolean) : Expression;
+  constructor string_const(token: AbstractSymbol) : Expression;
+  constructor new_(type_name: AbstractSymbol): Expression;
+  constructor isvoid(e1: Expression): Expression;
+  constructor no_expr(): Expression;  
+  constructor object(name: AbstractSymbol): Expression;
+end;

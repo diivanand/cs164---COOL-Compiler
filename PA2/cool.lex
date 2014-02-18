@@ -1,9 +1,11 @@
 /*
- * CS164: Spring 2004
+ * CS164: Spring 2014
  * Programming Assignment 2
  *
  * The scanner definition for Cool.
  *
+ * Author: Diivanand Ramalingam
+ * Co-Author: Min Yoon Jung
  */
 
 import java_cup.runtime.Symbol;
@@ -39,6 +41,14 @@ import java_cup.runtime.Symbol;
     /*
      * Add extra field and methods here.
      */
+    // For nested comment parenthesis balancing
+    private int paren_len = 0;
+    int get_paren_len() {
+    return paren_len;
+    }
+    void reset_paren_len() {
+        paren_len = 0;
+    }
 %}
 
 
@@ -58,16 +68,19 @@ import java_cup.runtime.Symbol;
 %eofval{
     switch(yy_lexical_state) {
     case YYINITIAL:
-	/* nothing special to do in the initial state */
-	break;
-
-/* If necessary, add code for other states here, e.g:
+      return new Symbol(TokenConstants.EOF);
+/* If necessary, add code for other states here, e.g: */
     case LINE_COMMENT:
-	   ...
+	   yybegin(YYINITIAL);
 	   break;
- */
+    case BLOCK_COMMENT:
+       yybegin(YYINITIAL);
+       return new Symbol(TokenConstants.ERROR, "EOF in comment");
+    case STRING_MODE:
+       yybegin(YYINITIAL);
+       string_buf = new StringBuffer();
+       return new Symbol(TokenConstants.ERROR, "EOF in string constant");
     }
-    return new Symbol(TokenConstants.EOF);
 %eofval}
 
 /* Do not modify the following two jlex directives */
@@ -79,7 +92,11 @@ VTAB            = \x0b
 
 /* Define names for regular expressions here. */
 NEWLINE		= \n
-WHITESPACE	= 0 /* Fill-in here. */
+WHITESPACE	= " "
+BACKSPACE = \b
+TAB = \t
+FORMFEED = \f 
+CARRIAGE = \r
 
 
 /* This defines a new start condition for line comments.
@@ -87,6 +104,12 @@ WHITESPACE	= 0 /* Fill-in here. */
  * Hint: You might need additional start conditions. */
 %state LINE_COMMENT
 
+/* This defines a new start condition for block comments. */
+%state BLOCK_COMMENT
+
+/* This defines a new start condition when an unescaped " 
+ *   is encountered */
+%state STRING_MODE
 
 /* Define lexical rules after the %% separator.  There is some code
  * provided for you that you may wish to use, but you may change it
@@ -104,19 +127,97 @@ WHITESPACE	= 0 /* Fill-in here. */
  * Reference Manual (CoolAid).  Please be sure to look there. */
 %%
 
-<YYINITIAL>{NEWLINE}	 { /* Fill-in here. */ }
-<YYINITIAL>{WHITESPACE}+ { /* Fill-in here. */ }
+<YYINITIAL>{NEWLINE}	 { curr_lineno++; }
+<YYINITIAL>[{WHITESPACE}]+ { /* do nothing just eat it up */ }
+<YYINITIAL>[{TAB}]+ { /* do nothing just eat it up */ }
+<YYINITIAL>[{BACKSPACE}]+ { /* do nothing just eat it up */ }
+<YYINITIAL>[{FORMFEED}]+ { /* do nothing just eat it up */ }
+<YYINITIAL>[{CARRIAGE}]+ { /* do nothing just eat it up */ }
+<YYINITIAL>[{VTAB}]+ { /* do nothing just eat it up */ }
 
-<YYINITIAL>"--"         { /* Fill-in here. */ }
-<LINE_COMMENT>.*        { /* Fill-in here. */ }
-<LINE_COMMENT>\n        { /* Fill-in here. */ }
+<YYINITIAL>"--"         { yybegin(LINE_COMMENT); }
+<YYINITIAL>"(*"         { paren_len++; yybegin(BLOCK_COMMENT);}
+<YYINITIAL>"*)"         { return new Symbol(TokenConstants.ERROR, "Unmatched *)");}
+<YYINITIAL>"\""         { yybegin(STRING_MODE);}
+
+<LINE_COMMENT>[^\n]*        { /* do nothing eat it up anything that's not a newline */ }
+<LINE_COMMENT>\n        { curr_lineno++; yybegin(YYINITIAL); }
 
 
+<BLOCK_COMMENT>"(*"     {/*handle potential nesting by keeping count*/ paren_len++;}
+<BLOCK_COMMENT>"*)"     { 
+                            paren_len--;
+                            if(paren_len < 0) {
+                                return new Symbol(TokenConstants.ERROR, "Unmatched *)");
+                            }else if (paren_len == 0) {
+                                /*the nesting was balanced and we are outside block comment*/
+                                yybegin(YYINITIAL);
+                            }else {
+                                /*do nothing eat up character still inside nesting*/
+                            }
+                        }
+<BLOCK_COMMENT>\n      { curr_lineno++; }
+<BLOCK_COMMENT>.       { /* do nothing eat it up not doing .* because maximal munch will mess things up so one at a time instead */ }
+
+
+<STRING_MODE>"\""         {
+                            yybegin(YYINITIAL);
+                            if(string_buf.length() > MAX_STR_CONST) {
+                              return new Symbol(TokenConstants.ERROR, "String constant too long");
+                            }else {
+                              String s = string_buf.toString();
+                              string_buf = new StringBuffer();
+                              return new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(s));
+                            }
+                          }
+<STRING_MODE>\0[^"\""]*["\""] { //eat up all characters after null and stop at ending quote (eat it too)
+                            yybegin(YYINITIAL);
+                            string_buf = new StringBuffer();
+                            return new Symbol(TokenConstants.ERROR, "String contains null character");
+                          }
+<STRING_MODE>\0[^"\""]*\n { //eat up all characters after null and stop at ending quote (eat it too)
+                            yybegin(YYINITIAL);
+                            string_buf = new StringBuffer();
+                            return new Symbol(TokenConstants.ERROR, "String contains null character");
+                          }
+<STRING_MODE>\\[{WHITESPACE}{TAB}{BACKSPACE}{FORMFEED}{CARRIAGE}{VTAB}]*\n {
+                                                                            string_buf = string_buf.append('\n');
+                                                                            curr_lineno++;
+                                                                          }
+
+<STRING_MODE>\n { 
+                  yybegin(YYINITIAL);
+                  string_buf = new StringBuffer();
+                  curr_lineno++;
+                  return new Symbol(TokenConstants.ERROR, "Unterminated string constant"); 
+                }
+<STRING_MODE>.  { 
+                  string_buf = string_buf.append(yytext().charAt(0));
+                }
+
+<STRING_MODE>\\.  { 
+                    if (yytext().equals("\\n")) {
+                        string_buf = string_buf.append('\n'); 
+                    } else if (yytext().equals("\\b")){
+                        string_buf = string_buf.append('\b'); 
+                    } else if (yytext().equals("\\t")){
+                        string_buf = string_buf.append('\t'); 
+                    } else if (yytext().equals("\\f")){
+                        string_buf = string_buf.append('\f'); 
+                    } else if (yytext().equals("\\\000")){
+                        yybegin(YYINITIAL);
+                        string_buf = new StringBuffer();
+                        return new Symbol(TokenConstants.ERROR, "String contains null character");
+                    } else {
+                        string_buf = string_buf.append(yytext().charAt(1));
+                    }
+                }
 
 
 
 <YYINITIAL>"=>"		{ return new Symbol(TokenConstants.DARROW); }
-
+<YYINITIAL>"<="     { return new Symbol(TokenConstants.LE); }
+<YYINITIAL>"<-"     { return new Symbol(TokenConstants.ASSIGN); }
 
 
 
@@ -124,7 +225,6 @@ WHITESPACE	= 0 /* Fill-in here. */
 <YYINITIAL>[0-9][0-9]*  { /* Integers */
                           return new Symbol(TokenConstants.INT_CONST,
 					    AbstractTable.inttable.addString(yytext())); }
-
 
 
 
@@ -152,6 +252,10 @@ WHITESPACE	= 0 /* Fill-in here. */
 
 
 
+<YYINITIAL>"SELF_TYPE" {return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+<YYINITIAL>"self" {return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext()));}
+<YYINITIAL>[A-Z][_A-Za-z0-9]* { /*Type Identifyer*/ return new Symbol(TokenConstants.TYPEID, AbstractTable.stringtable.addString(yytext())); }
+<YYINITIAL>[a-z][_A-Za-z0-9]* { /*Object Identifyer*/ return new Symbol(TokenConstants.OBJECTID, AbstractTable.stringtable.addString(yytext())); }
 
 
 
@@ -179,4 +283,6 @@ WHITESPACE	= 0 /* Fill-in here. */
                     *  This should be the very last rule and will match
                     *  everything not matched by other lexical rules.
                     */
-                   System.err.println("LEXER BUG - UNMATCHED: " + yytext()); }
+                   return new Symbol(TokenConstants.ERROR, yytext());
+                   //System.err.println("LEXER BUG - UNMATCHED: " + yytext()); 
+                 }

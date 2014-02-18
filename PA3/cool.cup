@@ -1,0 +1,200 @@
+/*
+ * cool.cup
+ *
+ * CS164: Spring 2004 
+ * Programming Assignment 3
+ *
+ * Parser definition for the Cool language.
+ *
+ */
+
+import java_cup.runtime.*;
+
+/* Code enclosed in {: :} is copied verbatim to the class containing
+all parser actions.  All the extra variables/functions you want to use
+in the semantic actions should go here.  Don't remove or modify anything
+that was there initially.  */
+
+action code {: 
+
+    int curr_lineno() {
+	return ((CoolTokenLexer)parser.getScanner()).curr_lineno();
+    }
+
+    AbstractSymbol curr_filename() {
+	return ((CoolTokenLexer)parser.getScanner()).curr_filename();
+    }
+
+:} 
+
+/************************************************************************/
+/*                DON'T CHANGE ANYTHING IN THIS SECTION                 */
+
+parser code {:
+    int omerrs = 0;
+
+    public void syntax_error(Symbol cur_token) {
+        int lineno = action_obj.curr_lineno();
+	String filename = action_obj.curr_filename().getString();
+        System.err.print("\"" + filename + "\", line " + lineno + 
+		         ": parse error at or near ");
+        Utilities.printToken(cur_token);
+	omerrs++;
+	if (omerrs>50) {
+	   System.err.println("More than 50 errors");
+	   System.exit(1);
+	}
+    }
+
+    public void unrecovered_syntax_error(Symbol cur_token) {
+    }
+:}
+
+
+/* Declare the terminals; a few have types for associated lexemes.  The
+token ERROR is never used in the parser; thus, it is a parse error when
+the lexer returns it.  */
+terminal CLASS, ELSE, FI, IF, IN, INHERITS, LET, LET_STMT, LOOP, POOL, THEN, WHILE;
+terminal CASE, ESAC, OF, DARROW, NEW, ISVOID;
+terminal ASSIGN, NOT, LE, ERROR;
+terminal PLUS, DIV, MINUS, MULT, EQ, LT, DOT, NEG, COMMA, SEMI, COLON;
+terminal LPAREN, RPAREN, AT, LBRACE, RBRACE;
+terminal AbstractSymbol STR_CONST, INT_CONST;
+terminal Boolean BOOL_CONST;
+terminal AbstractSymbol TYPEID, OBJECTID;
+
+/*  DON'T CHANGE ANYTHING ABOVE THIS LINE, OR YOUR PARSER WON'T WORK      */
+/**************************************************************************/
+
+
+/*
+ * Declare types for the grammar's non-terminals.
+ *
+ * Hint: You will have to add/modify this list.
+ */
+nonterminal programc program;
+nonterminal Classes class_list;
+nonterminal class_c class;
+nonterminal Features optional_feature_list;
+nonterminal Expression expr;
+nonterminal Expressions actuals, exp_list;
+
+
+/*
+ * Precedence declarations.
+ */
+/*** FILL-IN HERE ***/
+
+
+
+
+
+
+
+/***********************************************************************
+ * Grammar rules.                                                      *
+ *                                                                     *
+ * Some parts of rules have been provided for you as an example and    *
+ * to get you started.  You should not need to modify this code to get *
+ * a working solution, but you are welcome to if you like.  However,   *
+ * do not assume that any particular rule is complete.                 *
+ ***********************************************************************/
+
+/* Program */
+program	
+	::= class_list:cl
+	    {: RESULT = new programc(curr_lineno(), cl); :}
+	| error
+	    {: RESULT = new programc(curr_lineno(),
+                                     new Classes(curr_lineno())); :}
+        ;
+
+
+class_list
+	/* single class */
+	::= class:c
+	    {: RESULT = (new Classes(curr_lineno())).appendElement(c); :}
+	/* several classes */
+	| class_list:cl class:c
+	    {: RESULT = cl.appendElement(c); :}
+	;
+
+
+/* Class declarations
+ *
+ * If no parent is specified, the class inherits from the Object class.
+ */
+class
+	::= CLASS TYPEID:n LBRACE optional_feature_list:f RBRACE SEMI
+	    {: RESULT = new class_c(curr_lineno(), n, 
+		                    AbstractTable.idtable.addString("Object"), 
+				    f, curr_filename()); :}
+	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE optional_feature_list:f RBRACE SEMI
+	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
+	;
+
+
+optional_feature_list
+	::= /* empty */
+	    {: RESULT = new Features(curr_lineno()); :}
+	;
+
+
+/* Expressions */
+expr
+	::= expr:e1 PLUS expr:e2
+	    {: RESULT = new plus(curr_lineno(), e1, e2); :}
+	| expr:e1 MINUS expr:e2
+	    {: RESULT = new sub(curr_lineno(), e1, e2); :}
+	| expr:e1 MULT expr:e2
+	    {: RESULT = new mul(curr_lineno(), e1, e2); :}
+	| expr:e1 DIV expr:e2
+	    {: RESULT = new divide(curr_lineno(), e1, e2); :}
+	| NEG expr:e
+	    {: RESULT = new neg(curr_lineno(), e); :}
+	| expr:e1 LT expr:e2
+	    {: RESULT = new lt(curr_lineno(), e1, e2); :}
+	| expr:e1 EQ expr:e2
+	    {: RESULT = new eq(curr_lineno(), e1, e2); :}
+	| expr:e1 LE expr:e2
+	    {: RESULT = new leq(curr_lineno(), e1, e2); :}
+	| NOT expr:e
+	    {: RESULT = new comp(curr_lineno(), e); :}
+	| LPAREN expr:e RPAREN
+	    {: RESULT = e; :}
+	| INT_CONST:i
+	    {: RESULT = new int_const(curr_lineno(), i); :}
+	| STR_CONST:s
+	    {: RESULT = new string_const(curr_lineno(), s); :}
+	| BOOL_CONST:b
+	    {: RESULT = new bool_const(curr_lineno(), b); :}
+	| OBJECTID:o
+	    {: RESULT = new object(curr_lineno(), o); :}
+	| OBJECTID:n actuals:a
+	    {: RESULT = new dispatch(curr_lineno(),
+	                             new object(curr_lineno(), 
+	                                        AbstractTable.idtable.addString("self")),
+				     n, a); :}
+        ;
+
+
+/* Method arguments */
+actuals
+        /* No arguments */
+	::= LPAREN RPAREN
+	    {: RESULT = new Expressions(curr_lineno()); :}
+        /* List of arguments */
+	| LPAREN exp_list:el RPAREN
+	    {: RESULT = el; :}
+	;
+
+
+/* Non-empty list of expressions */
+exp_list
+        /* One expression */
+	::= expr:e
+	    {: RESULT = (new Expressions(curr_lineno())).appendElement(e); :} 
+        /* Several expressions */
+	| exp_list:el COMMA expr:e
+	    {: RESULT = el.appendElement(e); :}
+	;

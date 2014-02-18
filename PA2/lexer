@@ -1,0 +1,3 @@
+#!/bin/sh
+java -classpath /home/ff/cs164/lib:.:/usr/java/lib/rt.java:`dirname $0` Lexer $*
+    

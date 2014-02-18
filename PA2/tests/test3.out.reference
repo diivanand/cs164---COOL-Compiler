@@ -1,1 +1,5 @@
-/home/ff/cs164/etc/../assignments/PA2/tests/test3.out.reference
+#name "tests/test3.cl"
+#2 STR_CONST "foo"
+#3 STR_CONST "\b\t\n\f"
+#5 STR_CONST "a\nb"
+#6 STR_CONST "1\"2'3~4\"5"

@@ -1,1 +1,7 @@
-/home/ff/cs164/etc/../assignments/PA2/tests/test3.cl
+(* some string literals *)
+"foo"
+"\b\t\n\f"
+"a\
+b"
+"1\"2'3~4\"5"
+
