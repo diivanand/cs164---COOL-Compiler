@@ -1,0 +1,299 @@
+Opening files...
+Parsing specification from standard input...
+Checking specification...
+Warning: Terminal "POOL" was declared but never used
+Warning: Terminal "CASE" was declared but never used
+Warning: Terminal "IN" was declared but never used
+Warning: Terminal "FI" was declared but never used
+Warning: Terminal "LOOP" was declared but never used
+Warning: Terminal "ASSIGN" was declared but never used
+Warning: Terminal "IF" was declared but never used
+Warning: Terminal "DOT" was declared but never used
+Warning: Terminal "OF" was declared but never used
+Warning: Terminal "NEW" was declared but never used
+Warning: Terminal "ISVOID" was declared but never used
+Warning: Terminal "ERROR" was declared but never used
+Warning: Terminal "COLON" was declared but never used
+Warning: Terminal "ELSE" was declared but never used
+Warning: Terminal "DARROW" was declared but never used
+Warning: Terminal "WHILE" was declared but never used
+Warning: Terminal "ESAC" was declared but never used
+Warning: Terminal "LET" was declared but never used
+Warning: Terminal "LET_STMT" was declared but never used
+Warning: Terminal "THEN" was declared but never used
+Warning: Terminal "AT" was declared but never used
+Building parse tables...
+  Computing non-terminal nullability...
+  Computing first sets...
+  Building state machine...
+  Filling in tables...
+  Checking for non-reduced productions...
+*** Production "exp_list ::= exp_list COMMA expr " never reduced
+*** Production "exp_list ::= expr " never reduced
+*** Production "actuals ::= LPAREN exp_list RPAREN " never reduced
+*** Production "actuals ::= LPAREN RPAREN " never reduced
+*** Production "expr ::= OBJECTID actuals " never reduced
+*** Production "expr ::= OBJECTID " never reduced
+*** Production "expr ::= BOOL_CONST " never reduced
+*** Production "expr ::= STR_CONST " never reduced
+*** Production "expr ::= INT_CONST " never reduced
+*** Production "expr ::= LPAREN expr RPAREN " never reduced
+*** Production "expr ::= NOT expr " never reduced
+*** Production "expr ::= expr LE expr " never reduced
+*** Production "expr ::= expr EQ expr " never reduced
+*** Production "expr ::= expr LT expr " never reduced
+*** Production "expr ::= NEG expr " never reduced
+*** Production "expr ::= expr DIV expr " never reduced
+*** Production "expr ::= expr MULT expr " never reduced
+*** Production "expr ::= expr MINUS expr " never reduced
+*** Production "expr ::= expr PLUS expr " never reduced
+Writing parser...
+===== Terminals =====
+[0]EOF [1]error [2]CLASS [3]ELSE [4]FI 
+[5]IF [6]IN [7]INHERITS [8]LET [9]LET_STMT 
+[10]LOOP [11]POOL [12]THEN [13]WHILE [14]CASE 
+[15]ESAC [16]OF [17]DARROW [18]NEW [19]ISVOID 
+[20]ASSIGN [21]NOT [22]LE [23]ERROR [24]PLUS 
+[25]DIV [26]MINUS [27]MULT [28]EQ [29]LT 
+[30]DOT [31]NEG [32]COMMA [33]SEMI [34]COLON 
+[35]LPAREN [36]RPAREN [37]AT [38]LBRACE [39]RBRACE 
+[40]STR_CONST [41]INT_CONST [42]BOOL_CONST [43]TYPEID [44]OBJECTID 
+
+
+===== Non terminals =====
+[0]$START [1]program [2]class_list [3]class [4]optional_feature_list 
+[5]expr [6]actuals [7]exp_list 
+
+===== Productions =====
+[0] program ::= class_list 
+[1] $START ::= program EOF 
+[2] program ::= error 
+[3] class_list ::= class 
+[4] class_list ::= class_list class 
+[5] class ::= CLASS TYPEID LBRACE optional_feature_list RBRACE SEMI 
+[6] class ::= CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI 
+[7] optional_feature_list ::= 
+[8] expr ::= expr PLUS expr 
+[9] expr ::= expr MINUS expr 
+[10] expr ::= expr MULT expr 
+[11] expr ::= expr DIV expr 
+[12] expr ::= NEG expr 
+[13] expr ::= expr LT expr 
+[14] expr ::= expr EQ expr 
+[15] expr ::= expr LE expr 
+[16] expr ::= NOT expr 
+[17] expr ::= LPAREN expr RPAREN 
+[18] expr ::= INT_CONST 
+[19] expr ::= STR_CONST 
+[20] expr ::= BOOL_CONST 
+[21] expr ::= OBJECTID 
+[22] expr ::= OBJECTID actuals 
+[23] actuals ::= LPAREN RPAREN 
+[24] actuals ::= LPAREN exp_list RPAREN 
+[25] exp_list ::= expr 
+[26] exp_list ::= exp_list COMMA expr 
+
+===== Viable Prefix Recognizer =====
+START lalr_state [0]: {
+  [class ::= (*) CLASS TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [program ::= (*) error , {EOF }]
+  [class_list ::= (*) class_list class , {EOF CLASS }]
+  [$START ::= (*) program EOF , {EOF }]
+  [class ::= (*) CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [class_list ::= (*) class , {EOF CLASS }]
+  [program ::= (*) class_list , {EOF }]
+}
+transition on CLASS to state [5]
+transition on class to state [4]
+transition on error to state [3]
+transition on program to state [2]
+transition on class_list to state [1]
+
+-------------------
+lalr_state [1]: {
+  [class ::= (*) CLASS TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [class_list ::= class_list (*) class , {EOF CLASS }]
+  [class ::= (*) CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [program ::= class_list (*) , {EOF }]
+}
+transition on CLASS to state [5]
+transition on class to state [18]
+
+-------------------
+lalr_state [2]: {
+  [$START ::= program (*) EOF , {EOF }]
+}
+transition on EOF to state [17]
+
+-------------------
+lalr_state [3]: {
+  [program ::= error (*) , {EOF }]
+}
+
+-------------------
+lalr_state [4]: {
+  [class_list ::= class (*) , {EOF CLASS }]
+}
+
+-------------------
+lalr_state [5]: {
+  [class ::= CLASS (*) TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [class ::= CLASS (*) TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+}
+transition on TYPEID to state [6]
+
+-------------------
+lalr_state [6]: {
+  [class ::= CLASS TYPEID (*) INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [class ::= CLASS TYPEID (*) LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+}
+transition on INHERITS to state [8]
+transition on LBRACE to state [7]
+
+-------------------
+lalr_state [7]: {
+  [optional_feature_list ::= (*) , {RBRACE }]
+  [class ::= CLASS TYPEID LBRACE (*) optional_feature_list RBRACE SEMI , {EOF CLASS }]
+}
+transition on optional_feature_list to state [14]
+
+-------------------
+lalr_state [8]: {
+  [class ::= CLASS TYPEID INHERITS (*) TYPEID LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+}
+transition on TYPEID to state [9]
+
+-------------------
+lalr_state [9]: {
+  [class ::= CLASS TYPEID INHERITS TYPEID (*) LBRACE optional_feature_list RBRACE SEMI , {EOF CLASS }]
+}
+transition on LBRACE to state [10]
+
+-------------------
+lalr_state [10]: {
+  [class ::= CLASS TYPEID INHERITS TYPEID LBRACE (*) optional_feature_list RBRACE SEMI , {EOF CLASS }]
+  [optional_feature_list ::= (*) , {RBRACE }]
+}
+transition on optional_feature_list to state [11]
+
+-------------------
+lalr_state [11]: {
+  [class ::= CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list (*) RBRACE SEMI , {EOF CLASS }]
+}
+transition on RBRACE to state [12]
+
+-------------------
+lalr_state [12]: {
+  [class ::= CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE (*) SEMI , {EOF CLASS }]
+}
+transition on SEMI to state [13]
+
+-------------------
+lalr_state [13]: {
+  [class ::= CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI (*) , {EOF CLASS }]
+}
+
+-------------------
+lalr_state [14]: {
+  [class ::= CLASS TYPEID LBRACE optional_feature_list (*) RBRACE SEMI , {EOF CLASS }]
+}
+transition on RBRACE to state [15]
+
+-------------------
+lalr_state [15]: {
+  [class ::= CLASS TYPEID LBRACE optional_feature_list RBRACE (*) SEMI , {EOF CLASS }]
+}
+transition on SEMI to state [16]
+
+-------------------
+lalr_state [16]: {
+  [class ::= CLASS TYPEID LBRACE optional_feature_list RBRACE SEMI (*) , {EOF CLASS }]
+}
+
+-------------------
+lalr_state [17]: {
+  [$START ::= program EOF (*) , {EOF }]
+}
+
+-------------------
+lalr_state [18]: {
+  [class_list ::= class_list class (*) , {EOF CLASS }]
+}
+
+-------------------
+-------- ACTION_TABLE --------
+From state #0
+ [term 1:SHIFT(to state 3)] [term 2:SHIFT(to state 5)]
+From state #1
+ [term 0:REDUCE(with prod 0)] [term 2:SHIFT(to state 5)]
+From state #2
+ [term 0:SHIFT(to state 17)]
+From state #3
+ [term 0:REDUCE(with prod 2)]
+From state #4
+ [term 0:REDUCE(with prod 3)] [term 2:REDUCE(with prod 3)]
+From state #5
+ [term 43:SHIFT(to state 6)]
+From state #6
+ [term 7:SHIFT(to state 8)] [term 38:SHIFT(to state 7)]
+From state #7
+ [term 39:REDUCE(with prod 7)]
+From state #8
+ [term 43:SHIFT(to state 9)]
+From state #9
+ [term 38:SHIFT(to state 10)]
+From state #10
+ [term 39:REDUCE(with prod 7)]
+From state #11
+ [term 39:SHIFT(to state 12)]
+From state #12
+ [term 33:SHIFT(to state 13)]
+From state #13
+ [term 0:REDUCE(with prod 6)] [term 2:REDUCE(with prod 6)]
+From state #14
+ [term 39:SHIFT(to state 15)]
+From state #15
+ [term 33:SHIFT(to state 16)]
+From state #16
+ [term 0:REDUCE(with prod 5)] [term 2:REDUCE(with prod 5)]
+From state #17
+ [term 0:REDUCE(with prod 1)]
+From state #18
+ [term 0:REDUCE(with prod 4)] [term 2:REDUCE(with prod 4)]
+------------------------------
+-------- REDUCE_TABLE --------
+From state #0
+ [non term 1->state 2] [non term 2->state 1] [non term 3->state 4]
+From state #1
+ [non term 3->state 18]
+From state #2
+From state #3
+From state #4
+From state #5
+From state #6
+From state #7
+ [non term 4->state 14]
+From state #8
+From state #9
+From state #10
+ [non term 4->state 11]
+From state #11
+From state #12
+From state #13
+From state #14
+From state #15
+From state #16
+From state #17
+From state #18
+-----------------------------
+Closing files...
+------- CUP v0.10k Parser Generation Summary -------
+  0 errors and 40 warnings
+  45 terminals, 8 non-terminals, and 27 productions declared, 
+  producing 19 unique parse states.
+  21 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (10000 expected).
+  Code written to "CoolParser.java", and "TokenConstants.java".
+---------------------------------------------------- (v0.10k)
