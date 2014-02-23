@@ -1,4 +1,1 @@
-class Test {
-  foo:Test;
-  bar():Int {case x of esac};
-};
+/home/ff/cs164/etc/../assignments/PA3/tests/bad3.test

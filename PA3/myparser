@@ -1,2 +1,1 @@
-#!/bin/csh -f
-./lexer $* | ./parser $*
+/home/ff/cs164/src/cool/PA3J/myparser

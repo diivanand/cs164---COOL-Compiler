@@ -1,12 +1,1 @@
-#!/bin/sh
-
-ARCH=`arch`
-PROGNAME=anngen-phase
-
-EXENAME=${MASTERDIR}/bin/.${ARCH}/${PROGNAME}
-
-if [ -x $EXENAME ]; then
-  exec $EXENAME $*
-else
-  echo $PROGNAME is not compiled for $ARCH.  [Not found:  $EXENAME]
-fi
+/home/ff/cs164/bin/reference-anngen-phase

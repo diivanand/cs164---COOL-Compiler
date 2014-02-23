@@ -1,5 +1,1 @@
-#!/bin/sh
-
-./myparser $1 > $1.out.my 2>&1
-./ref-parser $1 > $1.out.ref 2>&1
-gdiff -q $1.out.my $1.out.ref
+/home/ff/cs164/src/cool/PA3J/compare-parser

@@ -1,4 +1,1 @@
-class Test {
-   test(x:Int):String {x(5,4,3,)};
-   ok(x:Int):String {x(5,4,3)};
-};
+/home/ff/cs164/etc/../assignments/PA3/tests/bad1.test

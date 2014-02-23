@@ -1,4 +1,1 @@
-class Test {
-  foo:Test;
-  baz():String { let x:Int <- 5 in x};
-};
+/home/ff/cs164/etc/../assignments/PA3/tests/good2.test
