@@ -1,7 +1,7 @@
 /*
  * cool.cup
  *
- * CS164: Spring 2004 
+ * CS164: Spring 2014 
  * Programming Assignment 3
  *
  * Parser definition for the Cool language.
@@ -84,9 +84,28 @@ nonterminal Expressions actuals, exp_list;
  * Precedence declarations.
  */
 /*** FILL-IN HERE ***/
+/* From COOL manual precedence order highest to lowest
+.
+@
+~
+isvoid
+* /
++ -
+<= < =
+not
+<-
+*/
 
-
-
+/*Order is lowest precedence top and highest predence bottom */
+precedence right ASSIGN;
+precedence right NOT;     /*doc didn't specify, so guessing */
+precedence nonassoc LE, LT, EQ;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+precedence right ISVOID;  /*doc didn't specify, so guessing */
+precedence right NEG;     /*doc didn't specify, so guessing */
+precedence nonassoc AT;   /*doc didn't specify, so guessing */
+precedence left DOT;      /*doc didn't specify, so guessing */
 
 
 
@@ -133,12 +152,42 @@ class
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 	;
 
-
+/* feature lists and features */
 optional_feature_list
-	::= /* empty */
+	/* single feature */
+	::= feature:f 
+		{: RESULT = new Features(curr_lineno()).appendElement(f);:}
+	/* several features */
+	| optional_feature_list:ofl feature:f
+		{: RESULT = ofl.appendElement(f); :}
+	/* no features */
+	| /* empty */
 	    {: RESULT = new Features(curr_lineno()); :}
 	;
 
+/* features */
+feature
+	::= OBJECTID:o LPAREN optional_formal_list:ofl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE SEMI
+		{: RESULT = new Feature(curr_lineno());:}
+	| OBJECTID:o COLON TYPEID:t ASSIGN expr:e SEMI
+		{: RESULT = new Feature(curr_lineno());:}
+	| OBJECTID:o COLON TYPEID:t SEMI
+		{: RESULT = new Feature(curr_lineno());:}
+	;
+
+/* formal lists and formals */
+optional_formal_list
+	/* single formal */
+	::= formal:f
+		{: RESULT = new Formals(curr_lineno()).appendElement(f);:}
+	/* several formals */
+	| optional_formal_list:ofl COMMA formal:f
+		{: RESULT = ofl.appendElement(f);:}
+
+/* formals */
+formal
+	::= OBJECTID:o COLON TYPEID:t
+		{: RESULT = new formalc(o, t);:}
 
 /* Expressions */
 expr
@@ -176,6 +225,8 @@ expr
 	                                        AbstractTable.idtable.addString("self")),
 				     n, a); :}
         ;
+
+/* Optional Helper Expressions for expressions*/
 
 
 /* Method arguments */
