@@ -1,0 +1,53 @@
+Opening files...
+Parsing specification from standard input...
+Error at 159(62): java_cup.runtime.Symbol "feature" has not been declared
+Error at 189(5): Syntax error
+Error at 189(22): Illegal use of reserved word
+Error at 194(5): Syntax error
+Error at 194(18): Illegal use of reserved word
+===== Terminals =====
+[0]EOF [1]error [2]CLASS [3]ELSE [4]FI 
+[5]IF [6]IN [7]INHERITS [8]LET [9]LET_STMT 
+[10]LOOP [11]POOL [12]THEN [13]WHILE [14]CASE 
+[15]ESAC [16]OF [17]DARROW [18]NEW [19]ISVOID 
+[20]ASSIGN [21]NOT [22]LE [23]ERROR [24]PLUS 
+[25]DIV [26]MINUS [27]MULT [28]EQ [29]LT 
+[30]DOT [31]NEG [32]COMMA [33]SEMI [34]COLON 
+[35]LPAREN [36]RPAREN [37]AT [38]LBRACE [39]RBRACE 
+[40]STR_CONST [41]INT_CONST [42]BOOL_CONST [43]TYPEID [44]OBJECTID 
+
+
+===== Non terminals =====
+[0]$START [1]program [2]class_list [3]class [4]optional_feature_list 
+[5]expr [6]actuals [7]exp_list 
+
+===== Productions =====
+[0] program ::= class_list 
+[1] $START ::= program EOF 
+[2] program ::= error 
+[3] class_list ::= class 
+[4] class_list ::= class_list class 
+[5] class ::= CLASS TYPEID LBRACE optional_feature_list RBRACE SEMI 
+[6] class ::= CLASS TYPEID INHERITS TYPEID LBRACE optional_feature_list RBRACE SEMI 
+[7] optional_feature_list ::= 
+[8] optional_feature_list ::= optional_feature_list 
+[9] optional_feature_list ::= 
+[10] actuals ::= LPAREN RPAREN 
+[11] actuals ::= LPAREN exp_list RPAREN 
+[12] exp_list ::= expr 
+[13] exp_list ::= exp_list COMMA expr 
+
+===== Viable Prefix Recognizer =====
+null
+null
+Closing files...
+------- CUP v0.10k Parser Generation Summary -------
+  5 errors and 0 warnings
+  45 terminals, 8 non-terminals, and 14 productions declared, 
+  producing 0 unique parse states.
+  0 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (10000 expected).
+  No code produced.
+---------------------------------------------------- (v0.10k)
