@@ -79,8 +79,6 @@ nonterminal Features optional_feature_list;
 nonterminal Expression expr;
 nonterminal Expressions actuals, exp_list;
 nonterminal Feature feature;
-nonterminal method method_feature;
-nonterminal attr attr_feature;
 nonterminal Formals optional_formal_list;
 nonterminal formalc formal;
 
@@ -165,7 +163,7 @@ class
 /* feature lists and features */
 optional_feature_list
 	/* single feature */
-	::= feature:f 
+	::= feature:f
 		{: System.err.println("Reached first feature list production");
 			RESULT = new Features(curr_lineno()).appendElement(f);:}
 	/* several features */
@@ -180,21 +178,13 @@ optional_feature_list
 
 /* features */
 feature
-	::= method_feature SEMI
-	|	attr_feature SEMI
-	;
-
-method_feature
-	::= OBJECTID:o LPAREN optional_formal_list:ofl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE
+	::= OBJECTID:o LPAREN optional_formal_list:ofl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE SEMI
 		{: System.err.println("Reached method production");
 			RESULT = new method(curr_lineno(), o, ofl, t, e);:}
-	;
-
-attr_feature
-	::= OBJECTID:o COLON TYPEID:t ASSIGN expr:e
+	|	OBJECTID:o COLON TYPEID:t ASSIGN expr:e SEMI
 		{: System.err.println("Reached first attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, e);:}
-	| OBJECTID:o COLON TYPEID:t
+	| OBJECTID:o COLON TYPEID:t SEMI
 		{: System.err.println("Reached second attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
 	;
