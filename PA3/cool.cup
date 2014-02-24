@@ -124,10 +124,10 @@ precedence left DOT;      /*doc didn't specify, so guessing */
 /* Program */
 program	
 	::= class_list:cl
-	    {: System.err.println("Reached program production");
+	    {: //System.err.println("Reached program production");
 	    	RESULT = new programc(curr_lineno(), cl); :}
 	| error
-	    {: System.err.println("Reached program error production");
+	    {: //System.err.println("Reached program error production");
 	    	RESULT = new programc(curr_lineno(),
                                      new Classes(curr_lineno())); :}
         ;
@@ -136,11 +136,11 @@ program
 class_list
 	/* single class */
 	::= class:c
-	    {:  System.err.println("Reached first class list production");
+	    {:  //System.err.println("Reached first class list production");
 	    	RESULT = (new Classes(curr_lineno())).appendElement(c); :}
 	/* several classes */
 	| class_list:cl class:c
-	    {: System.err.println("Reached second class list production");
+	    {: //System.err.println("Reached second class list production");
 	    	RESULT = cl.appendElement(c); :}
 	;
 
@@ -151,12 +151,12 @@ class_list
  */
 class
 	::= CLASS TYPEID:n LBRACE optional_feature_list:f RBRACE SEMI
-	    {:  System.err.println("Reached first class production");
+	    {:  //System.err.println("Reached first class production");
 	    	RESULT = new class_c(curr_lineno(), n, 
 		                    AbstractTable.idtable.addString("Object"), 
 				    f, curr_filename());  :}
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE optional_feature_list:f RBRACE SEMI
-	    {: 	System.err.println("Reached second class production");
+	    {: 	//System.err.println("Reached second class production");
 	    	RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 	;
 
@@ -164,28 +164,28 @@ class
 optional_feature_list
 	/* single feature */
 	::= feature:f
-		{: System.err.println("Reached first feature list production");
+		{: //System.err.println("Reached first feature list production");
 			RESULT = new Features(curr_lineno()).appendElement(f);:}
 	/* several features */
 	| optional_feature_list:ofl feature:f
-		{: System.err.println("Reached second feature list production");
+		{: //System.err.println("Reached second feature list production");
 			RESULT = ofl.appendElement(f); :}
 	/* no features */
 	| /* empty */
-	    {: System.err.println("Reached third feature list production");
+	    {: //System.err.println("Reached third feature list production");
 	    	RESULT = new Features(curr_lineno()); :}
 	;
 
 /* features */
 feature
 	::= OBJECTID:o LPAREN optional_formal_list:ofl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE SEMI
-		{: System.err.println("Reached method production");
+		{: //System.err.println("Reached method production");
 			RESULT = new method(curr_lineno(), o, ofl, t, e);:}
 	|	OBJECTID:o COLON TYPEID:t ASSIGN expr:e SEMI
-		{: System.err.println("Reached first attr feature production");
+		{: //System.err.println("Reached first attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, e);:}
 	| OBJECTID:o COLON TYPEID:t SEMI
-		{: System.err.println("Reached second attr feature production");
+		{: //System.err.println("Reached second attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
 	;
 
@@ -193,11 +193,11 @@ feature
 optional_formal_list
 	/* single formal */
 	::= formal:f
-		{: System.err.println("Reached first formal list production");
+		{: //System.err.println("Reached first formal list production");
 			RESULT = new Formals(curr_lineno()).appendElement(f);:}
 	/* several formals */
 	| optional_formal_list:ofl COMMA formal:f
-		{: System.err.println("Reached second formal list production");
+		{: //System.err.println("Reached second formal list production");
 			RESULT = ofl.appendElement(f);:}
 	/* no formals */
 	| /* empty */
@@ -207,13 +207,27 @@ optional_formal_list
 /* formals */
 formal
 	::= OBJECTID:o COLON TYPEID:t
-		{:  System.err.println("Reached formal production");
+		{:  //System.err.println("Reached formal production");
 			RESULT = new formalc(curr_lineno(), o, t);:}
 	;
 
 /* Expressions */
 expr
-	::= expr:e1 PLUS expr:e2
+	::= OBJECTID:o ASSIGN expr:e
+		{: RESULT = new assign(curr_lineno(), o, e); :}
+	| expr:e DOT OBJECTID:o actuals:a
+		{: RESULT = new dispatch(curr_lineno(), e, o, a); :}
+	| expr:e AT TYPEID:t DOT OBJECTID:o actuals:a
+		{: RESULT = new static_dispatch(curr_lineno(), e, t, o, a); :}
+	| IF expr:e1 THEN expr:e2 ELSE expr:e3 FI
+		{: RESULT = new cond(curr_lineno(), e1, e2, e3);:}
+	| WHILE expr:e1 LOOP expr:e2 POOL
+		{: RESULT = new loop(curr_lineno(), e1, e2);:}
+	| NEW TYPEID:t
+		{: RESULT = new new_(curr_lineno(), t);:}
+	| ISVOID expr:e
+		{: RESULT = new isvoid(curr_lineno(), e);:}
+	| expr:e1 PLUS expr:e2
 	    {: RESULT = new plus(curr_lineno(), e1, e2); :}
 	| expr:e1 MINUS expr:e2
 	    {: RESULT = new sub(curr_lineno(), e1, e2); :}
