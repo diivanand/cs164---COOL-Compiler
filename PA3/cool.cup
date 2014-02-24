@@ -78,7 +78,11 @@ nonterminal class_c class;
 nonterminal Features optional_feature_list;
 nonterminal Expression expr;
 nonterminal Expressions actuals, exp_list;
-
+nonterminal Feature feature;
+nonterminal method method_feature;
+nonterminal attr attr_feature;
+nonterminal Formals optional_formal_list;
+nonterminal formalc formal;
 
 /*
  * Precedence declarations.
@@ -176,15 +180,23 @@ optional_feature_list
 
 /* features */
 feature
-	::= OBJECTID:o LPAREN optional_formal_list:ofl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE SEMI
+	::= method_feature SEMI
+	|	attr_feature SEMI
+	;
+
+method_feature
+	::= OBJECTID:o LPAREN optional_formal_list:ofl RPAREN COLON TYPEID:t LBRACE expr:e RBRACE
 		{: System.err.println("Reached method production");
-			RESULT = new method(o, ofl, t, e);:}
-	| OBJECTID:o COLON TYPEID:t ASSIGN expr:e SEMI
+			RESULT = new method(curr_lineno(), o, ofl, t, e);:}
+	;
+
+attr_feature
+	::= OBJECTID:o COLON TYPEID:t ASSIGN expr:e
 		{: System.err.println("Reached first attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, e);:}
-	| OBJECTID:o COLON TYPEID:t SEMI
+	| OBJECTID:o COLON TYPEID:t
 		{: System.err.println("Reached second attr feature production");
-			RESULT = new attr(curr_lineno(), o, t, new Expression(curr_lineno));:}
+			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
 	;
 
 /* formal lists and formals */
@@ -197,12 +209,14 @@ optional_formal_list
 	| optional_formal_list:ofl COMMA formal:f
 		{: System.err.println("Reached second formal list production");
 			RESULT = ofl.appendElement(f);:}
+	;
 
 /* formals */
 formal
 	::= OBJECTID:o COLON TYPEID:t
 		{:  System.err.println("Reached formal production");
-			RESULT = new formalc(o, t);:}
+			RESULT = new formalc(curr_lineno(), o, t);:}
+	;
 
 /* Expressions */
 expr
