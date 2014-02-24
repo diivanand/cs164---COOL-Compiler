@@ -199,6 +199,9 @@ optional_formal_list
 	| optional_formal_list:ofl COMMA formal:f
 		{: System.err.println("Reached second formal list production");
 			RESULT = ofl.appendElement(f);:}
+	/* no formals */
+	| /* empty */
+		{: RESULT = new Formals(curr_lineno());:}
 	;
 
 /* formals */
