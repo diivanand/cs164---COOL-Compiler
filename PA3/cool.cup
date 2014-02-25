@@ -76,11 +76,13 @@ nonterminal programc program;
 nonterminal Classes class_list;
 nonterminal class_c class;
 nonterminal Features optional_feature_list;
-nonterminal Expression expr;
-nonterminal Expressions actuals, exp_list;
+nonterminal Expression expr, optional_assign_expr;
+nonterminal Expressions actuals, exp_list, blk_expr;
 nonterminal Feature feature;
 nonterminal Formals optional_formal_list;
 nonterminal formalc formal;
+nonterminal Cases case_list;
+nonterminal Case case;
 
 /*
  * Precedence declarations.
@@ -214,19 +216,28 @@ formal
 /* Expressions */
 expr
 	::= OBJECTID:o ASSIGN expr:e
-		{: RESULT = new assign(curr_lineno(), o, e); :}
+	    {: RESULT = new assign(curr_lineno(), o, e); :}
 	| expr:e DOT OBJECTID:o actuals:a
-		{: RESULT = new dispatch(curr_lineno(), e, o, a); :}
+	    {: RESULT = new dispatch(curr_lineno(), e, o, a); :}
 	| expr:e AT TYPEID:t DOT OBJECTID:o actuals:a
-		{: RESULT = new static_dispatch(curr_lineno(), e, t, o, a); :}
+	    {: RESULT = new static_dispatch(curr_lineno(), e, t, o, a); :}
 	| IF expr:e1 THEN expr:e2 ELSE expr:e3 FI
-		{: RESULT = new cond(curr_lineno(), e1, e2, e3);:}
+	    {: RESULT = new cond(curr_lineno(), e1, e2, e3);:}
 	| WHILE expr:e1 LOOP expr:e2 POOL
-		{: RESULT = new loop(curr_lineno(), e1, e2);:}
+	    {: RESULT = new loop(curr_lineno(), e1, e2);:}
+	| LBRACE blk_expr: e RBRACE 
+	    {: RESULT = new block(curr_lineno(), e); :}
+    /** 'Let' Unimplemented */
+	| LET OBJECTID:o COLON TYPEID:t optional_assign_expr:e1 IN expr:e2
+	    {: RESULT = new let(curr_lineno(),o,t,e1,e2);:}
+	| LET OBJECTID:o COLON TYPEID:t optional_assign_expr:e1 let_subexpr IN expr:e2
+	    {: RESULT = new let(curr_lineno(),o,t,e1,e2); :}
+	| CASE expr:e1 OF case_list:c ESAC 
+	    {: RESULT = new typcase(curr_lineno(), e1, c); :}
 	| NEW TYPEID:t
-		{: RESULT = new new_(curr_lineno(), t);:}
+	    {: RESULT = new new_(curr_lineno(), t);:}
 	| ISVOID expr:e
-		{: RESULT = new isvoid(curr_lineno(), e);:}
+	    {: RESULT = new isvoid(curr_lineno(), e);:}
 	| expr:e1 PLUS expr:e2
 	    {: RESULT = new plus(curr_lineno(), e1, e2); :}
 	| expr:e1 MINUS expr:e2
@@ -264,6 +275,46 @@ expr
 
 /* Optional Helper Expressions for expressions*/
 
+/* let subexpression */
+let_subexpr
+    ::= COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae
+	{: RESULT = new let(curr_lineno(), o, t, oae, this.getParent().body);:}
+    |   COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae let_subexpr
+	{: RESULT = new let(curr_lineno(), o, t, oae, e2);:}
+    |   /* empty */	
+	{: RESULT = new no_expr(curr_lineno());:}
+    ;
+
+/* optional assignment expression for LET */
+optional_assign_expr
+    ::= ASSIGN expr:e
+	{: RESULT = e; :}
+    | /*empty*/
+	{: RESULT = new no_expr(curr_lineno());:}
+    ;
+
+/* list of one or more expressions for block */
+blk_expr
+    ::= expr:e SEMI
+        {: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
+    | blk_expr:b expr:e SEMI
+        {: RESULT = b.appendElement(e); :}
+    ;
+
+/* Cases */
+case_list
+        /* One Case */
+    ::= case:c
+        {: RESULT = new Cases(curr_lineno()).appendElement(c); :}
+    | case_list:c1 case:c2
+        {: RESULT = c1.appendElement(c2); :}
+    ;
+
+/* Case Non-Terminal */
+case
+    ::= OBJECTID:o COLON TYPEID:t DARROW expr:e SEMI
+        {: RESULT = new branch(curr_lineno(), o, t, e); :}
+    ;
 
 /* Method arguments */
 actuals
