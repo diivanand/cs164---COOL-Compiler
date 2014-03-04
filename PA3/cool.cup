@@ -25,6 +25,16 @@ action code {:
 	return ((CoolTokenLexer)parser.getScanner()).curr_filename();
     }
 
+    let createLet(int line_no, Features features, Expression e, int counter){
+    	if(counter == features.getLength()-1){
+    		return new let(curr_lineno(), ((attr) features.getNth(counter)).name, ((attr) features.getNth(counter)).type_decl,
+    			((attr) features.getNth(counter)).init, e);
+    	}else {
+    		return new let(curr_lineno(), ((attr) features.getNth(counter)).name, ((attr) features.getNth(counter)).type_decl,
+    			((attr) features.getNth(counter)).init, createLet(line_no, features, e, ++counter));
+    	}
+    }
+
 :} 
 
 /************************************************************************/
@@ -75,10 +85,10 @@ terminal AbstractSymbol TYPEID, OBJECTID;
 nonterminal programc program;
 nonterminal Classes class_list;
 nonterminal class_c class;
-nonterminal Features optional_feature_list;
-nonterminal Expression expr, optional_assign_expr;
+nonterminal Features optional_feature_list, let_attr_list;
+nonterminal Expression expr;
 nonterminal Expressions actuals, exp_list, blk_expr;
-nonterminal Feature feature;
+nonterminal Feature feature, let_attr;
 nonterminal Formals optional_formal_list;
 nonterminal formalc formal;
 nonterminal Cases case_list;
@@ -191,6 +201,15 @@ feature
 			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
 	;
 
+let_attr
+	::= OBJECTID:o COLON TYPEID:t ASSIGN expr:e
+		{: //System.err.println("Reached first attr feature production");
+			RESULT = new attr(curr_lineno(), o, t, e);:}
+	| OBJECTID:o COLON TYPEID:t
+		{: //System.err.println("Reached second attr feature production");
+			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
+	;
+
 /* formal lists and formals */
 optional_formal_list
 	/* single formal */
@@ -228,10 +247,14 @@ expr
 	| LBRACE blk_expr: e RBRACE 
 	    {: RESULT = new block(curr_lineno(), e); :}
     /** 'Let' Unimplemented */
+	/*
 	| LET OBJECTID:o COLON TYPEID:t optional_assign_expr:e1 IN expr:e2
 	    {: RESULT = new let(curr_lineno(),o,t,e1,e2);:}
 	| LET OBJECTID:o COLON TYPEID:t optional_assign_expr:e1 let_subexpr IN expr:e2
 	    {: RESULT = new let(curr_lineno(),o,t,e1,e2); :}
+	*/
+	| LET let_attr_list:l IN expr:e
+		{: RESULT = createLet(curr_lineno(), l, e, 0); :}
 	| CASE expr:e1 OF case_list:c ESAC 
 	    {: RESULT = new typcase(curr_lineno(), e1, c); :}
 	| NEW TYPEID:t
@@ -276,22 +299,34 @@ expr
 /* Optional Helper Expressions for expressions*/
 
 /* let subexpression */
-let_subexpr
-    ::= COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae
-	{: RESULT = new let(curr_lineno(), o, t, oae, this.getParent().body);:}
-    |   COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae let_subexpr
-	{: RESULT = new let(curr_lineno(), o, t, oae, e2);:}
-    |   /* empty */	
-	{: RESULT = new no_expr(curr_lineno());:}
-    ;
+let_attr_list
+	::= let_attr:f
+		{: //System.err.println("Reached first feature list production");
+			RESULT = new Features(curr_lineno()).appendElement(f);:}
+	/* several features */
+	| optional_feature_list:ofl COMMA let_attr:f
+		{: //System.err.println("Reached second feature list production");
+			RESULT = ofl.appendElement(f); :}
+	;
+
+
+//let_subexpr
+//    ::= COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae
+//	{: RESULT = new let(curr_lineno(), o, t, oae, this.getParent().body);:}
+//    |   COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae let_subexpr
+//	{: RESULT = new let(curr_lineno(), o, t, oae, e2);:}
+//    |   /* empty */	
+//	{: RESULT = new no_expr(curr_lineno());:}
+//    ;
 
 /* optional assignment expression for LET */
-optional_assign_expr
-    ::= ASSIGN expr:e
-	{: RESULT = e; :}
-    | /*empty*/
-	{: RESULT = new no_expr(curr_lineno());:}
-    ;
+//optional_assign_expr
+//    ::= ASSIGN expr:e
+//	{: RESULT = e; :}
+//    | /*empty*/
+//	{: RESULT = new no_expr(curr_lineno());:}
+//    ;
+
 
 /* list of one or more expressions for block */
 blk_expr
