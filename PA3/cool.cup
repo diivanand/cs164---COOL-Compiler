@@ -304,9 +304,9 @@ let_attr_list
 		{: //System.err.println("Reached first feature list production");
 			RESULT = new Features(curr_lineno()).appendElement(f);:}
 	/* several features */
-	| optional_feature_list:ofl COMMA let_attr:f
+	| let_attr_list:ltl COMMA let_attr:f
 		{: //System.err.println("Reached second feature list production");
-			RESULT = ofl.appendElement(f); :}
+			RESULT = ltl.appendElement(f); :}
 	;
 
 
