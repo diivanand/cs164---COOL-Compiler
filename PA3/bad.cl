@@ -31,20 +31,20 @@ Class F inherits A {
 (* error: another feature error *)
 Class F inherits A {
 	num : Int;
-	NUM : Int;
+	FEATUREERROR : Int;
 };
 
 (* error: another feature error *)
 Class F inherits A {
 	num : Int;
-	num2 : Int <- BIG;
+	num2 : Int <- FEATUREERROR2;
 };
 
 (* error: block error *)
 Class F inherits A {
 	b(num1 : Int) : Int {
    	{
-   		BIG;
+   		BLOCKERROR;
    	}
    };
 };
@@ -54,9 +54,19 @@ Class F inherits A {
 	b(num1 : Int) : Int {
    	{
    		3;
-   		INT;
+   		BLOCKERRORBETWEEN;
    		4;
    	}
+   };
+};
+
+(* error: let error *)
+Class G inherits A {
+	let3() : Object {
+       let n1 : Int <- LETBIGERROR,
+           n2 : Int <- 4 in {
+            numone <- n1 + n2;
+       }
    };
 };
 
