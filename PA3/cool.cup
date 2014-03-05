@@ -170,6 +170,11 @@ class
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE optional_feature_list:f RBRACE SEMI
 	    {: 	//System.err.println("Reached second class production");
 	    	RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
+	| error SEMI
+	    {: //System.err.println("Reached program error production");
+	    	RESULT = new class_c(curr_lineno(), AbstractTable.idtable.addString("Object"),
+	    		                  AbstractTable.idtable.addString("Object"),
+	    		                  new Features(curr_lineno()), curr_filename()); :}
 	;
 
 /* feature lists and features */
@@ -199,6 +204,11 @@ feature
 	| OBJECTID:o COLON TYPEID:t SEMI
 		{: //System.err.println("Reached second attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
+	error SEMI
+	    {: //System.err.println("Reached program error production");
+	    	RESULT = new attr(curr_lineno(), AbstractTable.idtable.addString("self"),
+	    		                  AbstractTable.idtable.addString("Object"),
+	    		                  new no_expr(curr_lineno())); :}
 	;
 
 let_attr
