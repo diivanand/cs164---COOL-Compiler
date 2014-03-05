@@ -204,7 +204,7 @@ feature
 	| OBJECTID:o COLON TYPEID:t SEMI
 		{: //System.err.println("Reached second attr feature production");
 			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
-	error SEMI
+	| error SEMI
 	    {: //System.err.println("Reached program error production");
 	    	RESULT = new attr(curr_lineno(), AbstractTable.idtable.addString("self"),
 	    		                  AbstractTable.idtable.addString("Object"),
@@ -344,6 +344,9 @@ blk_expr
         {: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
     | blk_expr:b expr:e SEMI
         {: RESULT = b.appendElement(e); :}
+    | error SEMI
+	    {: //System.err.println("Reached program error production");
+	    	RESULT = new Expressions(curr_lineno()); :}
     ;
 
 /* Cases */
