@@ -245,6 +245,11 @@ formal
 	::= OBJECTID:o COLON TYPEID:t
 		{:  //System.err.println("Reached formal production");
 			RESULT = new formalc(curr_lineno(), o, t);:}
+    | error COLON TYPEID:t | OBJECTID:o COLON error | error COLON error
+	    {: //System.err.println("Reached program error production");
+	    	RESULT = new attr(curr_lineno(), AbstractTable.idtable.addString("self"),
+	    		                  AbstractTable.idtable.addString("Object"),
+	    		                  new no_expr(curr_lineno())); :}
 	;
 
 /* Expressions */
@@ -261,17 +266,10 @@ expr
 	    {: RESULT = new loop(curr_lineno(), e1, e2);:}
 	| LBRACE blk_expr: e RBRACE 
 	    {: RESULT = new block(curr_lineno(), e); :}
-    /** 'Let' Unimplemented */
-	/*
-	| LET OBJECTID:o COLON TYPEID:t optional_assign_expr:e1 IN expr:e2
-	    {: RESULT = new let(curr_lineno(),o,t,e1,e2);:}
-	| LET OBJECTID:o COLON TYPEID:t optional_assign_expr:e1 let_subexpr IN expr:e2
-	    {: RESULT = new let(curr_lineno(),o,t,e1,e2); :}
-	*/
 	| LET let_attr_list:l IN expr:e
 		{: RESULT = createLet(curr_lineno(), l, e, 0); :}
-	| CASE expr:e1 OF case_list:c ESAC 
-	    {: RESULT = new typcase(curr_lineno(), e1, c); :}
+	| CASE expr:e OF case_list:c ESAC 
+	    {: RESULT = new typcase(curr_lineno(), e, c); :}
 	| NEW TYPEID:t
 	    {: RESULT = new new_(curr_lineno(), t);:}
 	| ISVOID expr:e
@@ -324,23 +322,6 @@ let_attr_list
 			RESULT = ltl.appendElement(f); :}
 	;
 
-
-//let_subexpr
-//    ::= COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae
-//	{: RESULT = new let(curr_lineno(), o, t, oae, this.getParent().body);:}
-//    |   COMMA OBJECTID:o COLON TYPEID:t optional_assign_expr:oae let_subexpr
-//	{: RESULT = new let(curr_lineno(), o, t, oae, e2);:}
-//    |   /* empty */	
-//	{: RESULT = new no_expr(curr_lineno());:}
-//    ;
-
-/* optional assignment expression for LET */
-//optional_assign_expr
-//    ::= ASSIGN expr:e
-//	{: RESULT = e; :}
-//    | /*empty*/
-//	{: RESULT = new no_expr(curr_lineno());:}
-//    ;
 
 
 /* list of one or more expressions for block */

@@ -36,6 +36,11 @@ Class F inherits A {
 
 (* error: another feature error *)
 Class F inherits A {
+   Save_some_$
+};
+
+(* error: another feature error *)
+Class F inherits A {
 	num : Int;
 	num2 : Int <- FEATUREERROR2;
 };
@@ -70,7 +75,37 @@ Class G inherits A {
    };
 };
 
+(* error : no semicolon after featuren *)
+Class MY inherits IO {
+   nnn : Int <- 456
+};
+
+
+--(* error : invalid expr for a method *)
+--Class C1 {
+--   a() : Int out_string("hi") -- no curly braces
+--};
+------------- I guess this is not problemetic?
+
+(* error: invalid argument expr *)
+Class C2 {
+   b(feat : Int <-3 ; fea : Int <- 2) : Object {}; -- invalid argument expr
+};
+
+(* error: wrong method call *)
+Class C3 {
+   c() : Object {
+      out_string(ERROR_METHOD_CALL);
+   };
+};
+
+(* error: case error *)
+Class C4 {
+   n : Int;
+   
+   m : Int <- n case of s:String => 3 esac;
+}
+
 (* error:  closing brace is missing *)
 Class E inherits A {
 ;
-

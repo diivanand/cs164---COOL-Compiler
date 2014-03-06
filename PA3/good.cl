@@ -35,23 +35,23 @@ Class C inherits IO {
    g() : Object {
        { out_string("hi");}
    };
-   h() : Object {
+   h() : Object { -- multiple output
        {
         out_string("hi");
         out_string("and bye");
        }
    };
-   let1() : Object {
+   let1() : Object { -- single let w/o init
        let n1 : Int in {
             numone <- n1 + 3;
        }
    };
-   let2() : Object {
+   let2() : Object { -- single let w init
        let n1 : Int <- 3 in {
             numone <- n1 + 4;
        }
    };
-   let3() : Object {
+   let3() : Object { -- muliple let
        let n1 : Int <- 3,
            n2 : Int <- 4 in {
             numone <- n1 + n2;
@@ -63,4 +63,15 @@ Class C inherits IO {
             numone <- n1 + n2;
        }
    };
+};
+Class D inherits C {
+   bb : Bool <- true;
+   bc : Bool <- not bb;
+   ii : Int <- 5;
+   jj : Int <- ~ii; -- integer compliment
+   cc : C <- new C;
+   dd : C; -- should be void
+   oo : Object <- cc;
+   ss : String <- "Diiv and Minyoon";
+   vo : Bool <- isvoid dd;
 };
