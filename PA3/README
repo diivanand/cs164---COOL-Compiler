@@ -155,3 +155,99 @@ Instructions
 
 Write-up for PA3J
 -----------------
+Thorough discussion of design decisions (e.g., the handling of let) and choice of test cases;
+a few paragraphs of coherent English sentences should be fine
+
+Design Decisions:
+
+1. Using 'list'-like helper grammars to deal with arbitrarily sized lists (features, formals, etc.)
+   The use of helper lists clearly makes it easy to deal with optional lists of arguments, features, etc.
+
+   e.g. 
+   /* feature lists and features */
+optional_feature_list
+	/* single feature */
+	::= feature:f
+		{: //System.err.println("Reached first feature list production");
+			RESULT = new Features(curr_lineno()).appendElement(f);:}
+	/* several features */
+	| optional_feature_list:ofl feature:f
+		{: //System.err.println("Reached second feature list production");
+			RESULT = ofl.appendElement(f); :}
+	/* no features */
+	| /* empty */
+	    {: //System.err.println("Reached third feature list production");
+	    	RESULT = new Features(curr_lineno()); :}
+	;
+
+2. Giving all operators a precedence
+   /*Order is lowest precedence top and highest predence bottom */
+   precedence right ASSIGN;
+   precedence right NOT;     
+   precedence nonassoc LE, LT, EQ;
+   precedence left PLUS, MINUS;
+   precedence left MULT, DIV;
+   precedence right ISVOID;  
+   precedence right NEG;     
+   precedence nonassoc AT;   
+   precedence left DOT;      
+
+   Normally overusing precedence can lead to undesirable trees, but we never encounted any shift-reduce or reduce-reduce
+   errors during anytime of our development because of these precedence declaration, and when we compared our parsers with the reference parser and we hade the same output on all our tests files, the test folder files, and all files in the examples folder with
+   the exception of the following: all the *_exceptions.cl files in the examples folder and null_string.cl file in the 
+   examples folder. We are currently unsure as to why those files didn't work but all the other files did.
+   But we did notice even the coolc compiler failed to compile some of those files so I believe it could just be
+   some super obscure bug or even a problem with that cool file. So we are confident with our compiler overall.
+
+3. Following the COOL CFG in the Manual and PA3 doc
+   Basically We meticulously made sure our cup grammar matched that of the spec, which is an obvious design decision haha.
+   And we do error handling as described in the PA3 doc
+
+4. Handling of Let
+    Our design decision was to handle let via a recursive function we defined in the action code section of the cup file:
+
+    let createLet(int line_no, Features features, Expression e, int counter){
+    	if(counter == features.getLength()-1){
+    		return new let(curr_lineno(), ((attr) features.getNth(counter)).name, ((attr) features.getNth(counter)).type_decl,
+    			((attr) features.getNth(counter)).init, e);
+    	}else {
+    		return new let(curr_lineno(), ((attr) features.getNth(counter)).name, ((attr) features.getNth(counter)).type_decl,
+    			((attr) features.getNth(counter)).init, createLet(line_no, features, e, ++counter));
+    	}
+    }
+
+    Thus in the LET part for our expression:
+
+    | LET let_attr_list:l IN expr:e
+		{: RESULT = createLet(curr_lineno(), l, e, 0); :}
+
+    And the helpers:
+
+    /* let subexpression */
+let_attr_list
+	::= let_attr:f
+		{: //System.err.println("Reached first feature list production");
+			RESULT = new Features(curr_lineno()).appendElement(f);:}
+	/* several features */
+	| let_attr_list:ltl COMMA let_attr:f
+		{: //System.err.println("Reached second feature list production");
+			RESULT = ltl.appendElement(f); :}
+	;
+
+	let_attr
+	::= OBJECTID:o COLON TYPEID:t ASSIGN expr:e
+		{: //System.err.println("Reached first attr feature production");
+			RESULT = new attr(curr_lineno(), o, t, e);:}
+	| OBJECTID:o COLON TYPEID:t
+		{: //System.err.println("Reached second attr feature production");
+			RESULT = new attr(curr_lineno(), o, t, new no_expr(curr_lineno()));:}
+	| error
+	    {: //System.err.println("Reached program error production");
+	    	RESULT = new attr(curr_lineno(), AbstractTable.idtable.addString("self"),
+	    		                  AbstractTable.idtable.addString("Object"),
+	    		                  new no_expr(curr_lineno())); :}
+	;
+
+
+	This design decision allowed us to convert the let list into the nested let trees so in complys with
+	cools definition of let.
