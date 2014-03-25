@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="test" default="source">  
+  <description>
+    CS164 Programming Assignment #4
+  </description>
+
+  <!-- set global properties for this build -->
+  <property environment="env"/> 
+  <property name="classdir" value="${env.MASTERDIR}"/>
+  <property name="assn" value="4"/>
+  <property name="class" value="cs164"/>
+
+  <property name="src" value="ClassTable.java TreeConstants.java cool-tree.java good.cl bad.cl README"/>
+  <property name="csrc" value="ASTConstants.java ASTLexer.java ASTParser.java AbstractSymbol.java AbstractTable.java BoolConst.java Flags.java IdSymbol.java IdTable.java IntSymbol.java IntTable.java ListNode.java Semant.java StringSymbol.java StringTable.java CgenSupport.java SymbolTable.java SymtabExample.java TokenConstants.java TreeNode.java Utilities.java"/>
+
+  <property name="libs" value="reference-lexer-phase reference-parser-phase reference-cgen-phase reference-anngen-phase"/>
+  <property name="cgen" value=""/>
+  <property name="cfil" value="${csrc} ${cgen} ClassTable.java TreeConstants.java cool-tree.java"/>
+
+  <property name="tsrc" value="compare-semant mysemant mycoolc cool-tree.aps ref-semant"/>
+  <property name="lsrc" value="build.xml tests/good1.test tests/good2.test tests/good3.test tests/good4.test tests/good5.test tests/bad5.test tests/bad1.test tests/bad2.test tests/bad3.test tests/bad4.test"/> 
+  <property name="output" value="good.output bad.output"/>
+
+
+  <property name="cupclasspath" value="${classdir}/lib"/>
+  <path id="classpath">
+    <dirset dir="${classdir}" includes="lib"/>
+    <dirset dir="."/>
+    <fileset dir="/usr/java/lib" file="rt.jar"/>
+  </path>
+  <property name="classpath.unix" value="${classdir}/lib:.:/usr/java/lib/rt.java"/>
+
+
+  <!-- target: test -->
+  <target name="test" depends="semant">
+    <exec executable="./mysemant">
+      <arg line="bad.cl"/>
+    </exec>
+    <exec executable="./mysemant">
+      <arg line="good.cl"/>
+    </exec>
+  </target>
+
+  <target name="test.output" depends="semant">
+    <delete file="./test.output"/>
+    <exec executable="./mysemant" output="bad.output">
+      <arg line="bad.cl"/>
+    </exec>
+    <exec executable="./mysemant" output="good.output">
+      <arg line="good.cl"/>
+    </exec>
+  </target>
+
+<!-- target: test-all -->
+  <target name="test-all" depends="semant">
+    <echo>---------------
+Start 10 test cases:
+---------------</echo>
+    <exec executable="./compare-semant" output="./tests/test-all.result"> <arg line="tests/good1.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/good2.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/good3.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/good4.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/good5.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/bad1.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/bad2.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/bad3.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/bad4.test"/> </exec>
+    <exec executable="./compare-semant" output="./tests/test-all.result" append="true"> <arg line="tests/bad5.test"/> </exec>
+    <echo>---------------
+Failed test cases:
+---------------</echo>
+    <exec executable="cat"><arg file="./tests/test-all.result"/></exec>
+    <echo>
+You can compare 'tests/NAME.test.out.my' and 'tests/NAME.test.out.ref'
+to know more about a failed test case.
+    </echo>
+    <delete file="./tests/test-all.result"/>
+  </target>
+
+
+  <!-- target: semant -->
+  <target name="semant" depends="cls" unless="sourceCheck">
+    <delete file="./semant"/>
+    <echo file="./semant">#!/bin/sh
+java -classpath ${classpath.unix} Semant $$*
+    </echo>
+    <chmod perm="u+rx" file="semant"/>
+  </target>
+
+  <target name="symtab-example" depends="cls">
+    <delete file="symtab-example"/>
+    <echo file="./symtab-example">#!/bin/sh
+java -classpath ${classpath.unix} SymtabExample $$*
+    </echo>   
+    <chmod perm="u+rx" file="symtab-example"/>
+  </target>
+
+  <target name="cls" depends="sourceCheck" unless="isSourceUpToDate">
+    <javac srcdir="." destdir="." includes="${cfil}" debug="true" nowarn="true">
+      <classpath refid="classpath"/>
+    </javac>
+    <touch file="cool-tree.class"/>
+  </target>
+
+  <target name="sourceCheck">
+    <uptodate 
+      property="isSourceUpToDate"
+      targetfile="./semant">
+      <srcfiles dir="." includes="${cfil}"/>
+    </uptodate>
+  </target>
+
+
+  <!-- targe: source-->
+  <target name="source">
+    <mkdir dir="./tests"/>
+    <exec executable="${classdir}/etc/link-shared">
+      <arg line="${assn} ${lsrc}"/>
+    </exec>
+    <exec executable="${classdir}/etc/copy">
+      <arg line="${assn} ${src}"/>
+    </exec>
+    <apply executable="ln">
+      <arg value="-s"/>
+      <arg value="-f"/>
+      <fileset dir="${classdir}/bin" includes="${libs}"/>
+      <fileset dir="${classdir}/src/cool/PA${assn}J" includes="${tsrc} ${csrc}"/>
+    </apply>
+    <move file="reference-lexer-phase" tofile="lexer"/>
+    <move file="reference-parser-phase" tofile="parser"/>
+    <move file="reference-cgen-phase" tofile="cgen"/>
+    <move file="reference-anngen-phase" tofile="anngen"/>
+  </target>
+
+  <!-- target: clean -->
+  <target name="clean">
+    <delete>
+      <fileset dir="." includes="*~ *.s *.class ${cgen} ${output}"/>
+      <fileset dir="." includes="core semant symtab-example"/>
+    </delete>
+  </target>
+
+
+  <!-- target: submit-clean -->
+  <target name="submit-clean" depends="test.output">
+    <delete>
+      <fileset dir="." includes="*~ *.s *.class ${cgen}"/>
+      <fileset dir="." includes="core semant symtab-example"/> 
+    </delete>
+  </target>
+</project>

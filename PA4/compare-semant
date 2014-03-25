@@ -1,0 +1,5 @@
+#!/bin/sh
+
+./mysemant $1 > $1.out.my 2>&1
+./ref-semant $1 > $1.out.ref 2>&1
+gdiff -q $1.out.my $1.out.ref
