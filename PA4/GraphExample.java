@@ -8,6 +8,9 @@
 public class GraphExample {
 
     public static void main(String[] args){
+        //Example 1
+        System.out.println("Example 1:");
+        System.out.println();
         Graph g = new Graph();
         g.addEdge("A","B",1000);
         g.addEdge("A","C",1);
@@ -27,5 +30,31 @@ public class GraphExample {
         g.dfs("A","B");
         g.bfs("A","B");
         g.ucs("A","B");
+        String cycle = g.hasCycle() ? "Yes" : "No";
+        System.out.println("Does Graph have a cycle?: " + cycle);
+        //Example 2
+        System.out.println();
+        System.out.println("Example 2:");
+        System.out.println();
+        g = new Graph();
+        g.addEdge("A","B",1000);
+        g.addEdge("A","C",1);
+        g.addEdge("A","D",1);
+	System.out.println(g);
+        System.out.println();
+        cycle = g.hasCycle() ? "Yes" : "No";
+        System.out.println("Does Graph have a cycle?: " + cycle);
+        //Example 3
+        System.out.println();
+        System.out.println("Example 3:");
+        System.out.println();
+        g = new Graph();
+        g.addEdge("A","B",1000);
+        g.addEdge("A","C",1);
+        g.addEdge("C","A",1);
+	System.out.println(g);
+        System.out.println();
+        cycle = g.hasCycle() ? "Yes" : "No";
+        System.out.println("Does Graph have a cycle?: " + cycle);
     }
 }

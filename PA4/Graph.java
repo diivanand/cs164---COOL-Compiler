@@ -80,6 +80,34 @@ public class Graph {
         System.out.println("Could not find goal vertex");
     }
 
+    public boolean hasCycle(){
+        clearAll(); // initialize graph
+        Set<Vertex> visitedSet = new HashSet<Vertex>();
+        Set<Vertex> recursionStackSet = new HashSet<Vertex>();
+        boolean cycle = false;
+        for(Vertex v: vertexMap.values()){
+            if(!visitedSet.contains(v)){
+                if(cycleCheckerHelper(v, visitedSet, recursionStackSet))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean cycleCheckerHelper(Vertex v, Set<Vertex> visitedSet, Set<Vertex> recursionStackSet){
+        visitedSet.add(v);
+        recursionStackSet.add(v);
+        for(Edge e: v.adj){
+            if(!visitedSet.contains(e.v) && cycleCheckerHelper(e.v, visitedSet, recursionStackSet)){
+                return true;
+            } else if (recursionStackSet.contains(e.v)) {
+                return true;
+            }
+        }
+        recursionStackSet.remove(v);
+        return false;
+    }
+
     public void bfs(String startName, String goalName){
         clearAll(); // initialize graph
         Set<Vertex> exploredSet = new HashSet<Vertex>();
