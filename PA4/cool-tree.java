@@ -11,6 +11,7 @@
 import java.util.Enumeration;
 import java.io.PrintStream;
 import java.util.Vector;
+import java.util.*;
 
 
 /** Defines simple phylum Program */
@@ -270,13 +271,78 @@ class programc extends Program {
     public void semant() {
 	/* ClassTable constructor may do some semantic analysis */
 	ClassTable classTable = new ClassTable(classes);
-	
+	PrintStream errorReporter;
 	/* some semantic analysis code may go here */
+
+	//Phase 1: Check for Basic Object Redefinitions
+	//         Check for disallowed basic object inheriting
+	//         Check for cycles
+	for (Enumeration e = classes.getElements(); e.hasMoreElements(); ) {
+	    class_c c1 = (class_c)e.nextElement();
+	    String c1Name = c1.getName().toString();
+
+	    //Check for redefinition of basic objects
+	    if(c1Name.equals(TreeConstants.Object_.toString())) {
+	    	errorReporter = classTable.semantError(c1);
+		errorReporter.println("Redefinition of basic class Object.");
+	    } else if (c1Name.equals(TreeConstants.IO.toString())) {
+	    	errorReporter = classTable.semantError(c1);
+		errorReporter.println("Redefinition of basic class IO.");
+	    } else if (c1Name.equals(TreeConstants.Int.toString())) {
+	    	errorReporter = classTable.semantError(c1);
+		errorReporter.println("Redefinition of basic class Int.");
+	    } else if (c1Name.equals(TreeConstants.Str.toString())) {
+	    	errorReporter = classTable.semantError(c1);
+		errorReporter.println("Redefinition of basic class String.");
+	    } else if (c1Name.equals(TreeConstants.Bool.toString())) {
+	    	errorReporter = classTable.semantError(c1);
+		errorReporter.println("Redefinition of basic class Bool.");
+	    } else { //no redefinitions of basic objects
+	    	String c2Name = c1.getParent().toString();
+
+		//check for disallowed basic object inheriting
+		if (c2Name.equals(TreeConstants.Int.toString())){
+			errorReporter = classTable.semantError(c1);
+			errorReporter.println("Class " + c1Name + " cannot inherit class Int.");
+		} else if (c2Name.equals(TreeConstants.Str.toString())) {
+			errorReporter = classTable.semantError(c1);
+			errorReporter.println("Class " + c1Name + " cannot inherit class String.");
+		} else if (c2Name.equals(TreeConstants.Bool.toString())) {
+			errorReporter = classTable.semantError(c1);
+			errorReporter.println("Class " + c1Name + " cannot inherit class Bool.");
+		} else { //No disallowed inheritance
+			classTable.classNameMapper.put(c1Name, c1);
+		  	classTable.inheritanceGraph.addEdge(c2Name, c1Name, 1);
+		}
+	    }
+	}	
 
 	if (classTable.errors()) {
 	    System.err.println("Compilation halted due to static semantic errors.");
 	    System.exit(1);
 	}
+	
+	//For Debugging
+	//System.out.println(classTable.inheritanceGraph);
+	//System.out.println("Inheritance Graph has a cycle: " + classTable.inheritanceGraph.hasCycle());
+	//System.out.println("Cycles: " + classTable.inheritanceGraph.getCycles());
+	
+	//Check for cycles
+	for (Map.Entry pair: classTable.inheritanceGraph.getCycles().entrySet()){
+		errorReporter = classTable.semantError(classTable.classNameMapper.get(pair.getValue()));
+		errorReporter.println("Class " + pair.getValue() + ", or an ancestor of " + pair.getValue() + ", is involved in an inheritance cycle.");		       	   errorReporter = classTable.semantError(classTable.classNameMapper.get(pair.getKey()));
+		errorReporter.println("Class " + pair.getKey() + ", or an ancestor of " + pair.getKey() + ", is involved in an inheritance cycle.");
+
+	}
+
+	if (classTable.errors()) {
+	    System.err.println("Compilation halted due to static semantic errors.");
+	    System.exit(1);
+	}
+
+	//Phase 1 complete!
+	
+
     }
 
 }

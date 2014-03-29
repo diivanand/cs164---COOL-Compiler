@@ -81,31 +81,34 @@ public class Graph {
     }
 
     public boolean hasCycle(){
+	return getCycles().keySet().size() > 0;	
+    }
+
+    public Map<String, String> getCycles(){
         clearAll(); // initialize graph
+	Map<String,String> cycles = new HashMap<String,String>();
         Set<Vertex> visitedSet = new HashSet<Vertex>();
         Set<Vertex> recursionStackSet = new HashSet<Vertex>();
         boolean cycle = false;
         for(Vertex v: vertexMap.values()){
             if(!visitedSet.contains(v)){
-                if(cycleCheckerHelper(v, visitedSet, recursionStackSet))
-                    return true;
+               	cycleCheckerHelper(v, visitedSet, recursionStackSet, cycles);
             }
         }
-        return false;
+	return cycles;
     }
 
-    private boolean cycleCheckerHelper(Vertex v, Set<Vertex> visitedSet, Set<Vertex> recursionStackSet){
+    private void cycleCheckerHelper(Vertex v, Set<Vertex> visitedSet, Set<Vertex> recursionStackSet, Map<String,String> cycles){
         visitedSet.add(v);
         recursionStackSet.add(v);
         for(Edge e: v.adj){
-            if(!visitedSet.contains(e.v) && cycleCheckerHelper(e.v, visitedSet, recursionStackSet)){
-                return true;
+            if(!visitedSet.contains(e.v)){
+                cycleCheckerHelper(e.v, visitedSet, recursionStackSet, cycles);
             } else if (recursionStackSet.contains(e.v)) {
-                return true;
+                cycles.put(e.v.name, v.name);
             }
         }
         recursionStackSet.remove(v);
-        return false;
     }
 
     public void bfs(String startName, String goalName){

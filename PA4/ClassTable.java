@@ -22,6 +22,7 @@ PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This is a project skeleton file
 
 import java.io.PrintStream;
+import java.util.*;
 
 /** This class may be used to contain the semantic information such as
  * the inheritance graph.  You may use it or not as you like: it is only
@@ -29,6 +30,8 @@ import java.io.PrintStream;
 class ClassTable {
     private int semantErrors;
     private PrintStream errorStream;
+    public Graph inheritanceGraph;
+    public Map<String, class_c> classNameMapper;
 
     /** Creates data structures representing basic Cool classes (Object,
      * IO, Int, Bool, String).  Please note: as is this method does not
@@ -204,8 +207,9 @@ class ClassTable {
     public ClassTable(Classes cls) {
 	semantErrors = 0;
 	errorStream = System.err;
-	
 	/* fill this in */
+	inheritanceGraph = new Graph();
+	classNameMapper = new HashMap<String, class_c>();
     }
 
     /** Prints line number and file name of the given class.
