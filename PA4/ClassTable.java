@@ -192,6 +192,12 @@ class ClassTable {
 
 	/* Do somethind with Object_class, IO_class, Int_class,
            Bool_class, and Str_class here */
+	classNameMapper.put(TreeConstants.Int.toString(), Int_class);
+	classNameMapper.put(TreeConstants.Object_.toString(), Object_class);
+	classNameMapper.put(TreeConstants.IO.toString(), IO_class);
+	classNameMapper.put(TreeConstants.Str.toString(), Str_class);
+	classNameMapper.put(TreeConstants.Bool.toString(), Bool_class);
+
 
 	// NOT TO BE INCLUDED IN SKELETON
 	
