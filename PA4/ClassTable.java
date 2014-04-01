@@ -210,6 +210,10 @@ class ClassTable {
 	/* fill this in */
 	inheritanceGraph = new Graph();
 	classNameMapper = new HashMap<String, class_c>();
+	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Int.toString(), 1);
+	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Str.toString(), 1);
+	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Bool.toString(), 1);
+	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.IO.toString(), 1);
     }
 
     /** Prints line number and file name of the given class.
