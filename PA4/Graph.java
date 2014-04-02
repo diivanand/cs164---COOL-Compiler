@@ -8,10 +8,19 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class Graph {
+    public Map<String,Vertex> nameVertexMap;
+
+    public Graph(){
+    	 nameVertexMap = new HashMap<String, Vertex>();
+    }
+    
+
     public void addEdge(String sourceName, String destName, double cost){
         Vertex v = getVertex(sourceName);
         Vertex w = getVertex(destName);
         v.adj.add(new Edge(w, cost));
+	nameVertexMap.put(v.name, v);
+	nameVertexMap.put(w.name, w);
     }
 
     private Vertex getVertex(String vertexName){
@@ -173,6 +182,79 @@ public class Graph {
         }
         System.out.println("Could not find goal vertex");
     }
+
+    // Precondition: assumes the graph is a tree.
+    // WARNING: Output not defined for non-tree graphs, may not terminate
+    // Output: a hashMap representing the subtree rooted at root
+    // key is node name, value is parent name, null at root
+    private Map<String, String> toNodeParentHashMap(Vertex root) {
+    	Map<String, String> output = new HashMap<String, String>();
+	Stack<Vertex> stack = new Stack<Vertex>();
+	stack.push(root);
+	output.put(root.name, null);
+	while(!stack.isEmpty()){
+		Vertex node = stack.pop();
+		
+		for(Edge e : node.adj) {
+			output.put(e.v.name, node.name);
+			stack.push(e.v);
+		}
+	}
+
+	return output;
+    }
+    
+    //Precondition: assumes graph is a true and root node is "Object"
+    // WARNING: Output not defined for non-tree graphs, may not terminate
+    //Returns true if class1 is a subtype of class2
+    //Returns false otherwise or if class1 or class2 or rootName are not in tree
+    public boolean conforms(String class1, String class2, String rootName){
+    	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
+	String c1 = class1;
+	while (c1 != null) {
+		if(c1.equals(class2)){
+			return true;
+		}
+		c1 = nodeParentMap.get(c1);
+	}
+	return false;
+    }
+
+    //Precondition: assumes graph is a true and root node is "Object"
+    // WARNING: Output not defined for non-tree graphs, may not terminate
+    //Returns lub class name
+    //Returns null if class1 or class2 or rootName are not in tree
+    public String lub(String class1, String class2, String rootName){
+    	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
+	Stack<String> c1AncestorStack = new Stack<String>(); //includes c1 itself
+	Stack<String> c2AncestorStack = new Stack<String>(); //includes c2 itself
+	String c1 = class1;
+	String c2 = class2;
+	if(nameVertexMap.get(c1) == null || nameVertexMap.get(c2) == null)
+		return null;
+	while (c1 != null) {
+		c1AncestorStack.push(c1);
+		c1 = nodeParentMap.get(c1);
+	}
+	while (c2 != null) {
+		c2AncestorStack.push(c2);
+		c2 = nodeParentMap.get(c2);
+	}
+
+	if(c1AncestorStack.empty() || c2AncestorStack.empty())
+		return null;
+	String lowestCommonAncestorSoFar = null;
+	while(!c1AncestorStack.empty() && !c2AncestorStack.empty()){
+		String c1Ancestor = c1AncestorStack.pop();
+		String c2Ancestor = c2AncestorStack.pop();
+		if(c1Ancestor.equals(c2Ancestor))
+			lowestCommonAncestorSoFar = c1Ancestor;
+		else
+			break;
+	}
+	return lowestCommonAncestorSoFar;
+    }
+
 
     public String toString(){
         String vertices = "Vertices: " + Arrays.toString(vertexMap.keySet().toArray()) + "\n";
