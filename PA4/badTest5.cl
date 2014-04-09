@@ -7,9 +7,13 @@ Class B{
     y : Bool;
 };
 Class C{
+    l : Int;
     f() : Int {
         3
     };
+};
+Class D inherits C{
+    l : Int;
 };
 Class Main{
     z : Int;  
