@@ -342,8 +342,9 @@ class programc extends Program {
 
 	//Phase 1 complete if no errors then inheritance graph (actually a tree since no multiple inheritance) is completely valid		
 
-	/*	
+		
 	//For Debugging based on file goodTest.cl, comment all this out when done.
+	/*
 	System.out.println("Does Int conform to Object?: " 
 		+ classTable.inheritanceGraph.conforms(TreeConstants.Int.toString(), TreeConstants.Object_.toString(), TreeConstants.Object_.toString()));
 	System.out.println("Does Object conform to Main?: " 
@@ -354,12 +355,24 @@ class programc extends Program {
 		+ classTable.inheritanceGraph.conforms(TreeConstants.IO.toString(), "Main", TreeConstants.Object_.toString()));
 	System.out.println("Does Main conform to IO?: " 
 		+ classTable.inheritanceGraph.conforms("Main",TreeConstants.IO.toString(), TreeConstants.Object_.toString()));
+	System.out.println(classTable.inheritanceGraph);
 	System.out.println("LUB of IO and B: " + classTable.inheritanceGraph.lub(TreeConstants.IO.toString(), "B", TreeConstants.Object_.toString()));
 	System.out.println("LUB of B and IO: " + classTable.inheritanceGraph.lub("B",TreeConstants.IO.toString(), TreeConstants.Object_.toString()));
-	System.out.println("LUB of A and B: " + classTable.inheritanceGraph.lub("A", "B", TreeConstants.Object_.toString()));	
+	System.out.println("LUB of A and B: " + classTable.inheritanceGraph.lub("A", "B", TreeConstants.Object_.toString()));
+	System.out.println("LUB of B and A: " + classTable.inheritanceGraph.lub("B", "A", TreeConstants.Object_.toString()));	
 	System.out.println("LUB of D and B: " + classTable.inheritanceGraph.lub("D", "B", TreeConstants.Object_.toString()));
        System.out.println("LUB of Main and IO: " + classTable.inheritanceGraph.lub("Main", TreeConstants.IO.toString(), TreeConstants.Object_.toString()));					
-       */
+  	System.out.println("LUB of SELF_TYPE_B and A: " + classTable.inheritanceGraph.lub("SELF_TYPE_B", "A", TreeConstants.Object_.toString()));
+	System.out.println("LUB of SELF_TYPE_OBJECT and B: " + classTable.inheritanceGraph.lub("SELF_TYPE_"+TreeConstants.Object_.toString(), "B", TreeConstants.Object_.toString()));
+	System.out.println("LUB of B and SELF_TYPE_OBJECT: " + classTable.inheritanceGraph.lub("B", "SELF_TYPE_"+TreeConstants.Object_.toString(), TreeConstants.Object_.toString()));
+	System.out.println("LUB of A and SELF_TYPE_B: " + classTable.inheritanceGraph.lub("A", "SELF_TYPE_B", TreeConstants.Object_.toString()));
+	System.out.println("LUB of SELF_TYPE_B and SELF_TYPE_B: " + classTable.inheritanceGraph.lub("SELF_TYPE_B", "SELF_TYPE_B", TreeConstants.Object_.toString()));
+	*/
+
+	//Phase 2 Create global Object and Method environments
+	//Check for multiply defined errors here.
+
+
 	
 
     }

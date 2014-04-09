@@ -204,55 +204,78 @@ public class Graph {
 	return output;
     }
     
-    //Precondition: assumes graph is a true and root node is "Object"
+    //Precondition: assumes graph is a tree and root node is "Object"
     // WARNING: Output not defined for non-tree graphs, may not terminate
     //Returns true if class1 is a subtype of class2
     //Returns false otherwise or if class1 or class2 or rootName are not in tree
     public boolean conforms(String class1, String class2, String rootName){
     	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
 	String c1 = class1;
+	String c2 = class2;
 	while (c1 != null) {
-		if(c1.equals(class2)){
+		if(c1.length() >= 10 && c1.substring(0,10).equals("SELF_TYPE_") && c2.length() >= 10 && c2.substring(0,10).equals("SELF_TYPE_")){
 			return true;
+		} else if(c1.length() >= 10 && c1.substring(0,10).equals("SELF_TYPE_")) {
+			return conforms(c1.substring(10, c1.length()), class2, rootName);
+		} else if(c2.length() >= 10 && c2.substring(0,10).equals("SELF_TYPE_")){
+			return false;
+		} else {
+			if(c1.equals(class2)){
+				return true;
+			}	
 		}
 		c1 = nodeParentMap.get(c1);
 	}
 	return false;
     }
 
-    //Precondition: assumes graph is a true and root node is "Object"
+    //Precondition: assumes graph is a tree and root node is "Object"
     // WARNING: Output not defined for non-tree graphs, may not terminate
     //Returns lub class name
     //Returns null if class1 or class2 or rootName are not in tree
     public String lub(String class1, String class2, String rootName){
-    	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
+    	//System.out.println("Entered lub");
+	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
 	Stack<String> c1AncestorStack = new Stack<String>(); //includes c1 itself
 	Stack<String> c2AncestorStack = new Stack<String>(); //includes c2 itself
 	String c1 = class1;
 	String c2 = class2;
-	if(nameVertexMap.get(c1) == null || nameVertexMap.get(c2) == null)
-		return null;
-	while (c1 != null) {
-		c1AncestorStack.push(c1);
-		c1 = nodeParentMap.get(c1);
+	
+	if(c1.length() >= 10 && c1.substring(0,10).equals("SELF_TYPE_") && c2.length() >= 10 && c2.substring(0,10).equals("SELF_TYPE_")){
+		return lub(c1.substring(10,c1.length()), c2.substring(10,c2.length()), rootName);
+	} else if(c1.length() >= 10 && c1.substring(0,10).equals("SELF_TYPE_")) {
+		return lub(c1.substring(10, c1.length()), c2, rootName);
+	} else if(c2.length() >= 10 && c2.substring(0,10).equals("SELF_TYPE_")){
+		return  lub(c1, c2.substring(10, c2.length()), rootName);
+	} else {
+		//System.out.println("Entered else in lub");
+		if(nameVertexMap.get(c1) == null || nameVertexMap.get(c2) == null){
+			//System.out.println("One of the classes is not in our graph, lub returning null");
+			return null;
+		}
+		while (c1 != null) {
+			c1AncestorStack.push(c1);
+			c1 = nodeParentMap.get(c1);
+		}
+		while (c2 != null) {
+			c2AncestorStack.push(c2);
+			c2 = nodeParentMap.get(c2);
+		}
+		if(c1AncestorStack.empty() || c2AncestorStack.empty()){
+			//System.out.println("Lub stack empty, returning null");
+			return null;
+		}
+		String lowestCommonAncestorSoFar = null;
+		while(!c1AncestorStack.empty() && !c2AncestorStack.empty()){
+			String c1Ancestor = c1AncestorStack.pop();
+			String c2Ancestor = c2AncestorStack.pop();
+			if(c1Ancestor.equals(c2Ancestor))
+				lowestCommonAncestorSoFar = c1Ancestor;
+			else
+				break;
+		}
+		return lowestCommonAncestorSoFar;
 	}
-	while (c2 != null) {
-		c2AncestorStack.push(c2);
-		c2 = nodeParentMap.get(c2);
-	}
-
-	if(c1AncestorStack.empty() || c2AncestorStack.empty())
-		return null;
-	String lowestCommonAncestorSoFar = null;
-	while(!c1AncestorStack.empty() && !c2AncestorStack.empty()){
-		String c1Ancestor = c1AncestorStack.pop();
-		String c2Ancestor = c2AncestorStack.pop();
-		if(c1Ancestor.equals(c2Ancestor))
-			lowestCommonAncestorSoFar = c1Ancestor;
-		else
-			break;
-	}
-	return lowestCommonAncestorSoFar;
     }
 
 
