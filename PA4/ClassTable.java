@@ -32,6 +32,8 @@ class ClassTable {
     private PrintStream errorStream;
     public Graph inheritanceGraph;
     public Map<String, class_c> classNameMapper;
+    public SymbolTable objectEnv;
+    public SymbolTable methodEnv;
 
     /** Creates data structures representing basic Cool classes (Object,
      * IO, Int, Bool, String).  Please note: as is this method does not
@@ -220,6 +222,8 @@ class ClassTable {
 	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Str.toString(), 1);
 	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Bool.toString(), 1);
 	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.IO.toString(), 1);
+	objectEnv = new SymbolTable();
+	methodEnv = new SymbolTable();
     }
 
     /** Prints line number and file name of the given class.

@@ -370,10 +370,24 @@ class programc extends Program {
 	*/
 
 	//Phase 2 Create global Object and Method environments
-	//Check for multiply defined errors here.
-
-
-	
+	//Check for multiply defined errors during this phase as well
+	//Check for existence of Main class and main method in main class
+	//Check for inherited attribute names being declared in derived class
+	for (Enumeration e = classes.getElements(); e.hasMoreElements(); ) {
+	    class_c c1 = (class_c)e.nextElement();
+	    for(Enumeration e2 = c1.getFeatures().getElements(); e2.hasMoreElements();){
+		Feature f = (Feature) e2.nextElement();
+		if(f instanceof attr){
+			attr a = (attr) f;
+			System.out.println(c1.getName().toString() + " attribute: " + a.name);
+		} else if (f instanceof method){
+			method m = (method) f;
+			System.out.println(c1.getName().toString() + " attribute: " + m.name);
+		} else {
+			System.out.println("Error should never reach here!");
+		}
+	    }	
+	}
 
     }
 
