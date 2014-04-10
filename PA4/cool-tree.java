@@ -418,7 +418,7 @@ class programc extends Program {
 			}else {
 				List<AbstractSymbol> typeList = new ArrayList<AbstractSymbol>();
 				for(Enumeration e3 = m.formals.getElements(); e3.hasMoreElements();){
-					formalc fo = (formalc) e3;
+					formalc fo = (formalc) e3.nextElement();
 					typeList.add(fo.type_decl);
 				}
 				typeList.add(m.return_type);
@@ -455,15 +455,17 @@ class programc extends Program {
 	}
 
 	
+	
+	//Phase 2 completed. This means code has the required classes and methods and all attributes and methods have valid names.
+
+	//Phase 3 TYPE CHECKING YEAHHH BABY!
+
+	//Semantic Analysis done! Report errors
 	if (classTable.errors()) {
 	    System.err.println("Compilation halted due to static semantic errors.");
 	    System.exit(1);
 	}
 
-	
-	//Phase 2 completed. This means code has the required classes and methods and all attributes and methods have valid names.
-
-	//Phase 3 TYPE CHECKING YEAHHHHH
 
 
     }
@@ -746,6 +748,9 @@ class assign extends Expression {
         expr.dump(out, n+2);
     }
 
+    //public void semant(ClassTable c, class_c curr){
+    //	Map<AbstractSymbol, AbstractSymbol> varMap = c.classTable.objectEnv.probe(curr);
+    //}
     
     public void dump_with_types(PrintStream out, int n) {
         dump_line(out, n);
