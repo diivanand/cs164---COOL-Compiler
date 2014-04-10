@@ -155,6 +155,7 @@ abstract class Expression extends TreeNode {
         else
             { out.println(Utilities.pad(n) + ": _no_type"); }
     }
+    public abstract void semant(ClassTable c, class_c curr, PrintStream errorReporter);
 
 }
 
@@ -472,25 +473,19 @@ class programc extends Program {
     // check if an attribute exist in one of its parent classes.
     private boolean isAttrInherited(attr a, class_c cur, ClassTable c) {
     	Map<String, String> nodeParentMap = c.inheritanceGraph.getNodeParentHashMap(TreeConstants.Object_.toString());
-	//System.out.println(nodeParentMap);
-	String parentName = nodeParentMap.get(cur.name.toString());
-	//System.out.println("Parent Name: " + parentName);
-	while(parentName != null){
-		class_c parent = c.classNameMapper.get(parentName);
-		//System.out.println("Parent Object: " + parent);
-		
-		for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
-			Feature f = (Feature) e.nextElement();
-			if (f instanceof attr) {
-				if(((attr) f).name.toString().equals(a.name.toString()))
-				    return true;
-			}
-		}
-		
-		parentName = nodeParentMap.get(parentName);
-		//System.out.println("New Parent: " + parentName);
-	}
-	return false;
+        String parentName = nodeParentMap.get(cur.name.toString());
+        while(parentName != null){
+            class_c parent = c.classNameMapper.get(parentName);
+            for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
+                Feature f = (Feature) e.nextElement();
+                if (f instanceof attr) {
+                    if(((attr) f).name.toString().equals(a.name.toString()))
+                        return true;
+                }
+            }
+            parentName = nodeParentMap.get(parentName);
+        }
+        return false;
     }
 }
 
@@ -749,25 +744,25 @@ class assign extends Expression {
     }
 
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
-    	Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.classTable.objectEnv.lookup(curr.name);
+    	Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(curr.name);
 		if (varMap == null) {
-				errorReporter = classTable.semantError(c1);
+				errorReporter = c.semantError(curr);
 				errorReporter.println("Unexpected Error occurred in assign, current class not in objectEnv");
 				set_type(TreeConstants.Object_);
     	} else {
 			AbstractSymbol type = varMap.get(name);
 			if(type == null){
-				errorReporter = classTable.semantError(c1);
-				errorReporter.println("Identifier: " + name + " in class " curr.name.toString() + " is undefined");
+				errorReporter = c.semantError(curr);
+				errorReporter.println("Identifier: " + name + " in class " + curr.name.toString() + " is undefined");
 				set_type(TreeConstants.Object_);
 			} else {
-				a2.semant();
-				AbstractSymbol type_prime = a2.get_type();
-				if(c.inheritanceGraph.conforms(type_prime.toString(), type.toString())){
+				expr.semant(c, curr, errorReporter);
+				AbstractSymbol type_prime = expr.get_type();
+				if(c.inheritanceGraph.conforms(type_prime.toString(), type.toString(), TreeConstants.Object_.toString())){
 					set_type(type_prime);
 				} else {
-					errorReporter = classTable.semantError(c1);
-					errorReporter.println("Inferred type of: " + type_prime.toString() + " of initialization of attribute " name + " does not conform to declared type " + type.toString());
+					errorReporter = c.semantError(curr);
+					errorReporter.println("Inferred type of: " + type_prime.toString() + " of initialization of attribute " + name + " does not conform to declared type " + type.toString());
 					set_type(TreeConstants.Object_);
 				}
 			}
@@ -1667,16 +1662,16 @@ class object extends Expression {
     }
 
 	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
-		Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.classTable.objectEnv.lookup(curr.name);
+		Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(curr.name);
 		if (varMap == null) {
-			errorReporter = classTable.semantError(c1);
+			errorReporter = c.semantError(curr);
 			errorReporter.println("Unexpected Error occurred in object, current class not in objectEnv");
 			set_type(TreeConstants.Object_);
     	} else {
-			AbstractSymbol type = varMap.get(name);
+			AbstractSymbol type = Helper.attrType(this.name, curr, c);
 			if(type == null){
-				errorReporter = classTable.semantError(c1);
-				errorReporter.println("Identifier: " + name + " in class " curr.name.toString() + " is undefined");
+				errorReporter = c.semantError(curr);
+				errorReporter.println("Identifier: " + name + " in class " + curr.name.toString() + " is undefined");
 				set_type(TreeConstants.Object_);
 			} else {
 				set_type(type);
@@ -1687,3 +1682,26 @@ class object extends Expression {
 }
 
 
+/**
+ *  Helper class for static help methods
+ **/
+class Helper {
+    public static AbstractSymbol attrType(AbstractSymbol attrName, class_c cur, ClassTable c) {
+    	if(c.objectEnv.lookup(cur.name) != null && ((Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(cur.name)).get(attrName)!=null)
+            return ((Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(cur.name)).get(attrName);
+        Map<String, String> nodeParentMap = c.inheritanceGraph.getNodeParentHashMap(TreeConstants.Object_.toString());
+        String parentName = nodeParentMap.get(cur.name.toString());
+        while(parentName != null){
+            class_c parent = c.classNameMapper.get(parentName);
+            for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
+                Feature f = (Feature) e.nextElement();
+                if (f instanceof attr) {
+                    if(((attr) f).name.toString().equals(attrName.toString()))
+                        return ((Map<AbstractSymbol, AbstractSymbol>)c.objectEnv.lookup(parent.name)).get(attrName);
+                }
+            }
+            parentName = nodeParentMap.get(parentName);
+        }
+        return null;
+    }
+}
