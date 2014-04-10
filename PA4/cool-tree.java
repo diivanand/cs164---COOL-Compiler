@@ -713,7 +713,6 @@ class branch extends Case {
         dump_AbstractSymbol(out, n + 2, type_decl);
 	expr.dump_with_types(out, n + 2);
     }
-
 }
 
 
@@ -1019,6 +1018,13 @@ class cond extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+        then_exp.semant(c, curr, errorReporter);
+        else_exp.semant(c, curr, errorReporter);
+        set_type(c.classNameMapper.get(c.inheritanceGraph.lub(then_exp.get_type().toString(),
+                        else_exp.get_type().toString(),
+                        TreeConstants.Object_.toString())).name);
+    }
 }
 
 
@@ -1097,18 +1103,44 @@ class typcase extends Expression {
 	dump_type(out, n);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+        expr.semant(c, curr, errorReporter);
+        
+        List<AbstractSymbol> casetypes = new LinkedList<AbstractSymbol>();
+        for (Enumeration en = cases.getElements(); en.hasMoreElements(); ) {
+            branch br = (branch) en.nextElement();
+            Expression e = br.expr;
+            e.semant(c, curr, errorReporter);
+            AbstractSymbol caseType = e.get_type();
+            casetypes.add(caseType);
+        }
+        if(casetypes.isEmpty()) { // if there is no case branch, should be error
+            errorReporter = c.semantError(curr);
+            errorReporter.println("There should be at least one branch in cases");
+            set_type(TreeConstants.Object_);
+        } else {
+            AbstractSymbol case_lub = casetypes.remove(0);
+            while(casetypes.isEmpty()) {
+                String lub_string = c.inheritanceGraph.lub(case_lub.toString(),
+                        casetypes.remove(0).toString(),
+                        TreeConstants.Object_.toString());
+                case_lub = c.classNameMapper.get(lub_string).name;
+            }
+            set_type(case_lub);
+        }
+    }
 }
 
 
 /** Defines AST constructor 'block'.
-    <p>
-    See <a href="TreeNode.html">TreeNode</a> for full documentation. */
+  <p>
+  See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class block extends Expression {
     protected Expressions body;
     /** Creates "block" AST node. 
-      *
-      * @param lineNumber the line in the source file from which this node came.
-      * @param a0 initial value for body
+     *
+     * @param lineNumber the line in the source file from which this node came.
+     * @param a0 initial value for body
       */
     public block(int lineNumber, Expressions a1) {
         super(lineNumber);
@@ -1782,7 +1814,6 @@ class object extends Expression {
 			}
 		}
 	}
-
 }
 
 

@@ -23,6 +23,9 @@ Class Main {
            esac
         in "ignore this";
       let d:Bool, dummyInt:Int <- new Int in d <- isvoid dummyInt;
+      let a : Int in 
+        let a : String in
+          a <- "this should be valid";
       let a:Int <- 1, b:Int <- 2, c:Bool<-false, d:Bool<-true, e:String<-"hi", f:String <-"bye" in {
         b <- b/a; -- 2
         a <- a+b; -- 3
