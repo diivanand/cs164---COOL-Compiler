@@ -376,12 +376,16 @@ class programc extends Program {
 	Set<String> classNames = new HashSet<String>();
 	classTable.objectEnv.enterScope();
 	classTable.methodEnv.enterScope();
+	boolean mainClassExists = false; //flag if Main class is defined
+	boolean mainInMain = false; //flag if main() method exists in Main class
+	boolean noFormalsInMainMethod = false; //flag if main() method has formals
 	for (Enumeration e = classes.getElements(); e.hasMoreElements(); ) {
 	    class_c c1 = (class_c)e.nextElement();
-	    errorReporter = classTable.semantError(c1);
-
+	    if(c1.name.toString().equals("Main"))
+	    	mainClassExists = true;
 	    
 	    if(classNames.contains(c1.name.toString())){
+		errorReporter = classTable.semantError(c1);
 	    	errorReporter.println("Class " + c1.name.toString() + " was previously defined.");
 		continue;
 	    } else {
@@ -396,8 +400,10 @@ class programc extends Program {
 			attr a = (attr) f;
 			//System.out.println(c1.getName().toString() + " attribute: " + a.name);
 			if(attrTypeMap.containsKey(a.name)){
+				errorReporter = classTable.semantError(c1);
 				errorReporter.println("Attribute " + a.name.toString() + " is multiply defined in class.");
 			}else if (isAttrInherited(a, c1, classTable)){
+				errorReporter = classTable.semantError(c1);
 				errorReporter.println("Attribute " + a.name.toString() + " is an attribute of an inherited class.");
 			}else {
 				attrTypeMap.put(a.name, a.type_decl);	
@@ -406,7 +412,8 @@ class programc extends Program {
 			method m = (method) f;
 			//System.out.println(c1.getName().toString() + " method: " + m.name);
 			if(methodArgMap.containsKey(m.name)) {
-				errorReporter.println("Method " + m.name.toString() + " is multiply defined in class.");
+				errorReporter = classTable.semantError(c1);
+				errorReporter.println("Method " + m.name.toString() + " is multiply defined.");
 				continue;
 			}else {
 				List<AbstractSymbol> typeList = new ArrayList<AbstractSymbol>();
@@ -416,6 +423,12 @@ class programc extends Program {
 				}
 				typeList.add(m.return_type);
 				methodArgMap.put(m.name, typeList);
+				if(c1.name.toString().equals("Main")) {
+					if(m.name.toString().equals("main")) {
+						mainInMain = true;
+					}
+					noFormalsInMainMethod = typeList.size()==1;
+				}
 			}
 		} else {
 			System.out.println("Error should never reach here!");
@@ -425,22 +438,47 @@ class programc extends Program {
 	    classTable.objectEnv.addId(c1.name, attrTypeMap);
 	}
 
+	//Ensure Main class exists and has a main() method
+	if(!mainClassExists){
+		errorReporter = classTable.semantError();
+		errorReporter.println("Class Main is not defined.");
+	} else {
+		if(!mainInMain) {
+		errorReporter = classTable.semantError(classTable.classNameMapper.get("Main"));
+		errorReporter.println("No 'main' method in class Main.");
+		} else {
+			if(!noFormalsInMainMethod) {
+				errorReporter = classTable.semantError(classTable.classNameMapper.get("Main"));
+				errorReporter.println("'main' method in class Main should have no arguments.");
+			}
+		}
+	}
+
+	
 	if (classTable.errors()) {
 	    System.err.println("Compilation halted due to static semantic errors.");
 	    System.exit(1);
 	}
 
+	
+	//Phase 2 completed. This means code has the required classes and methods and all attributes and methods have valid names.
+
+	//Phase 3 TYPE CHECKING YEAHHHHH
+
 
     }
-    // check if an attribute exist in one of its parent classes
+    // check if an attribute exist in one of its parent classes.
     private boolean isAttrInherited(attr a, class_c cur, ClassTable c) {
     	Map<String, String> nodeParentMap = c.inheritanceGraph.getNodeParentHashMap(TreeConstants.Object_.toString());
+	//System.out.println(nodeParentMap);
 	String parentName = nodeParentMap.get(cur.name.toString());
+	//System.out.println("Parent Name: " + parentName);
 	while(parentName != null){
 		class_c parent = c.classNameMapper.get(parentName);
+		//System.out.println("Parent Object: " + parent);
 		
 		for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
-			Feature f = (Feature) e;
+			Feature f = (Feature) e.nextElement();
 			if (f instanceof attr) {
 				if(((attr) f).name.toString().equals(a.name.toString()))
 				    return true;
@@ -448,20 +486,9 @@ class programc extends Program {
 		}
 		
 		parentName = nodeParentMap.get(parentName);
+		//System.out.println("New Parent: " + parentName);
 	}
 	return false;
-//    	AbstractSymbol parent = cur.getParent();
-//	if (parent==null) 
-//	    return false;
-//	class_c parentClass = c.classNameMapper.get(parent.toString());
-//	for(Enumeration e = parentClass.getFeatures() ; e.hasMoreElements();) {
-//	    Feature f = (Feature) e;
-//	    if(f instanceof attr) {
-//	    	if(((attr) f).name.toString().equals(a.name.toString()))
-//		    return true;
-//	    }
-//	}
-//	return isAttrInherited(a, parent, c);
     }
 }
 
