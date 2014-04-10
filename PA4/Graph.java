@@ -217,6 +217,10 @@ public class Graph {
     	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
 	String c1 = class1;
 	String c2 = class2;
+	if(c1.equals(TreeConstants.No_type.toString()) && c2 != null)
+		return true;
+	if(c2 == null)
+		return false;
 	while (c1 != null) {
 		if(c1.length() >= 10 && c1.substring(0,10).equals("SELF_TYPE_") && c2.length() >= 10 && c2.substring(0,10).equals("SELF_TYPE_")){
 			return true;

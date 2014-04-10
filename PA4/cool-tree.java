@@ -594,6 +594,42 @@ class method extends Feature {
 	expr.dump_with_types(out, n + 2);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+    	Map<AbstractSymbol, List<AbstractSymbol>> methodArgMap = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(curr.name);
+	  	if (methodArgMap == null) {
+	  		errorReporter = c.semantError(curr);
+			errorReporter.println("Unexpected Error occurred in method, current class not in methodEnv");
+    	} else {
+	        List<AbstractSymbol> formalList = methodArgMap.get(name);
+			if(formalList == null){
+				errorReporter = c.semantError(curr);
+				errorReporter.println("Unexpected Error occurred in method, method name not in methodEnv");
+			} else {
+					//Bind self to SELF_TYPE and formals to their types
+					List<Pair<AbstractSymbol, AbstractSymbol>> newBindings = new ArrayList<Pair<AbstractSymbol, AbstractSymbol>>();
+					newBindings.add(new Pair<AbstractSymbol, AbstractSymbol>(TreeConstants.self, TreeConstants.SELF_TYPE));
+					for(Enumeration e = formals.getElements(); e.hasMoreElements();){
+						formalc formy = (formalc) e.nextElement();
+						AbstractSymbol namey = formy.name;
+						AbstractSymbol typey = formy.type_decl;
+						newBindings.add(new Pair<AbstractSymbol, AbstractSymbol>(namey, typey));
+					}
+
+					Helper.updateObjectEnv(c.objectEnv, curr, newBindings); //enter a new scope with new bindings
+					expr.semant(c, curr, errorReporter);
+					c.objectEnv.exitScope(); //restore old scope
+					
+					AbstractSymbol T0_prime = expr.get_type();
+					if(!c.inheritanceGraph.conforms(T0_prime.toString(), return_type.toString(), TreeConstants.Object_.toString())){
+						errorReporter = c.semantError(curr);
+						errorReporter.println("Inferred type " + T0_prime.toString() + " of expression does not conform to return type " + return_type.toString());
+					}
+			}
+		}
+
+    }
+
+
 }
 
 
@@ -633,7 +669,40 @@ class attr extends Feature {
         out.println(Utilities.pad(n) + "_attr");
         dump_AbstractSymbol(out, n + 2, name);
         dump_AbstractSymbol(out, n + 2, type_decl);
-	init.dump_with_types(out, n + 2);
+		init.dump_with_types(out, n + 2);
+    }
+
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+    	Map<AbstractSymbol, AbstractSymbol> attrTypeMap = (Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(curr.name);
+	  	if (attrTypeMap == null) {
+	  		errorReporter = c.semantError(curr);
+			errorReporter.println("Unexpected Error occurred in attr, current class not in objectEnv");
+    	} else {
+	        AbstractSymbol T0 = attrTypeMap.get(name);
+			if(T0 == null){
+				errorReporter = c.semantError(curr);
+				errorReporter.println("Unexpected Error occurred in attr, attr name not in objectEnv");
+			} else {
+				if(!T0.toString().equals(type_decl.toString())){
+					errorReporter = c.semantError(curr);
+					errorReporter.println("Unexpected Error occurred in attr, type in objectEnv not equal to type_decl");
+				} else {
+					//Bind self to SELF_TYPE
+					List<Pair<AbstractSymbol, AbstractSymbol>> newBindings = new ArrayList<Pair<AbstractSymbol, AbstractSymbol>>();
+					newBindings.add(new Pair<AbstractSymbol, AbstractSymbol>(TreeConstants.self, TreeConstants.SELF_TYPE));
+
+					Helper.updateObjectEnv(c.objectEnv, curr, newBindings); //enter a new scope with new bindings
+					init.semant(c, curr, errorReporter);
+					AbstractSymbol T1 = init.get_type();
+					if(!c.inheritanceGraph.conforms(T1.toString(), T0.toString(), TreeConstants.Object_.toString())){
+						errorReporter = c.semantError(curr);
+						errorReporter.println("Inferred type " + T1.toString() + " of initialization expression does not conform to declared type " + type_decl.toString());
+					}
+					c.objectEnv.exitScope(); //restore old scope
+				}
+			}
+		}
+
     }
 
 }
@@ -1232,12 +1301,36 @@ class let extends Expression {
     public void dump_with_types(PrintStream out, int n) {
         dump_line(out, n);
         out.println(Utilities.pad(n) + "_let");
-	dump_AbstractSymbol(out, n + 2, identifier);
-	dump_AbstractSymbol(out, n + 2, type_decl);
-	init.dump_with_types(out, n + 2);
-	body.dump_with_types(out, n + 2);
-	dump_type(out, n);
+		dump_AbstractSymbol(out, n + 2, identifier);
+		dump_AbstractSymbol(out, n + 2, type_decl);
+		init.dump_with_types(out, n + 2);
+		body.dump_with_types(out, n + 2);
+		dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		String T0_prime_string;
+		if(type_decl.toString().equals(TreeConstants.SELF_TYPE)){
+			T0_prime_string = type_decl.toString()+"_"+curr.name.toString();
+		}else{
+			T0_prime_string = type_decl.toString();
+		}
+		init.semant(c, curr, errorReporter);
+		AbstractSymbol T1 = init.get_type();
+		if(!c.inheritanceGraph.conforms(T1.toString(), T0_prime_string, TreeConstants.Object_.toString())){
+			errorReporter = c.semantError(curr);
+			errorReporter.println("Inferred type " + T1.toString() + " does not conform to indentifier " + identifier.toString() + "'s declared type " + T0_prime_string);
+		}
+		
+		ArrayList<Pair<AbstractSymbol, AbstractSymbol>> newBindings = new ArrayList<Pair<AbstractSymbol, AbstractSymbol>>();
+		newBindings.add(new Pair<AbstractSymbol, AbstractSymbol>(identifier, type_decl));
+		
+		Helper.updateObjectEnv(c.objectEnv, curr, newBindings);	
+		body.semant(c, curr, errorReporter);
+		c.objectEnv.exitScope();
+		
+		set_type(body.get_type());
+	}
 
 }
 
@@ -2021,5 +2114,19 @@ class Helper {
         }
         return null;
     }
+	
+	//Precondition: class curr's name should be in the SymbolTable otherwise NullPointerException
+	//Note this method adds a scope the argument SymbolTable
+	public static void updateObjectEnv(SymbolTable objectEnv, class_c curr, List<Pair<AbstractSymbol, AbstractSymbol>>newBindings){
+		//get current attrTypeMap for the class curr and place all values in newAttrTypeMap
+		Map<AbstractSymbol, AbstractSymbol> newAttrTypeMap = new HashMap<AbstractSymbol, AbstractSymbol>();
+		newAttrTypeMap.putAll((Map<AbstractSymbol,AbstractSymbol>)objectEnv.lookup(curr.name));
 
+		for(int i = 0; i < newBindings.size(); i++){
+			newAttrTypeMap.put(newBindings.get(i).getLeft(), newBindings.get(i).getRight());
+		}
+		
+		objectEnv.enterScope();
+		objectEnv.addId(curr.name, newAttrTypeMap);
+	}
 }
