@@ -15,7 +15,10 @@ Class C {
 Class B inherits C {
    b: Int;
    fb() : String { -- wrong return type
-   	3
+    {
+    "this function should have a string type";
+   	3;
+    }
    };
 };
 Class D inherits B {
@@ -32,4 +35,24 @@ Class F inherits E {
 
 Class G inherits F {
    g : Int <- "it is Int";
+};
+
+Class ComplicatedIssues {
+    -- int vs string
+    a : Int <- let b : String in {
+        5;
+        "String Type for Int identifier";
+    };
+    -- string vs int
+    b : String <- if true then "ignore it" else 164 fi;
+    -- Bool vs String
+    c : Bool <- case 5 of 
+                    c1 : Int => "String";
+                    c2 : Object => "another string";
+                    c3 : Bool => true;
+                    esac;
+    -- while loop has 'Object' type
+    d : Int <- let dummy : Int <- 0, e : Bool in
+        e <- while dummy < 5 loop dummy <- dummy + 1 pool;
+
 };
