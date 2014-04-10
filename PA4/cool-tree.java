@@ -379,10 +379,12 @@ class programc extends Program {
 		Feature f = (Feature) e2.nextElement();
 		if(f instanceof attr){
 			attr a = (attr) f;
-			System.out.println(c1.getName().toString() + " attribute: " + a.name);
+			//System.out.println(c1.getName().toString() + " attribute: " + a.name);
+			
 		} else if (f instanceof method){
 			method m = (method) f;
-			System.out.println(c1.getName().toString() + " attribute: " + m.name);
+			//System.out.println(c1.getName().toString() + " method: " + m.name);
+			
 		} else {
 			System.out.println("Error should never reach here!");
 		}
