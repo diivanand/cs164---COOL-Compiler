@@ -203,6 +203,11 @@ public class Graph {
 
 	return output;
     }
+
+    public Map<String, String> getNodeParentHashMap(String rootName){
+    	return toNodeParentHashMap(nameVertexMap.get(rootName));
+    }
+
     
     //Precondition: assumes graph is a tree and root node is "Object"
     // WARNING: Output not defined for non-tree graphs, may not terminate

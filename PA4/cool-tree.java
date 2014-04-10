@@ -373,27 +373,98 @@ class programc extends Program {
 	//Check for multiply defined errors during this phase as well
 	//Check for existence of Main class and main method in main class
 	//Check for inherited attribute names being declared in derived class
+	Set<String> classNames = new HashSet<String>();
+	classTable.objectEnv.enterScope();
+	classTable.methodEnv.enterScope();
 	for (Enumeration e = classes.getElements(); e.hasMoreElements(); ) {
 	    class_c c1 = (class_c)e.nextElement();
+	    errorReporter = classTable.semantError(c1);
+
+	    
+	    if(classNames.contains(c1.name.toString())){
+	    	errorReporter.println("Class " + c1.name.toString() + " was previously defined.");
+		continue;
+	    } else {
+	    	classNames.add(c1.name.toString());
+	    }
+		
+	    Map<AbstractSymbol, List<AbstractSymbol>> methodArgMap = new HashMap<AbstractSymbol, List<AbstractSymbol>>();
+	    Map<AbstractSymbol, AbstractSymbol> attrTypeMap = new HashMap<AbstractSymbol, AbstractSymbol>(); 
 	    for(Enumeration e2 = c1.getFeatures().getElements(); e2.hasMoreElements();){
 		Feature f = (Feature) e2.nextElement();
 		if(f instanceof attr){
 			attr a = (attr) f;
 			//System.out.println(c1.getName().toString() + " attribute: " + a.name);
-			
+			if(attrTypeMap.containsKey(a.name)){
+				errorReporter.println("Attribute " + a.name.toString() + " is multiply defined in class.");
+			}else if (isAttrInherited(a, c1, classTable)){
+				errorReporter.println("Attribute " + a.name.toString() + " is an attribute of an inherited class.");
+			}else {
+				attrTypeMap.put(a.name, a.type_decl);	
+			}
 		} else if (f instanceof method){
 			method m = (method) f;
 			//System.out.println(c1.getName().toString() + " method: " + m.name);
-			
+			if(methodArgMap.containsKey(m.name)) {
+				errorReporter.println("Method " + m.name.toString() + " is multiply defined in class.");
+				continue;
+			}else {
+				List<AbstractSymbol> typeList = new ArrayList<AbstractSymbol>();
+				for(Enumeration e3 = m.formals.getElements(); e3.hasMoreElements();){
+					formalc fo = (formalc) e3;
+					typeList.add(fo.type_decl);
+				}
+				typeList.add(m.return_type);
+				methodArgMap.put(m.name, typeList);
+			}
 		} else {
 			System.out.println("Error should never reach here!");
 		}
-	    }	
+	    }
+	    classTable.methodEnv.addId(c1.name, methodArgMap);
+	    classTable.objectEnv.addId(c1.name, attrTypeMap);
 	}
 
-    }
+	if (classTable.errors()) {
+	    System.err.println("Compilation halted due to static semantic errors.");
+	    System.exit(1);
+	}
 
+
+    }
+    // check if an attribute exist in one of its parent classes
+    private boolean isAttrInherited(attr a, class_c cur, ClassTable c) {
+    	Map<String, String> nodeParentMap = c.inheritanceGraph.getNodeParentHashMap(TreeConstants.Object_.toString());
+	String parentName = nodeParentMap.get(cur.name.toString());
+	while(parentName != null){
+		class_c parent = c.classNameMapper.get(parentName);
+		
+		for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
+			Feature f = (Feature) e;
+			if (f instanceof attr) {
+				if(((attr) f).name.toString().equals(a.name.toString()))
+				    return true;
+			}
+		}
+		
+		parentName = nodeParentMap.get(parentName);
+	}
+	return false;
+//    	AbstractSymbol parent = cur.getParent();
+//	if (parent==null) 
+//	    return false;
+//	class_c parentClass = c.classNameMapper.get(parent.toString());
+//	for(Enumeration e = parentClass.getFeatures() ; e.hasMoreElements();) {
+//	    Feature f = (Feature) e;
+//	    if(f instanceof attr) {
+//	    	if(((attr) f).name.toString().equals(a.name.toString()))
+//		    return true;
+//	    }
+//	}
+//	return isAttrInherited(a, parent, c);
+    }
 }
+
 
 
 /** Defines AST constructor 'class_c'.
