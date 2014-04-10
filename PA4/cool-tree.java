@@ -920,6 +920,12 @@ class cond extends Expression {
     }
 
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+        pred.semant(c, curr, errorReporter);
+        if ( ! pred.get_type().toString().equals(TreeConstants.Bool.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Predicate of conditional has to be boolean");
+            set_type(TreeConstants.Object_);
+        }
         then_exp.semant(c, curr, errorReporter);
         else_exp.semant(c, curr, errorReporter);
         set_type(c.classNameMapper.get(c.inheritanceGraph.lub(then_exp.get_type().toString(),
@@ -964,6 +970,16 @@ class loop extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        pred.semant(c, curr, errorReporter);
+        if ( ! pred.get_type().toString().equals(TreeConstants.Bool.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Predicate of while loop has to be boolean");
+            set_type(TreeConstants.Object_);
+        }
+        body.semant(c,curr,errorReporter);
+        set_type(TreeConstants.Object_);
+    }
 }
 
 
@@ -1151,6 +1167,21 @@ class plus extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("First Element of plus should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        e2.semant(c, curr, errorReporter);
+        if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Second Element of plus should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1189,6 +1220,21 @@ class sub extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("First Element of sub should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        e2.semant(c, curr, errorReporter);
+        if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Second Element of sub should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1227,6 +1273,21 @@ class mul extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("First Element of mul should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        e2.semant(c, curr, errorReporter);
+        if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Second Element of mul should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1265,6 +1326,21 @@ class divide extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("First Element of divide should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        e2.semant(c, curr, errorReporter);
+        if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Second Element of divide should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1298,6 +1374,15 @@ class neg extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Expr of neg should be Int");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1336,6 +1421,21 @@ class lt extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("First Expr of less than should be Int type");
+            set_type(TreeConstants.Object_);
+        }
+        e2.semant(c, curr, errorReporter);
+        if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Second Expr of less than should be Int type");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1412,6 +1512,21 @@ class leq extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("First Expr of less than should be Int type");
+            set_type(TreeConstants.Object_);
+        }
+        e2.semant(c, curr, errorReporter);
+        if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Second Expr of less than should be Int type");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Int);
+    }
 }
 
 
@@ -1445,6 +1560,15 @@ class comp extends Expression {
 	dump_type(out, n);
     }
 
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+        e1.semant(c, curr, errorReporter);
+        if ( ! e1.get_type().toString().equals(TreeConstants.Bool.toString()) ) {
+            errorReporter = c.semantError(curr);
+            errorReporter.println("Expression of not should be Bool type");
+            set_type(TreeConstants.Object_);
+        }
+        set_type(TreeConstants.Bool);
+    }
 }
 
 
