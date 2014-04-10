@@ -38,7 +38,7 @@ Class G inherits F {
 };
 
 Class ComplicatedIssues {
-    -- int vs string
+    -- int vs string of let
     a : Int <- let b : String in {
         5;
         "String Type for Int identifier";
@@ -52,7 +52,8 @@ Class ComplicatedIssues {
                     c3 : Bool => true;
                     esac;
     -- while loop has 'Object' type
-    d : Int <- let dummy : Int <- 0, e : Bool in
-        e <- while dummy < 5 loop dummy <- dummy + 1 pool;
-
+    e : Int <- let dummy : Int <- 0, d : Bool in
+        d <- while dummy < 5 loop dummy <- dummy + 1 pool;
+    f : Bool <- if 2=3 then "this if has object type" else 4 fi;
+    --let dummyVar:Int, dummyInt:Int <- new Int in dummyVar <- isvoid dummyInt;
 };

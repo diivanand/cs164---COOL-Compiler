@@ -22,6 +22,23 @@ Class Main {
            c4 : Int => 4;
            esac
         in "ignore this";
+      let d:Bool, dummyInt:Int <- new Int in d <- isvoid dummyInt;
+      let a:Int <- 1, b:Int <- 2, c:Bool<-false, d:Bool<-true, e:String<-"hi", f:String <-"bye" in {
+        b <- b/a; -- 2
+        a <- a+b; -- 3
+        b <- a-b; -- 1
+        a <- a*b; -- 3
+        b <- b+2; -- 3
+
+        c <- a<b; -- false
+        d <- a<=b; -- true 
+        c <- c=d; -- false
+        
+        c <- e=f; -- false     
+        d <- not c; -- true
+
+        b <- ~b; -- negative 3
+      };
 	  (new C).init(1,true);
       }
 	};
