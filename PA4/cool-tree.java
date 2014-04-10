@@ -843,7 +843,7 @@ class static_dispatch extends Expression {
 			T0_prime = curr.name;
 		else
 			T0_prime = T0;
-		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = c.methodEnv.lookup(type_name);
+		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(type_name);
 		if(curr_methods_map == null){
 			errorReporter = c.semantError(curr);
 			errorReporter.println("Unexpected error occurred in static dispatch. Class " + type_name.toString() + " not in methodEnv");
@@ -863,7 +863,7 @@ class static_dispatch extends Expression {
 					for(int i = 0;i < actualTypes.size(); i++) {
 						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
 							errorReporter = c.semantError(curr);
-							errorReporter.println("Inferred type " actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
+							errorReporter.println("Inferred type " + actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
 							set_type(TreeConstants.Object_);
 							return;
 						}
@@ -939,13 +939,13 @@ class dispatch extends Expression {
 			T0_prime = curr.name;
 		else
 			T0_prime = T0;
-		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = c.methodEnv.lookup(curr.name);
+		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(curr.name);
 		if(curr_methods_map == null){
 			errorReporter = c.semantError(curr);
 			errorReporter.println("Unexpected error occurred in dispatch. Class " + curr.name.toString() + " not in methodEnv");
 			set_type(TreeConstants.Object_);
 		}else {
-			List<AbstractSymbol> formalTypes = getFormalList(name, curr, c);
+			List<AbstractSymbol> formalTypes = Helper.getFormalList(name, curr, c);
 			if(formalTypes == null) {
 				errorReporter = c.semantError(curr);
 				errorReporter.println("Method identifier " + name + " is not defined in this class");
@@ -959,7 +959,7 @@ class dispatch extends Expression {
 					for(int i = 0;i < actualTypes.size(); i++) {
 						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
 							errorReporter = c.semantError(curr);
-							errorReporter.println("Inferred type " actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
+							errorReporter.println("Inferred type " + actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
 							set_type(TreeConstants.Object_);
 							return;
 						}
@@ -1062,6 +1062,19 @@ class loop extends Expression {
 	body.dump_with_types(out, n + 2);
 	dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		pred.semant(c, curr, errorReporter);
+		AbstractSymbol T1 = pred.get_type();
+		if(!T1.toString().equals(TreeConstants.Bool.toString())){
+			errorReporter = c.semantError(curr);
+			errorReporter.println("Inferred type of predicate in while loop is not Bool");
+			set_type(TreeConstants.Object_);
+		}else{
+			body.semant(c, curr, errorReporter);
+			set_type(TreeConstants.Object_);
+		}
+	}
 
 }
 
@@ -1473,6 +1486,30 @@ class eq extends Expression {
 	dump_type(out, n);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+		e1.semant(c, curr, errorReporter);
+		AbstractSymbol T1 = e1.get_type();
+		e2.semant(c, curr, errorReporter);
+		AbstractSymbol T2 = e2.get_type();
+
+		Set<String> special_case_strings = new HashSet<String>();
+		special_case_strings.add(TreeConstants.Int.toString());
+		special_case_strings.add(TreeConstants.Str.toString());
+		special_case_strings.add(TreeConstants.Bool.toString());
+
+		if(special_case_strings.contains(T1.toString()) || special_case_strings.contains(T2.toString())){
+			if(!T1.toString().equals(T2.toString())) {
+				errorReporter = classTable.semantError(curr);
+				errorReporter.println("Int, Bool, and String may only be compared with objects of the same type");
+				set_type(TreeConstants.Object_);
+			}else {
+				set_type(TreeConstants.Bool);
+			}
+		}else {
+			set_type(TreeConstants.Bool);
+		}
+	}
+
 }
 
 
@@ -1732,7 +1769,7 @@ class isvoid extends Expression {
     }
 
 	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
-		e1.semant();
+		e1.semant(c, curr, errorReporter);
 		set_type(TreeConstants.Bool);
 	}
 
@@ -1763,6 +1800,10 @@ class no_expr extends Expression {
         out.println(Utilities.pad(n) + "_no_expr");
 	dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		set_type(TreeConstants.No_type);
+	}
 
 }
 
