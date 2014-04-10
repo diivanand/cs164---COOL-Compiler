@@ -750,7 +750,7 @@ class assign extends Expression {
 				errorReporter.println("Unexpected Error occurred in assign, current class not in objectEnv");
 				set_type(TreeConstants.Object_);
     	} else {
-			AbstractSymbol type = varMap.get(name);
+			AbstractSymbol type =  Helper.attrType(this.name, curr, c);
 			if(type == null){
 				errorReporter = c.semantError(curr);
 				errorReporter.println("Identifier: " + name + " in class " + curr.name.toString() + " is undefined");
