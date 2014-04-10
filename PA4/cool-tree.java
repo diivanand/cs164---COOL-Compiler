@@ -829,7 +829,56 @@ class static_dispatch extends Expression {
         out.println(Utilities.pad(n + 2) + ")");
 	dump_type(out, n);
     }
-
+	
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		expr.semant(c, curr, errorReporter);
+		AbstractSymbol T0 = expr.get_type();
+		List<AbstractSymbol> actualTypes = new ArrayList<AbstractSymbol>();
+		for(Enumeration e = actual.getElements(); e.hasMoreElements();){
+			Expression exp = (Expression) e.nextElement();
+			exp.semant(c, curr, errorReporter);
+			actualTypes.add(exp.get_type());
+		}
+		AbstractSymbol T0_prime;
+		if(T0.toString().equals(TreeConstants.SELF_TYPE.toString()))
+			T0_prime = curr.name;
+		else
+			T0_prime = T0;
+		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = c.methodEnv.lookup(type_name);
+		if(curr_methods_map == null){
+			errorReporter = c.semantError(curr);
+			errorReporter.println("Unexpected error occurred in static dispatch. Class " + type_name.toString() + " not in methodEnv");
+			set_type(TreeConstants.Object_);
+		}else {
+			List<AbstractSymbol> formalTypes = curr_methods_map.get(name);
+			if(formalTypes == null) {
+				errorReporter = c.semantError(curr);
+				errorReporter.println("Method identifier " + name + " is not defined in this class");
+				set_type(TreeConstants.Object_);
+			} else {
+				if(actualTypes.size() != formalTypes.size()-1){
+					errorReporter = c.semantError(curr);
+					errorReporter.println("Number of actual arguments: " + actualTypes.size() + " do not match number of formal arguments: " + (formalTypes.size()-1));
+					set_type(TreeConstants.Object_);
+					} else {
+					for(int i = 0;i < actualTypes.size(); i++) {
+						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
+							errorReporter = c.semantError(curr);
+							errorReporter.println("Inferred type " actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
+							set_type(TreeConstants.Object_);
+							return;
+						}
+					}
+					AbstractSymbol T_return;
+					if(formalTypes.get(formalTypes.size()-1).toString().equals(TreeConstants.SELF_TYPE.toString()))
+						T_return = T0;
+					else
+						T_return = formalTypes.get(formalTypes.size()-1);
+					set_type(T_return);
+				}
+			}
+		}
+	}
 }
 
 
@@ -876,6 +925,56 @@ class dispatch extends Expression {
         out.println(Utilities.pad(n + 2) + ")");
 	dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		expr.semant(c, curr, errorReporter);
+		AbstractSymbol T0 = expr.get_type();
+		List<AbstractSymbol> actualTypes = new ArrayList<AbstractSymbol>();
+		for(Enumeration e = actual.getElements(); e.hasMoreElements();){
+			Expression exp = (Expression) e.nextElement();
+			exp.semant(c, curr, errorReporter);
+			actualTypes.add(exp.get_type());
+		}
+		AbstractSymbol T0_prime;
+		if(T0.toString().equals(TreeConstants.SELF_TYPE.toString()))
+			T0_prime = curr.name;
+		else
+			T0_prime = T0;
+		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = c.methodEnv.lookup(curr.name);
+		if(curr_methods_map == null){
+			errorReporter = c.semantError(curr);
+			errorReporter.println("Unexpected error occurred in dispatch. Class " + curr.name.toString() + " not in methodEnv");
+			set_type(TreeConstants.Object_);
+		}else {
+			List<AbstractSymbol> formalTypes = getFormalList(name, curr, c);
+			if(formalTypes == null) {
+				errorReporter = c.semantError(curr);
+				errorReporter.println("Method identifier " + name + " is not defined in this class");
+				set_type(TreeConstants.Object_);
+			} else {
+				if(actualTypes.size() != formalTypes.size()-1){
+					errorReporter = c.semantError(curr);
+					errorReporter.println("Number of actual arguments: " + actualTypes.size() + " do not match number of formal arguments: " + (formalTypes.size()-1));
+					set_type(TreeConstants.Object_);
+					} else {
+					for(int i = 0;i < actualTypes.size(); i++) {
+						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
+							errorReporter = c.semantError(curr);
+							errorReporter.println("Inferred type " actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
+							set_type(TreeConstants.Object_);
+							return;
+						}
+					}
+					AbstractSymbol T_return;
+					if(formalTypes.get(formalTypes.size()-1).toString().equals(TreeConstants.SELF_TYPE.toString()))
+						T_return = T0;
+					else
+						T_return = formalTypes.get(formalTypes.size()-1);
+					set_type(T_return);
+				}
+			}
+		}
+	}
 
 }
 
@@ -1600,6 +1699,11 @@ class isvoid extends Expression {
 	dump_type(out, n);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+		e1.semant();
+		set_type(TreeConstants.Bool);
+	}
+
 }
 
 
@@ -1704,4 +1808,24 @@ class Helper {
         }
         return null;
     }
+
+	public static List<AbstractSymbol> getFormalList(AbstractSymbol methodName, class_c cur, ClassTable c) {
+    	if(c.methodEnv.lookup(cur.name) != null && ((Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(cur.name)).get(methodName)!=null)
+            return ((Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(cur.name)).get(methodName);
+        Map<String, String> nodeParentMap = c.inheritanceGraph.getNodeParentHashMap(TreeConstants.Object_.toString());
+        String parentName = nodeParentMap.get(cur.name.toString());
+        while(parentName != null){
+            class_c parent = c.classNameMapper.get(parentName);
+            for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
+                Feature f = (Feature) e.nextElement();
+                if (f instanceof method) {
+                    if(((method) f).name.toString().equals(methodName.toString()))
+                        return ((Map<AbstractSymbol, List<AbstractSymbol>>)c.methodEnv.lookup(parent.name)).get(methodName);
+                }
+            }
+            parentName = nodeParentMap.get(parentName);
+        }
+        return null;
+    }
+
 }
