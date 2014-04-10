@@ -748,16 +748,39 @@ class assign extends Expression {
         expr.dump(out, n+2);
     }
 
-    //public void semant(ClassTable c, class_c curr){
-    //	Map<AbstractSymbol, AbstractSymbol> varMap = c.classTable.objectEnv.probe(curr);
-    //}
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+    	Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.classTable.objectEnv.lookup(curr.name);
+		if (varMap == null) {
+				errorReporter = classTable.semantError(c1);
+				errorReporter.println("Unexpected Error occurred in assign, current class not in objectEnv");
+				set_type(TreeConstants.Object_);
+    	} else {
+			AbstractSymbol type = varMap.get(name);
+			if(type == null){
+				errorReporter = classTable.semantError(c1);
+				errorReporter.println("Identifier: " + name + " in class " curr.name.toString() + " is undefined");
+				set_type(TreeConstants.Object_);
+			} else {
+				a2.semant();
+				AbstractSymbol type_prime = a2.get_type();
+				if(c.inheritanceGraph.conforms(type_prime.toString(), type.toString())){
+					set_type(type_prime);
+				} else {
+					errorReporter = classTable.semantError(c1);
+					errorReporter.println("Inferred type of: " + type_prime.toString() + " of initialization of attribute " name + " does not conform to declared type " + type.toString());
+					set_type(TreeConstants.Object_);
+				}
+			}
+		}
+
+	}
     
     public void dump_with_types(PrintStream out, int n) {
         dump_line(out, n);
         out.println(Utilities.pad(n) + "_assign");
         dump_AbstractSymbol(out, n + 2, name);
-	expr.dump_with_types(out, n + 2);
-	dump_type(out, n);
+		expr.dump_with_types(out, n + 2);
+		dump_type(out, n);
     }
 
 }
@@ -1428,6 +1451,10 @@ class int_const extends Expression {
 	dump_type(out, n);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+		set_type(TreeConstants.Int);
+	}
+
 }
 
 
@@ -1460,6 +1487,10 @@ class bool_const extends Expression {
 	dump_Boolean(out, n + 2, val);
 	dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		set_type(TreeConstants.Bool);
+	}
 
 }
 
@@ -1496,6 +1527,10 @@ class string_const extends Expression {
 	dump_type(out, n);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
+		set_type(TreeConstants.Str);
+	}
+
 }
 
 
@@ -1528,6 +1563,14 @@ class new_ extends Expression {
 	dump_AbstractSymbol(out, n + 2, type_name);
 	dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		if (type_name.toString().equals(TreeConstants.SELF_TYPE.toString())){
+			set_type(TreeConstants.SELF_TYPE);
+		} else {
+			set_type(type_name);
+		}
+	}
 
 }
 
@@ -1619,9 +1662,27 @@ class object extends Expression {
     public void dump_with_types(PrintStream out, int n) {
         dump_line(out, n);
         out.println(Utilities.pad(n) + "_object");
-	dump_AbstractSymbol(out, n + 2, name);
-	dump_type(out, n);
+		dump_AbstractSymbol(out, n + 2, name);
+		dump_type(out, n);
     }
+
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.classTable.objectEnv.lookup(curr.name);
+		if (varMap == null) {
+			errorReporter = classTable.semantError(c1);
+			errorReporter.println("Unexpected Error occurred in object, current class not in objectEnv");
+			set_type(TreeConstants.Object_);
+    	} else {
+			AbstractSymbol type = varMap.get(name);
+			if(type == null){
+				errorReporter = classTable.semantError(c1);
+				errorReporter.println("Identifier: " + name + " in class " curr.name.toString() + " is undefined");
+				set_type(TreeConstants.Object_);
+			} else {
+				set_type(type);
+			}
+		}
+	}
 
 }
 
