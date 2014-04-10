@@ -73,6 +73,7 @@ abstract class Feature extends TreeNode {
     }
     public abstract void dump_with_types(PrintStream out, int n);
 
+	public abstract void semant(ClassTable c, class_c curr, PrintStream errorReporter);
 }
 
 
@@ -1182,6 +1183,14 @@ class block extends Expression {
 	dump_type(out, n);
     }
 
+	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+		for(Enumeration e = body.getElements(); e.hasMoreElements();) {
+			Expression expr = (Expression) e.nextElement();
+			expr.semant(c, curr, errorReporter);
+			set_type(expr.get_type());
+		}
+	}
+
 }
 
 
@@ -1588,7 +1597,7 @@ class eq extends Expression {
 
 		if(special_case_strings.contains(T1.toString()) || special_case_strings.contains(T2.toString())){
 			if(!T1.toString().equals(T2.toString())) {
-				errorReporter = classTable.semantError(curr);
+				errorReporter = c.semantError(curr);
 				errorReporter.println("Int, Bool, and String may only be compared with objects of the same type");
 				set_type(TreeConstants.Object_);
 			}else {
