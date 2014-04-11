@@ -400,8 +400,6 @@ class programc extends Program {
 	//Check for existence of Main class and main method in main class
 	//Check for inherited attribute names being declared in derived class
 	Set<String> classNames = new HashSet<String>();
-	classTable.objectEnv.enterScope();
-	classTable.methodEnv.enterScope();
 	boolean mainClassExists = false; //flag if Main class is defined
 	boolean mainInMain = false; //flag if main() method exists in Main class
 	boolean noFormalsInMainMethod = false; //flag if main() method has formals
@@ -2164,7 +2162,7 @@ class Helper {
             class_c parent = c.classNameMapper.get(parentName);
             for (Enumeration e = parent.getFeatures().getElements(); e.hasMoreElements();){
                 Feature f = (Feature) e.nextElement();
-                if (f instanceof method) {
+				if (f instanceof method) {
                     if(((method) f).name.toString().equals(methodName.toString()))
                         return ((Map<AbstractSymbol, List<AbstractSymbol>>)c.methodEnv.lookup(parent.name)).get(methodName);
                 }
