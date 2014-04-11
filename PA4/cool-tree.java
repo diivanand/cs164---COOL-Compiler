@@ -1068,8 +1068,10 @@ class dispatch extends Expression {
 					} else {
 					for(int i = 0;i < actualTypes.size(); i++) {
 						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
-							errorReporter = c.semantError(curr);
-							errorReporter.println("Inferred type " + actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
+                            
+							errorReporter = c.semantError(curr.getFilename(), this);
+                            // TODO: fill in the parameter name
+                            errorReporter.println("In call of method "+name+", type "+ actualTypes.get(i).toString() +" of parameter "+ "variable" +" does not conform to declared type " + formalTypes.get(i).toString());
 							set_type(TreeConstants.Object_);
 							return;
 						}
