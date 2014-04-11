@@ -465,6 +465,7 @@ class ClassTable {
 	return semantErrors != 0;
     }
 
+
     // NOT TO BE INCLUDED IN SKELETON
     public static void main(String[] args) {
 	new ClassTable(null).installBasicClasses();
