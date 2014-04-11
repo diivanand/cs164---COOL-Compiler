@@ -730,7 +730,7 @@ class attr extends Feature {
 						errorReporter = c.semantError(curr);
 						errorReporter.println("Inferred type " + T1.toString() + " of initialization expression does not conform to declared type " + type_decl.toString());
 					}
-					c.objectEnv.exitScope(); //restore old scope
+					c.objectEnv.exitScope(); //restore old scope.
 				}
 			}
 		}
