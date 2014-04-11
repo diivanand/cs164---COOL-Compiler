@@ -959,12 +959,12 @@ class static_dispatch extends Expression {
 			List<AbstractSymbol> formalTypes = curr_methods_map.get(name);
 			if(formalTypes == null) {
 				errorReporter = c.semantError(curr.getFilename(), this);
-				errorReporter.println("Method identifier " + name + " is not defined in this class");
+				errorReporter.println("Dispatch to undefined method " + name + ".");
 				set_type(TreeConstants.Object_);
 			} else {
 				if(actualTypes.size() != formalTypes.size()-1){
 					errorReporter = c.semantError(curr.getFilename(), this);
-					errorReporter.println("Number of actual arguments: " + actualTypes.size() + " do not match number of formal arguments: " + (formalTypes.size()-1));
+					errorReporter.println("Method "+name+" called with wrong number of arguments.");
 					set_type(TreeConstants.Object_);
 					} else {
 					for(int i = 0;i < actualTypes.size(); i++) {
@@ -1055,13 +1055,13 @@ class dispatch extends Expression {
 			List<AbstractSymbol> formalTypes = Helper.getFormalList(name, c.classNameMapper.get(T0_prime.toString()), c);
 			if(formalTypes == null) {
 				errorReporter = c.semantError(curr.getFilename(), this);
-				errorReporter.println("Method identifier " + name + " is not defined in this class");
+				errorReporter.println("Dispatch to undefined method " + name + ".");
 				set_type(TreeConstants.Object_);
 			} else {
 				if(actualTypes.size() != formalTypes.size()-1){
 					errorReporter = c.semantError(curr.getFilename(), this);
-					errorReporter.println("Number of actual arguments: " + actualTypes.size() + " do not match number of formal arguments: " + (formalTypes.size()-1));
-					set_type(TreeConstants.Object_);
+					errorReporter.println("Method "+name+" called with wrong number of arguments.");
+                    set_type(TreeConstants.Object_);
 					} else {
 					for(int i = 0;i < actualTypes.size(); i++) {
 						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
