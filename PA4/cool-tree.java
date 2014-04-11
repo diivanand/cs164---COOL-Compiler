@@ -450,8 +450,8 @@ class programc extends Program {
 				if(c1.name.toString().equals("Main")) {
 					if(m.name.toString().equals("main")) {
 						mainInMain = true;
+                        noFormalsInMainMethod = typeList.size()==1;
 					}
-					noFormalsInMainMethod = typeList.size()==1;
 				}
 			}
 		} else {
@@ -649,7 +649,10 @@ class method extends Feature {
 					c.objectEnv.exitScope(); //restore old scope
 					
 					String T0_prime_string = Helper.handleSELF_TYPE(expr.get_type().toString(), curr);
-					if(!c.inheritanceGraph.conforms(T0_prime_string, return_type.toString(), TreeConstants.Object_.toString())){
+                    if (c.classNameMapper.get(return_type.toString())==null) {
+						errorReporter = c.semantError(curr.getFilename(), this);
+						errorReporter.println("Undefined return type " + return_type + " in method " + name + ".");
+                    } else if(!c.inheritanceGraph.conforms(T0_prime_string, return_type.toString(), TreeConstants.Object_.toString())){
 						errorReporter = c.semantError(curr.getFilename(), this);
 						errorReporter.println("Inferred return type " + T0_prime_string + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
 					}
