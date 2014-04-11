@@ -486,6 +486,14 @@ class programc extends Program {
 
 	//Phase 3 TYPE CHECKING YEAHHH BABY!
 
+	for(Enumeration e1 = classes.getElements(); e1.hasMoreElements();){
+		class_c classie = (class_c) e1.nextElement();
+		 for(Enumeration e2 = classie.getFeatures().getElements(); e2.hasMoreElements();){
+		 	Feature f = (Feature) e2.nextElement();
+			f.semant(classTable, classie, classTable.semantError(classie));
+		 }
+	}
+
 	//Semantic Analysis done! Report errors
 	if (classTable.errors()) {
 	    System.err.println("Compilation halted due to static semantic errors.");
