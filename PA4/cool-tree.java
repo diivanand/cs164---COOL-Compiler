@@ -627,12 +627,12 @@ class method extends Feature {
 	public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
     	Map<AbstractSymbol, List<AbstractSymbol>> methodArgMap = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(curr.name);
 	  	if (methodArgMap == null) {
-	  		errorReporter = c.semantError(curr);
+	  		errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Unexpected Error occurred in method, current class not in methodEnv");
     	} else {
 	        List<AbstractSymbol> formalList = methodArgMap.get(name);
 			if(formalList == null){
-				errorReporter = c.semantError(curr);
+				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Unexpected Error occurred in method, method name not in methodEnv");
 			} else {
 					//Bind self to SELF_TYPE and formals to their types
@@ -651,8 +651,8 @@ class method extends Feature {
 					
 					AbstractSymbol T0_prime = expr.get_type();
 					if(!c.inheritanceGraph.conforms(T0_prime.toString(), return_type.toString(), TreeConstants.Object_.toString())){
-						errorReporter = c.semantError(curr);
-						errorReporter.println("Inferred type " + T0_prime.toString() + " of expression does not conform to return type " + return_type.toString());
+						errorReporter = c.semantError(curr.getFilename(), this);
+						errorReporter.println("Inferred return type " + T0_prime.toString() + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
 					}
 			}
 		}
@@ -705,16 +705,16 @@ class attr extends Feature {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
     	Map<AbstractSymbol, AbstractSymbol> attrTypeMap = (Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(curr.name);
 	  	if (attrTypeMap == null) {
-	  		errorReporter = c.semantError(curr);
+	  		errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Unexpected Error occurred in attr, current class not in objectEnv");
     	} else {
 	        AbstractSymbol T0 = attrTypeMap.get(name);
 			if(T0 == null){
-				errorReporter = c.semantError(curr);
+				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Unexpected Error occurred in attr, attr name not in objectEnv");
 			} else {
 				if(!T0.toString().equals(type_decl.toString())){
-					errorReporter = c.semantError(curr);
+					errorReporter = c.semantError(curr.getFilename(), this);
 					errorReporter.println("Unexpected Error occurred in attr, type in objectEnv not equal to type_decl");
 				} else {
 					//Bind self to SELF_TYPE
@@ -725,8 +725,8 @@ class attr extends Feature {
 					init.semant(c, curr, errorReporter);
 					AbstractSymbol T1 = init.get_type();
 					if(!c.inheritanceGraph.conforms(T1.toString(), T0.toString(), TreeConstants.Object_.toString())){
-						errorReporter = c.semantError(curr);
-						errorReporter.println("Inferred type " + T1.toString() + " of initialization expression does not conform to declared type " + type_decl.toString());
+						errorReporter = c.semantError(curr.getFilename(), this);
+						errorReporter.println("Inferred type " + T1.toString() + " of initialization of attribute " + name + " does not conform to declared type " + type_decl.toString() + ".");
 					}
 					c.objectEnv.exitScope(); //restore old scope.
 				}
@@ -845,13 +845,13 @@ class assign extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
     	Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(curr.name);
 		if (varMap == null) {
-				errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Unexpected Error occurred in assign, current class not in objectEnv");
 				set_type(TreeConstants.Object_);
     	} else {
 			AbstractSymbol type =  Helper.attrType(this.name, curr, c);
 			if(type == null){
-				errorReporter = c.semantError(curr);
+                errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Identifier: " + name + " in class " + curr.name.toString() + " is undefined");
 				set_type(TreeConstants.Object_);
 			} else {
@@ -860,8 +860,8 @@ class assign extends Expression {
 				if(c.inheritanceGraph.conforms(type_prime.toString(), type.toString(), TreeConstants.Object_.toString())){
 					set_type(type_prime);
 				} else {
-					errorReporter = c.semantError(curr);
-					errorReporter.println("Inferred type of: " + type_prime.toString() + " of initialization of attribute " + name + " does not conform to declared type " + type.toString());
+                    errorReporter = c.semantError(curr.getFilename(), this);
+					errorReporter.println("Type " + type_prime.toString() + " of assigned expression does not conform to declared type " + type.toString() + " of identifier "+ name + ".");
 					set_type(TreeConstants.Object_);
 				}
 			}
@@ -945,7 +945,7 @@ class static_dispatch extends Expression {
 			T0_prime = T0;
 
 		if(type_name.toString().equals(TreeConstants.SELF_TYPE.toString())){
-			errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Cannot call static dispatch on SELF_TYPE");
 			set_type(TreeConstants.Object_);
 			return;
@@ -953,24 +953,24 @@ class static_dispatch extends Expression {
 
 		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(type_name);
 		if(curr_methods_map == null){
-			errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Unexpected error occurred in static dispatch. Class " + type_name.toString() + " not in methodEnv");
 			set_type(TreeConstants.Object_);
 		}else {
 			List<AbstractSymbol> formalTypes = curr_methods_map.get(name);
 			if(formalTypes == null) {
-				errorReporter = c.semantError(curr);
+				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Method identifier " + name + " is not defined in this class");
 				set_type(TreeConstants.Object_);
 			} else {
 				if(actualTypes.size() != formalTypes.size()-1){
-					errorReporter = c.semantError(curr);
+					errorReporter = c.semantError(curr.getFilename(), this);
 					errorReporter.println("Number of actual arguments: " + actualTypes.size() + " do not match number of formal arguments: " + (formalTypes.size()-1));
 					set_type(TreeConstants.Object_);
 					} else {
 					for(int i = 0;i < actualTypes.size(); i++) {
 						if(!c.inheritanceGraph.conforms(actualTypes.get(i).toString(), formalTypes.get(i).toString(), TreeConstants.Object_.toString())){
-							errorReporter = c.semantError(curr);
+							errorReporter = c.semantError(curr.getFilename(), this);
 							errorReporter.println("Inferred type " + actualTypes.get(i).toString() + " does not conform to formal type " + formalTypes.get(i).toString());
 							set_type(TreeConstants.Object_);
 							return;
@@ -1049,18 +1049,18 @@ class dispatch extends Expression {
 			T0_prime = T0;
 		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(curr.name);
 		if(curr_methods_map == null){
-			errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Unexpected error occurred in dispatch. Class " + curr.name.toString() + " not in methodEnv");
 			set_type(TreeConstants.Object_);
 		}else {
 			List<AbstractSymbol> formalTypes = Helper.getFormalList(name, curr, c);
 			if(formalTypes == null) {
-				errorReporter = c.semantError(curr);
+				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Method identifier " + name + " is not defined in this class");
 				set_type(TreeConstants.Object_);
 			} else {
 				if(actualTypes.size() != formalTypes.size()-1){
-					errorReporter = c.semantError(curr);
+					errorReporter = c.semantError(curr.getFilename(), this);
 					errorReporter.println("Number of actual arguments: " + actualTypes.size() + " do not match number of formal arguments: " + (formalTypes.size()-1));
 					set_type(TreeConstants.Object_);
 					} else {
@@ -1131,7 +1131,7 @@ class cond extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
         pred.semant(c, curr, errorReporter);
         if ( ! pred.get_type().toString().equals(TreeConstants.Bool.toString()) ) {
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Predicate of conditional has to be boolean");
             set_type(TreeConstants.Object_);
         }
@@ -1183,8 +1183,8 @@ class loop extends Expression {
 		pred.semant(c, curr, errorReporter);
 		AbstractSymbol T1 = pred.get_type();
 		if(!T1.toString().equals(TreeConstants.Bool.toString())){
-			errorReporter = c.semantError(curr);
-			errorReporter.println("Inferred type of predicate in while loop is not Bool");
+			errorReporter = c.semantError(curr.getFilename(), this);
+			errorReporter.println("Inferred type of predicate in while loop is not Bool: "+T1);
 			set_type(TreeConstants.Object_);
 		}else{
 			body.semant(c, curr, errorReporter);
@@ -1244,7 +1244,7 @@ class typcase extends Expression {
 
             // checks if declared types of each branch is uqique
             if(branch_decl.contains(br.type_decl)) { 
-                errorReporter = c.semantError(curr);
+                errorReporter = c.semantError(curr.getFilename(), this);
                 errorReporter.println("Duplicate branch "+br.type_decl.toString()+" in case statement.");
                 set_type(TreeConstants.Object_);
             } else {
@@ -1259,7 +1259,7 @@ class typcase extends Expression {
             c.objectEnv.exitScope();
         }
         if(casetypes.isEmpty()) { // if there is no case branch, should be error
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("There should be at least one branch in cases");
             set_type(TreeConstants.Object_);
         } else {
@@ -1375,7 +1375,7 @@ class let extends Expression {
 		init.semant(c, curr, errorReporter);
 		AbstractSymbol T1 = init.get_type();
 		if(!c.inheritanceGraph.conforms(T1.toString(), T0_prime_string, TreeConstants.Object_.toString())){
-			errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Inferred type " + T1.toString() + " does not conform to indentifier " + identifier.toString() + "'s declared type " + T0_prime_string);
 		}
 		
@@ -1430,13 +1430,13 @@ class plus extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("First Element of plus should be Int");
             set_type(TreeConstants.Object_);
         }
         e2.semant(c, curr, errorReporter);
         if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Second Element of plus should be Int");
             set_type(TreeConstants.Object_);
         }
@@ -1483,13 +1483,13 @@ class sub extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("First Element of sub should be Int");
             set_type(TreeConstants.Object_);
         }
         e2.semant(c, curr, errorReporter);
         if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Second Element of sub should be Int");
             set_type(TreeConstants.Object_);
         }
@@ -1536,13 +1536,13 @@ class mul extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("First Element of mul should be Int");
             set_type(TreeConstants.Object_);
         }
         e2.semant(c, curr, errorReporter);
         if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Second Element of mul should be Int");
             set_type(TreeConstants.Object_);
         }
@@ -1589,13 +1589,13 @@ class divide extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("First Element of divide should be Int");
             set_type(TreeConstants.Object_);
         }
         e2.semant(c, curr, errorReporter);
         if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Second Element of divide should be Int");
             set_type(TreeConstants.Object_);
         }
@@ -1637,7 +1637,7 @@ class neg extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Expr of neg should be Int");
             set_type(TreeConstants.Object_);
         }
@@ -1684,17 +1684,17 @@ class lt extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("First Expr of less than should be Int type");
             set_type(TreeConstants.Object_);
         }
         e2.semant(c, curr, errorReporter);
         if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Second Expr of less than should be Int type");
             set_type(TreeConstants.Object_);
         }
-        set_type(TreeConstants.Int);
+        set_type(TreeConstants.Bool);
     }
 }
 
@@ -1747,7 +1747,7 @@ class eq extends Expression {
 
 		if(special_case_strings.contains(T1.toString()) || special_case_strings.contains(T2.toString())){
 			if(!T1.toString().equals(T2.toString())) {
-				errorReporter = c.semantError(curr);
+				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Int, Bool, and String may only be compared with objects of the same type");
 				set_type(TreeConstants.Object_);
 			}else {
@@ -1799,17 +1799,17 @@ class leq extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("First Expr of less than should be Int type");
             set_type(TreeConstants.Object_);
         }
         e2.semant(c, curr, errorReporter);
         if ( ! e2.get_type().toString().equals(TreeConstants.Int.toString()) ) {
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Second Expr of less than should be Int type");
             set_type(TreeConstants.Object_);
         }
-        set_type(TreeConstants.Int);
+        set_type(TreeConstants.Bool);
     }
 }
 
@@ -1847,7 +1847,7 @@ class comp extends Expression {
     public void semant(ClassTable c, class_c curr, PrintStream errorReporter) {
         e1.semant(c, curr, errorReporter);
         if ( ! e1.get_type().toString().equals(TreeConstants.Bool.toString()) ) {
-            errorReporter = c.semantError(curr);
+            errorReporter = c.semantError(curr.getFilename(), this);
             errorReporter.println("Expression of not should be Bool type");
             set_type(TreeConstants.Object_);
         }
@@ -2113,13 +2113,13 @@ class object extends Expression {
 	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
 		Map<AbstractSymbol, AbstractSymbol> varMap = (Map<AbstractSymbol, AbstractSymbol>) c.objectEnv.lookup(curr.name);
 		if (varMap == null) {
-			errorReporter = c.semantError(curr);
+			errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Unexpected Error occurred in object, current class not in objectEnv");
 			set_type(TreeConstants.Object_);
     	} else {
 			AbstractSymbol type = Helper.attrType(this.name, curr, c);
 			if(type == null){
-				errorReporter = c.semantError(curr);
+				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Identifier: " + name + " in class " + curr.name.toString() + " is undefined");
 				set_type(TreeConstants.Object_);
 			} else {
