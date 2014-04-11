@@ -68,6 +68,7 @@ class Classes extends ListNode {
 
 /** Defines simple phylum Feature */
 abstract class Feature extends TreeNode {
+    AbstractSymbol name; 
     protected Feature(int lineNumber) {
         super(lineNumber);
     }
@@ -488,6 +489,7 @@ class programc extends Program {
 		class_c classie = (class_c) e1.nextElement();
 		 for(Enumeration e2 = classie.getFeatures().getElements(); e2.hasMoreElements();){
 		 	Feature f = (Feature) e2.nextElement();
+            System.out.println("hello :" + f + f.name);
 			f.semant(classTable, classie, classTable.semantError(classie));
 		 }
 	}
