@@ -282,6 +282,11 @@ class programc extends Program {
 	for (Enumeration e = classes.getElements(); e.hasMoreElements(); ) {
 	    class_c c1 = (class_c)e.nextElement();
 	    String c1Name = c1.getName().toString();
+		if(c1.getName().toString().equals(TreeConstants.SELF_TYPE.toString())){
+			errorReporter = classTable.semantError(c1);
+			errorReporter.println("Class name cannot be SELF_TYPE");
+			continue;
+		}
 
 	    //Check for redefinition of basic objects
 	    if(c1Name.equals(TreeConstants.Object_.toString())) {
@@ -301,6 +306,11 @@ class programc extends Program {
 		errorReporter.println("Redefinition of basic class Bool.");
 	    } else { //no redefinitions of basic objects
 	    	String c2Name = c1.getParent().toString();
+			if(c2Name.equals(TreeConstants.SELF_TYPE.toString())){
+				errorReporter = classTable.semantError(c1);
+				errorReporter.println("Parent Class name cannot be SELF_TYPE");
+				continue;
+			}
 
 		//check for disallowed basic object inheriting
 		if (c2Name.equals(TreeConstants.Int.toString())){
@@ -319,10 +329,12 @@ class programc extends Program {
 	    }
 	}	
 
+    /*
 	if (classTable.errors()) {
 	    System.err.println("Compilation halted due to static semantic errors.");
 	    System.exit(1);
 	}
+	*/
 	
 	//For Debugging
 	//System.out.println(classTable.inheritanceGraph);
@@ -337,10 +349,22 @@ class programc extends Program {
 
 	}
 
+	//Check for inheriting a class that is not defined
+	for (Enumeration e = classes.getElements(); e.hasMoreElements();){
+		class_c classy = (class_c) e.nextElement();
+		AbstractSymbol parentName = classy.getParent();
+		if (classTable.classNameMapper.get(parentName.toString()) == null){
+			errorReporter = classTable.semantError();
+			errorReporter.println("Error, inheriting from a Parent " + parentName.toString() + " that is not defined");
+		}
+	}
+
+	/*
 	if (classTable.errors()) {
 	    System.err.println("Compilation halted due to static semantic errors.");
 	    System.exit(1);
 	}
+	*/
 
 	//Phase 1 complete if no errors then inheritance graph (actually a tree since no multiple inheritance) is completely valid		
 
@@ -913,6 +937,14 @@ class static_dispatch extends Expression {
 			T0_prime = curr.name;
 		else
 			T0_prime = T0;
+
+		if(type_name.toString().equals(TreeConstants.SELF_TYPE.toString())){
+			errorReporter = c.semantError(curr);
+			errorReporter.println("Cannot call static dispatch on SELF_TYPE");
+			set_type(TreeConstants.Object_);
+			return;
+		}
+
 		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(type_name);
 		if(curr_methods_map == null){
 			errorReporter = c.semantError(curr);
@@ -2128,5 +2160,12 @@ class Helper {
 		
 		objectEnv.enterScope();
 		objectEnv.addId(curr.name, newAttrTypeMap);
+	}
+
+	public static String handleSELF_TYPE(String s, class_c curr){
+		if(s.equals(TreeConstants.SELF_TYPE.toString()))
+			return s + "_" + curr.name.toString();
+		else
+			return s;
 	}
 }
