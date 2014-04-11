@@ -328,19 +328,6 @@ class programc extends Program {
 		}
 	    }
 	}	
-
-    /*
-	if (classTable.errors()) {
-	    System.err.println("Compilation halted due to static semantic errors.");
-	    System.exit(1);
-	}
-	*/
-	
-	//For Debugging
-	//System.out.println(classTable.inheritanceGraph);
-	//System.out.println("Inheritance Graph has a cycle: " + classTable.inheritanceGraph.hasCycle());
-	//System.out.println("Cycles: " + classTable.inheritanceGraph.getCycles());
-	
 	//Check for cycles
 	for (Map.Entry pair: classTable.inheritanceGraph.getCycles().entrySet()){
 		errorReporter = classTable.semantError(classTable.classNameMapper.get(pair.getValue()));
@@ -359,41 +346,7 @@ class programc extends Program {
 		}
 	}
 
-	/*
-	if (classTable.errors()) {
-	    System.err.println("Compilation halted due to static semantic errors.");
-	    System.exit(1);
-	}
-	*/
-
 	//Phase 1 complete if no errors then inheritance graph (actually a tree since no multiple inheritance) is completely valid		
-
-		
-	//For Debugging based on file goodTest.cl, comment all this out when done.
-	/*
-	System.out.println("Does Int conform to Object?: " 
-		+ classTable.inheritanceGraph.conforms(TreeConstants.Int.toString(), TreeConstants.Object_.toString(), TreeConstants.Object_.toString()));
-	System.out.println("Does Object conform to Main?: " 
-		+ classTable.inheritanceGraph.conforms(TreeConstants.Object_.toString(), "Main", TreeConstants.Object_.toString()));
-	System.out.println("Does B conform to Object?: " 
-		+ classTable.inheritanceGraph.conforms("B", TreeConstants.Object_.toString(), TreeConstants.Object_.toString()));
-	System.out.println("Does IO conform to Main?: " 
-		+ classTable.inheritanceGraph.conforms(TreeConstants.IO.toString(), "Main", TreeConstants.Object_.toString()));
-	System.out.println("Does Main conform to IO?: " 
-		+ classTable.inheritanceGraph.conforms("Main",TreeConstants.IO.toString(), TreeConstants.Object_.toString()));
-	System.out.println(classTable.inheritanceGraph);
-	System.out.println("LUB of IO and B: " + classTable.inheritanceGraph.lub(TreeConstants.IO.toString(), "B", TreeConstants.Object_.toString()));
-	System.out.println("LUB of B and IO: " + classTable.inheritanceGraph.lub("B",TreeConstants.IO.toString(), TreeConstants.Object_.toString()));
-	System.out.println("LUB of A and B: " + classTable.inheritanceGraph.lub("A", "B", TreeConstants.Object_.toString()));
-	System.out.println("LUB of B and A: " + classTable.inheritanceGraph.lub("B", "A", TreeConstants.Object_.toString()));	
-	System.out.println("LUB of D and B: " + classTable.inheritanceGraph.lub("D", "B", TreeConstants.Object_.toString()));
-       System.out.println("LUB of Main and IO: " + classTable.inheritanceGraph.lub("Main", TreeConstants.IO.toString(), TreeConstants.Object_.toString()));					
-  	System.out.println("LUB of SELF_TYPE_B and A: " + classTable.inheritanceGraph.lub("SELF_TYPE_B", "A", TreeConstants.Object_.toString()));
-	System.out.println("LUB of SELF_TYPE_OBJECT and B: " + classTable.inheritanceGraph.lub("SELF_TYPE_"+TreeConstants.Object_.toString(), "B", TreeConstants.Object_.toString()));
-	System.out.println("LUB of B and SELF_TYPE_OBJECT: " + classTable.inheritanceGraph.lub("B", "SELF_TYPE_"+TreeConstants.Object_.toString(), TreeConstants.Object_.toString()));
-	System.out.println("LUB of A and SELF_TYPE_B: " + classTable.inheritanceGraph.lub("A", "SELF_TYPE_B", TreeConstants.Object_.toString()));
-	System.out.println("LUB of SELF_TYPE_B and SELF_TYPE_B: " + classTable.inheritanceGraph.lub("SELF_TYPE_B", "SELF_TYPE_B", TreeConstants.Object_.toString()));
-	*/
 
 	//Phase 2 Create global Object and Method environments
 	//Check for multiply defined errors during this phase as well
@@ -441,8 +394,22 @@ class programc extends Program {
 				continue;
 			}else {
 				List<AbstractSymbol> typeList = new ArrayList<AbstractSymbol>();
+				Set<String> formalNames = new HashSet<String>();
 				for(Enumeration e3 = m.formals.getElements(); e3.hasMoreElements();){
 					formalc fo = (formalc) e3.nextElement();
+					if(formalNames.contains(fo.name.toString())){
+						errorReporter = classTable.semantError(c1.getFilename(), this);
+						errorReporter.println("Formal parameter " + fo.name + " in function " + m.name + " in class " + c1.name + " is multiply defined");
+						continue;
+					}else {
+						formalNames.add(fo.name.toString());
+					}
+
+					if(fo.type_decl.toString().equals(TreeConstants.SELF_TYPE.toString())){
+						errorReporter = classTable.semantError(c1.getFilename(), this);
+						errorReporter.println("Formal parameter " + fo.name + " in function " + m.name + " in class " + c1.name + " cannot have type SELF_TYPE");
+						continue;
+					}
 					typeList.add(fo.type_decl);
 				}
 				typeList.add(m.return_type);
@@ -450,8 +417,8 @@ class programc extends Program {
 				if(c1.name.toString().equals("Main")) {
 					if(m.name.toString().equals("main")) {
 						mainInMain = true;
+						noFormalsInMainMethod = typeList.size()==1;
 					}
-					noFormalsInMainMethod = typeList.size()==1;
 				}
 			}
 		} else {
@@ -649,7 +616,7 @@ class method extends Feature {
 					c.objectEnv.exitScope(); //restore old scope
 					
 					String T0_prime_string = Helper.handleSELF_TYPE(expr.get_type().toString(), curr);
-					if(!c.inheritanceGraph.conforms(T0_prime_string, return_type.toString(), TreeConstants.Object_.toString())){
+					if(!c.inheritanceGraph.conforms(T0_prime_string, Helper.handleSELF_TYPE(return_type.toString(), curr), TreeConstants.Object_.toString())){
 						errorReporter = c.semantError(curr.getFilename(), this);
 						errorReporter.println("Inferred return type " + T0_prime_string + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
 					}
