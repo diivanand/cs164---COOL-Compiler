@@ -1237,7 +1237,7 @@ class typcase extends Expression {
             // checks if declared types of each branch is uqique
             if(branch_decl.contains(br.type_decl)) { 
                 errorReporter = c.semantError(curr);
-                errorReporter.println("Duplicate branch "+br.type_decl.name.toString()+" in case statement.");
+                errorReporter.println("Duplicate branch "+br.type_decl.toString()+" in case statement.");
                 set_type(TreeConstants.Object_);
             } else {
                 branch_decl.add(br.type_decl);
