@@ -616,7 +616,14 @@ class method extends Feature {
 					c.objectEnv.exitScope(); //restore old scope
 					
 					String T0_prime_string = Helper.handleSELF_TYPE(expr.get_type().toString(), curr);
+<<<<<<< HEAD
 					if(!c.inheritanceGraph.conforms(T0_prime_string, Helper.handleSELF_TYPE(return_type.toString(), curr), TreeConstants.Object_.toString())){
+=======
+                    if (c.classNameMapper.get(return_type.toString())==null) {
+						errorReporter = c.semantError(curr.getFilename(), this);
+						errorReporter.println("Undefined return type " + return_type + " in method " + name + ".");
+                    } else if(!c.inheritanceGraph.conforms(T0_prime_string, return_type.toString(), TreeConstants.Object_.toString())){
+>>>>>>> bbde8720b33ebf2d50928c356c2b556dac5f21ee
 						errorReporter = c.semantError(curr.getFilename(), this);
 						errorReporter.println("Inferred return type " + T0_prime_string + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
 					}
