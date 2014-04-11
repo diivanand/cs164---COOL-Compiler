@@ -1264,7 +1264,7 @@ class typcase extends Expression {
         } else {
             // Calculates the Least Upper Bound of the case expressions.
             AbstractSymbol case_lub = casetypes.remove(0);
-            while(casetypes.isEmpty()) {
+            while(!casetypes.isEmpty()) {
                 String lub_string = c.inheritanceGraph.lub(case_lub.toString(),
                         casetypes.remove(0).toString(),
                         TreeConstants.Object_.toString());

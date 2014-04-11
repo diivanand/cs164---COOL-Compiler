@@ -8,7 +8,16 @@ class C {
 		self;
            }
 	};
+    func() : Int {
+        1
+    };
 };
+
+Class D inherits C{
+    func() : Int{
+        2
+    };
+}; 
 
 Class Main {
 	main():C {
@@ -41,6 +50,10 @@ Class Main {
         d <- not c; -- true
 
         b <- ~b; -- negative 3
+      };
+      let a:Int, b:Int, d:D <- new D in {
+        a <- d.func();
+        b <- d@C.func();
       };
 	  (new C).init(1,true);
       }
