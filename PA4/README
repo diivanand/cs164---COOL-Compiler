@@ -177,5 +177,22 @@ Instructions
 Write-up for PA4
 ----------------
 
+ADDED CLASSES:
+Graph.java :
+Edge.java :
+Vertex.java :
+Pair.java : 
+
+MODIFIED CLASSES:
+cool-tree.java : semant() stuff
+ClassTable.java :
+
+
+
+Design Decisions & Process:
+
+
+Implementation:
+Our cool-tree contains a helper class that contains helper functions, including 'attrType', 'getFormalList', 'updateObjectEnv', and 'handleSELF_TYPE'.
 
 
