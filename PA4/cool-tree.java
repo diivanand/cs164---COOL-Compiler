@@ -1052,7 +1052,7 @@ class dispatch extends Expression {
 			errorReporter.println("Unexpected error occurred in dispatch. Class " + curr.name.toString() + " not in methodEnv");
 			set_type(TreeConstants.Object_);
 		}else {
-			List<AbstractSymbol> formalTypes = Helper.getFormalList(name, curr, c);
+			List<AbstractSymbol> formalTypes = Helper.getFormalList(name, c.classNameMapper.get(T0_prime.toString()), c);
 			if(formalTypes == null) {
 				errorReporter = c.semantError(curr.getFilename(), this);
 				errorReporter.println("Method identifier " + name + " is not defined in this class");
