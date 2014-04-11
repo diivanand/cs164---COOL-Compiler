@@ -178,21 +178,42 @@ Write-up for PA4
 ----------------
 
 ADDED CLASSES:
-Graph.java :
-Edge.java :
-Vertex.java :
-Pair.java : 
+Graph.java : Uses Edge.java and Vertex.java to create a directed graph. If the graph is a tree has methods conforms and lub
+             implemented using a Stack and parent pointers.
+Edge.java : A graph edge class
+Vertex.java : A graph node class
+Pair.java : A basic java 2-tuple class for convenience when extending the object environment
 
 MODIFIED CLASSES:
-cool-tree.java : semant() stuff
-ClassTable.java :
+cool-tree.java : added semant() methods to all expressions, attr, and method classes, and updated the semant method in programc 
+ClassTable.java : the inheritance Graph, objectEnv, and methodEnv are kept in here and passed along during recursive descent of AST
 
 
 
 Design Decisions & Process:
+Followed the slides strategy, Process AST node n by first calling semant on it's subexpressions to get types for them and following the COOL manual to implement type checking rules. Used ErrorReporter to report errors.
+
+Biggest Design strategy was splitting the process into 3 Phases:
+
+	//Phase 1: Check for Basic Object Redefinitions
+	//         Check for disallowed basic object inheriting
+	//         Check for cycles
+
+
+	//Phase 1 complete if no errors then inheritance graph (actually a tree since no multiple inheritance) is completely valid		
+
+	//Phase 2 Create global Object and Method environments
+	//Check for multiply defined errors during this phase as well
+	//Check for existence of Main class and main method in main class
+	//Check for inherited attribute names being declared in derived class
+
+	//Phase 2 completed. This means code has the required classes and methods and all attributes and methods have valid names.
+
+	//Phase 3 Type Checking using the strategy laid out in class and briefly mentioned above. Error handling done using the
+        // object trick as mentioned in slides 
 
 
 Implementation:
-Our cool-tree contains a helper class that contains helper functions, including 'attrType', 'getFormalList', 'updateObjectEnv', and 'handleSELF_TYPE'.
+Our cool-tree contains a helper class that contains helper functions, including 'attrType', 'getFormalList', 'updateObjectEnv', and 'handleSELF_TYPE'. attrType goes and checks for an attribute not just in current class, but also in it's inherited classes. getFormalList does a similar thing but for methods instead of attributes. updateObjectEnv is basically SymbolTable.enterScope() with a little extra due to our implementation of the symboltable. Look at code for details.
 
 
