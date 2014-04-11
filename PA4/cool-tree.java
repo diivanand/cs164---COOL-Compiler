@@ -648,10 +648,10 @@ class method extends Feature {
 					expr.semant(c, curr, errorReporter);
 					c.objectEnv.exitScope(); //restore old scope
 					
-					AbstractSymbol T0_prime = expr.get_type();
-					if(!c.inheritanceGraph.conforms(T0_prime.toString(), return_type.toString(), TreeConstants.Object_.toString())){
+					String T0_prime_string = Helper.handleSELF_TYPE(expr.get_type().toString(), curr);
+					if(!c.inheritanceGraph.conforms(T0_prime_string, return_type.toString(), TreeConstants.Object_.toString())){
 						errorReporter = c.semantError(curr.getFilename(), this);
-						errorReporter.println("Inferred return type " + T0_prime.toString() + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
+						errorReporter.println("Inferred return type " + T0_prime_string + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
 					}
 			}
 		}
