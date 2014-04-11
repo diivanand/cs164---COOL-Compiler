@@ -31,6 +31,15 @@ Class E inherits D {
 
 Class F inherits E {
    f : Bool <- "it is not boolean";
+   static_func_test() : Int {
+      5
+   };
+};
+
+Class FF inherits E { 
+   static_func_test() : Int {
+      3
+   };
 };
 
 Class G inherits F {
@@ -57,9 +66,15 @@ Class ComplicatedIssues {
     f : Bool <- if 2=3 then "this if has object type" else 4 fi;
     --let dummyVar:Int, dummyInt:Int <- new Int in dummyVar <- isvoid dummyInt;
     random_method() : Int {
+      {
         let temp : Bool in case "any expr" of -- duplicate case branches 
                         c1 : String => "String";
                         c2 : String => "another string";
-                        esac
+                        esac;
+        let temp: Int, f : F <- new F, ff : FF <- new FF in {
+            temp <- f.static_func_test();
+            temp <- f@FF.static_func_test();
+        };
+      }
     };
 };
