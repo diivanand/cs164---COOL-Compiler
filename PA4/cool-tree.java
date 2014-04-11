@@ -616,10 +616,20 @@ class method extends Feature {
 					c.objectEnv.exitScope(); //restore old scope
 					
 					String T0_prime_string = Helper.handleSELF_TYPE(expr.get_type().toString(), curr);
-                    if (c.classNameMapper.get(return_type.toString())==null) {
+					String return_type_string;	
+
+					//System.out.println("T0_prime: " + T0_prime_string);
+					//System.out.println("return type: " + return_type.toString());
+					if(return_type.toString().equals(TreeConstants.SELF_TYPE.toString())){
+						return_type_string = curr.name.toString();
+					}else{
+						return_type_string = return_type.toString();
+					}
+
+					if (!return_type.toString().equals(TreeConstants.SELF_TYPE.toString()) && c.classNameMapper.get(return_type.toString())==null) {
 						errorReporter = c.semantError(curr.getFilename(), this);
 						errorReporter.println("Undefined return type " + return_type + " in method " + name + ".");
-                    } else if(!c.inheritanceGraph.conforms(T0_prime_string, return_type.toString(), TreeConstants.Object_.toString())){
+                    } else if(!c.inheritanceGraph.conforms(T0_prime_string, Helper.handleSELF_TYPE(return_type_string, curr), TreeConstants.Object_.toString())){
 						errorReporter = c.semantError(curr.getFilename(), this);
 						errorReporter.println("Inferred return type " + T0_prime_string + " of method " + name + " does not conform to declared return type " + return_type.toString() + ".");
 					}
@@ -1106,9 +1116,13 @@ class cond extends Expression {
         }
         then_exp.semant(c, curr, errorReporter);
         else_exp.semant(c, curr, errorReporter);
-        set_type(c.classNameMapper.get(c.inheritanceGraph.lub(then_exp.get_type().toString(),
-                        else_exp.get_type().toString(),
+		//System.out.println("then_exp: " + then_exp.get_type());
+		//System.out.println("else_exp: " + else_exp.get_type());
+		//System.out.println("lub type: " + c.inheritanceGraph.lub(then_exp.get_type().toString(), else_exp.get_type().toString(), TreeConstants.Object_.toString()));
+        set_type(c.classNameMapper.get(c.inheritanceGraph.lub(Helper.handleSELF_TYPE(then_exp.get_type().toString(), curr),
+                        Helper.handleSELF_TYPE(else_exp.get_type().toString(), curr),
                         TreeConstants.Object_.toString())).name);
+		//System.out.println("cond returns :" + this.get_type());
     }
 }
 
@@ -1353,9 +1367,12 @@ class let extends Expression {
 		
 		Helper.updateObjectEnv(c.objectEnv, curr, newBindings);	
 		body.semant(c, curr, errorReporter);
-		c.objectEnv.exitScope();
 		
 		set_type(body.get_type());
+		//System.out.println("let returned: " + this.get_type());
+		
+		c.objectEnv.exitScope();
+		
 	}
 
 }
