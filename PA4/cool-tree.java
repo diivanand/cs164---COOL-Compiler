@@ -1223,22 +1223,39 @@ class typcase extends Expression {
 	dump_type(out, n);
     }
 
-	public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
-        expr.semant(c, curr, errorReporter);
-        
-        List<AbstractSymbol> casetypes = new LinkedList<AbstractSymbol>();
+    public void semant(ClassTable c, class_c curr, PrintStream errorReporter){
+        expr.semant(c, curr, errorReporter); // calculate the LUB of e0 first.
+        Set<AbstractSymbol> branch_decl = new HashSet<AbstractSymbol>(); // to see if types are distinct in cases
+        List<AbstractSymbol> casetypes = new LinkedList<AbstractSymbol>(); // for LUB of types
         for (Enumeration en = cases.getElements(); en.hasMoreElements(); ) {
             branch br = (branch) en.nextElement();
+            // Enter scope for each branch of cases
+            ArrayList<Pair<AbstractSymbol, AbstractSymbol>> newBindings = new ArrayList<Pair<AbstractSymbol, AbstractSymbol>>();
+            newBindings.add(new Pair<AbstractSymbol, AbstractSymbol>(br.name, br.type_decl));
+            Helper.updateObjectEnv(c.objectEnv, curr, newBindings);	
+
+            // checks if declared types of each branch is uqique
+            if(branch_decl.contains(br.type_decl)) { 
+                errorReporter = c.semantError(curr);
+                errorReporter.println("Duplicate branch "+br.type_decl.name.toString()+" in case statement.");
+                set_type(TreeConstants.Object_);
+            } else {
+                branch_decl.add(br.type_decl);
+            }
+
+            // Evaluate the expression, then exit the scope.
             Expression e = br.expr;
             e.semant(c, curr, errorReporter);
             AbstractSymbol caseType = e.get_type();
             casetypes.add(caseType);
+            c.objectEnv.exitScope();
         }
         if(casetypes.isEmpty()) { // if there is no case branch, should be error
             errorReporter = c.semantError(curr);
             errorReporter.println("There should be at least one branch in cases");
             set_type(TreeConstants.Object_);
         } else {
+            // Calculates the Least Upper Bound of the case expressions.
             AbstractSymbol case_lub = casetypes.remove(0);
             while(casetypes.isEmpty()) {
                 String lub_string = c.inheritanceGraph.lub(case_lub.toString(),

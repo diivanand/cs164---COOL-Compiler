@@ -56,4 +56,10 @@ Class ComplicatedIssues {
         d <- while dummy < 5 loop dummy <- dummy + 1 pool;
     f : Bool <- if 2=3 then "this if has object type" else 4 fi;
     --let dummyVar:Int, dummyInt:Int <- new Int in dummyVar <- isvoid dummyInt;
+    random_method() : Int {
+        let temp : Bool in case "any expr" of -- duplicate case branches 
+                        c1 : String => "String";
+                        c2 : String => "another string";
+                        esac
+    };
 };
