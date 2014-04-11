@@ -710,11 +710,11 @@ class attr extends Feature {
 	        AbstractSymbol T0 = attrTypeMap.get(name);
 			if(T0 == null){
 				errorReporter = c.semantError(curr.getFilename(), this);
-				errorReporter.println("Unexpected Error occurred in attr, attr name not in objectEnv");
+				errorReporter.println("Unexpected Error occurred in attr: attr name " + name + " is not in objectEnv for class " + curr.name + " this is usually caused if you have multiply defined or redifining inherited variable errors so fix those please.");
 			} else {
 				if(!T0.toString().equals(type_decl.toString())){
 					errorReporter = c.semantError(curr.getFilename(), this);
-					errorReporter.println("Unexpected Error occurred in attr, type in objectEnv not equal to type_decl");
+					errorReporter.println("Unexpected Error occurred in attr: type " + T0.toString() + " in objectEnv not equal to type_decl " + type_decl.toString() + ". This is usually caused if you have mutiply defined or redifining inherited variable errors so fix those please.");
 				} else {
 					//Bind self to SELF_TYPE
 					List<Pair<AbstractSymbol, AbstractSymbol>> newBindings = new ArrayList<Pair<AbstractSymbol, AbstractSymbol>>();
