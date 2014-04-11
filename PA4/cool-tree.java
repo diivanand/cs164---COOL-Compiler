@@ -937,17 +937,17 @@ class static_dispatch extends Expression {
 			exp.semant(c, curr, errorReporter);
 			actualTypes.add(exp.get_type());
 		}
-		AbstractSymbol T0_prime;
-		if(T0.toString().equals(TreeConstants.SELF_TYPE.toString()))
-			T0_prime = curr.name;
-		else
-			T0_prime = T0;
 
 		if(type_name.toString().equals(TreeConstants.SELF_TYPE.toString())){
 			errorReporter = c.semantError(curr.getFilename(), this);
 			errorReporter.println("Cannot call static dispatch on SELF_TYPE");
 			set_type(TreeConstants.Object_);
 			return;
+		}
+
+		if(!c.inheritanceGraph.conforms(T0.toString(),type_name.toString(), TreeConstants.Object_.toString())){
+			errorReporter = c.semantError(curr.getFilename(), this);
+			errorReporter.println("Expression type " + T0.toString() + " does not conform to declared static dispatch type " + type_name.toString());
 		}
 
 		Map<AbstractSymbol, List<AbstractSymbol>> curr_methods_map = (Map<AbstractSymbol, List<AbstractSymbol>>) c.methodEnv.lookup(type_name);
