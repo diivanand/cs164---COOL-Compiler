@@ -25,6 +25,8 @@ import java.io.PrintStream;
 import java.util.Vector;
 import java.util.Enumeration;
 
+// meaningless comment
+
 /** This class is used for representing the inheritance tree during code
     generation. You will need to fill in some of its methods and
     potentially extend it in other useful ways. */
