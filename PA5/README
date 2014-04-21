@@ -1,0 +1,214 @@
+README file for Programming Assignment 5  (Java edition)
+=======================================================
+
+Your directory should now contain the following files:
+
+ ASTConstants.java    -> [course dir]/src/PA5J/ASTConstants.java
+ ASTLexer.java	      -> [course dir]/src/PA5J/ASTLexer.java
+ ASTParser.java	      -> [course dir]/src/PA5J/ASTParser.java
+ AbstractSymbol.java  -> [course dir]/src/PA5J/AbstractSymbol.java
+ AbstractTable.java   -> [course dir]/src/PA5J/AbstractTable.java
+ BoolConst.java
+ Cgen.java	      -> [course dir]/src/PA5J/Cgen.java
+ CgenClassTable.java
+ CgenNode.java
+ CgenSupport.java
+ ClassTable.java      -> [course dir]/src/PA5J/ClassTable.java
+ Flags.java	      -> [course dir]/src/PA5J/Flags.java
+ IdSymbol.java	      -> [course dir]/src/PA5J/IdSymbol.java
+ IdTable.java	      -> [course dir]/src/PA5J/IdTable.java
+ IntSymbol.java
+ IntTable.java	      -> [course dir]/src/PA5J/IntTable.java
+ ListNode.java	      -> [course dir]/src/PA5J/ListNode.java
+ build.xml	      -> [course dir]/assignments/PA5/build.xml
+ README
+ StringSymbol.java
+ StringTable.java     -> [course dir]/src/PA5J/StringTable.java
+ SymbolTable.java     -> [course dir]/src/PA5J/SymbolTable.java
+ SymtabExample.java   -> [course dir]/src/PA5J/SymtabExample.java
+ TokenConstants.java  -> [course dir]/src/PA5J/TokenConstants.java
+ TreeConstants.java
+ TreeNode.java        -> [course dir]/src/PA5J/TreeNode.java
+ Utilities.java	      -> [course dir]/src/PA5J/Utilities.java
+ cool-tree.java
+ example.cl
+ tests
+ mycoolc              -> [course dir]/bin/mycoolc
+
+	The build.xml contains targets for compiling and running your
+	program, as well as handing it in. DO NOT MODIFY.
+
+	The README contains this info. Part of the assignment is to
+	fill the README with the write-up for your project. You should
+	explain design decisions, explain why your code is correct,
+	and why your test cases are adequate. It is part of the
+	assignment to clearly and concisely explain things in text as
+	well as to comment your code.  Also, please provide feedback
+	on Coolaid by answering the questions below.
+
+	In example.cl, you should write a correct Cool program which
+	tests as many aspects of the code generator as possible. It
+	should pass your code generator, and running spim on the
+	generated output should run the program correctly.
+
+	CgenClassTable.java and CgenNode.java are the skeleton files for
+	the code generator. These skeletons are much larger than the
+	ones for previous assignments.  The skeletons provides three
+	components of the code generator:
+
+		- functions to build the inheritance graph; (we supply
+		  this in case you didn't get this working for PA4)
+
+		- functions to emit global data and constants;
+		 
+	You should work to understand this code, and it will help you
+        write the rest of the code generator.
+
+        tests is a directory containing six test cases. Your checkpoint
+        submission will be graded by this test cases.
+
+        TreeNode.java and ListNode.java contain definitions used by
+        the tree package. DO NOT MODIFY.
+
+        cool-tree.java specifies and give an implementation of Cool
+        ASTs (see the README for PA3 and the "Cool Tour").  In this
+        assignment, you will need to complete the code generating
+        methods for all Cool expression nodes.
+
+	BoolConst.java, IntSymbol.java, and StringSymbol.java are used
+        to manage constants in Cool programs.  You will need to
+        complete the method for generating constant definitions in
+        each of these classes.
+
+	CgenSupport.java is general support code for the code
+	generator.  You can add functions and constants as you see
+	fit, but do not modify anything that's already there.  This
+	class also serves as a placeholder for a bunch of constants as
+	well as functions to emit spim instructions (we supply these
+	to save you some tedious coding).
+
+	TreeConstants.java defined some useful symbol constants.  You
+	may add some of your own, if you wish.
+
+	ASTLexer.java, ASTParser.java, and ASTConstants.java implement
+	a lexer and a parser for reading text representation of ASTs
+	from console in the format produced by the parser phase. DO
+	NOT MODIFY.
+
+	Cgen.java supplies the driver for the compiler. You should not
+        modify this code.  The script mycoolc can pass any of the
+        standard flags to the code generator; for this assignment, -c
+        (code generator debug) may be useful as it sets a global
+        variable cgen_debug to true (1).  If you want your code
+        generator to print debug information when the option is set,
+        write your debug code in the following format:
+
+	      if (cgen_debug)
+	      {
+		...
+	      }
+
+	SymbolTable.java contains a symbol table implementation. Read
+	the comments in the file and look at the example in
+	SymtabExample.java.  You are not required to use this code,
+	but you may find it useful. DO NOT MODIFY.
+
+Instructions
+------------
+
+	To compile your compiler and code generator type:
+
+	% ant cgen
+
+	To test your compiler, type:
+
+	% ./mycoolc [-o output filename] <file1.cl> <file2.cl> ...
+
+	This command parses all the cool files given on the command
+	line, passes them through the semantic checker, and then hands
+	the program AST to your code generator.  It will also
+        include in your generated code annotations that are needed
+        by Coolaid.
+
+	To run your compiler on the file example.cl, type:
+
+	% ant test
+
+        To run Coolaid on your output, type:
+
+        % coolaid file1.s
+
+	To run the produced code:
+
+	% spim -file file1.s  /* or the output filename you chose */
+
+	To turn in your work at checkpoint, type:
+        
+        % ant submit-clean
+        % submit PA5-checkpoint
+
+        To turn in your work finally, type:
+
+        % ant submit-clean
+        % submit PA5
+        
+        Be sure to submit all relevant source files.  
+        In particular, you probably want to turn in cool-tree.java, 
+        TreeConstants.java, BoolConst.java, IntSymbol.java, StringSymbol.java,
+        CgenNode.java, CgenClassTable.java, CgenSupport.java, example.cl, README.
+	
+	You may turn in the assignment as many times as you like.
+	However, only the last version will be retained for grading.
+	
+	GOOD LUCK!
+
+---8<------8<------8<------8<---cut here---8<------8<------8<------8<---
+
+Write-up for PA5
+----------------
+
+
+
+
+
+
+
+
+Coolaid Feedback (optional)
+----------------------------
+1. Rate Coolaid's usefulness on a scale from 0 to 6 where 0
+   means that it was counter-productive, 3 means that it neither
+   helped nor hindered you, and 6 means that you can't imagine
+   developing/debugging a code generator without it.
+
+
+
+2. What aspects of Coolaid particularly helped you?
+
+
+
+
+
+3. What aspects of Coolaid would you like to see improved?
+
+
+
+
+
+
+4. Describe bugs, if any, that Coolaid helped you find or fix?
+
+
+
+
+
+
+5. Do you have any additional comments you would like to share
+   with us?
+
+
+
+
+
+
+

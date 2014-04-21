@@ -217,7 +217,7 @@ public class Graph {
     	Map<String,String> nodeParentMap = toNodeParentHashMap(nameVertexMap.get(rootName));
 	String c1 = class1;
 	String c2 = class2;
-	if(c1.equals(TreeConstants.No_type.toString()) && c2 != null)
+	if(c1.equals(TreeConstants.No_type.toString()))
 		return true;
 	if(c2 == null)
 		return false;

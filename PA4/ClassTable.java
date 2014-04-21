@@ -210,7 +210,7 @@ class ClassTable {
 	Str_class.dump_with_types(System.err, 0);
     }
 
-    private void addBasicClassesToClassNameMapper() {
+    private void addBasicClassesToClassNameMapperAndAddToEnvironments() {
 	AbstractSymbol filename 
 	    = AbstractTable.stringtable.addString("<basic class>");
 	// The following demonstrates how to create dummy parse trees to
@@ -368,6 +368,37 @@ class ClassTable {
 	classNameMapper.put(TreeConstants.IO.toString(), IO_class);
 	classNameMapper.put(TreeConstants.Str.toString(), Str_class);
 	classNameMapper.put(TreeConstants.Bool.toString(), Bool_class);
+
+	for(String className : classNameMapper.keySet()) {
+    		class_c c1 = classNameMapper.get(className);
+		
+	    Map<AbstractSymbol, List<AbstractSymbol>> methodArgMap = new HashMap<AbstractSymbol, List<AbstractSymbol>>();
+	    Map<AbstractSymbol, AbstractSymbol> attrTypeMap = new HashMap<AbstractSymbol, AbstractSymbol>(); 
+	    for(Enumeration e2 = c1.getFeatures().getElements(); e2.hasMoreElements();){
+		Feature f = (Feature) e2.nextElement();
+		if(f instanceof attr){
+			attr a = (attr) f;
+			attrTypeMap.put(a.name, a.type_decl);	
+		
+		} else if (f instanceof method){
+			method m = (method) f;
+			List<AbstractSymbol> typeList = new ArrayList<AbstractSymbol>();
+			for(Enumeration e3 = m.formals.getElements(); e3.hasMoreElements();){
+				formalc fo = (formalc) e3.nextElement();
+				typeList.add(fo.type_decl);
+			}
+			typeList.add(m.return_type);
+			methodArgMap.put(m.name, typeList);
+			
+		} else {
+			System.out.println("Error should never reach here!");
+		}
+	    }
+	    methodEnv.addId(c1.name, methodArgMap);
+	    objectEnv.addId(c1.name, attrTypeMap);
+    		
+	}
+	
     } 
 
     public ClassTable(Classes cls) {
@@ -380,9 +411,11 @@ class ClassTable {
 	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Str.toString(), 1);
 	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.Bool.toString(), 1);
 	inheritanceGraph.addEdge(TreeConstants.Object_.toString(), TreeConstants.IO.toString(), 1);
-	addBasicClassesToClassNameMapper();
 	objectEnv = new SymbolTable();
 	methodEnv = new SymbolTable();
+	objectEnv.enterScope();
+	methodEnv.enterScope();
+	addBasicClassesToClassNameMapperAndAddToEnvironments();
 	//System.out.println("Class Table Constructor run.");
 	//System.out.println(classNameMapper);
     }
@@ -431,6 +464,7 @@ class ClassTable {
     public boolean errors() {
 	return semantErrors != 0;
     }
+
 
     // NOT TO BE INCLUDED IN SKELETON
     public static void main(String[] args) {
