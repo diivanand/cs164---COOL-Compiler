@@ -92,6 +92,41 @@ class CgenNode extends class_c {
     boolean basic() { 
         return basic_status == Basic; 
     }
+
+    // functions I added
+    //
+    //
+
+    /** emits prototype objects
+     *
+     **/
+    public void emitProtObj(PrintStream str) {
+        str.println(this+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
+    }
+    
+    /**
+     * emits dispatch tables
+     **/
+    public void emitDispatchTables(PrintStream str) {
+        str.println(this+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
+    }
+
+    /**
+     * emits name tab
+     **/
+    public void emitNameTab(PrintStream str) {
+        str.print(CgenSupport.WORD);
+        String name = this.getName().toString();
+        StringSymbol s = (StringSymbol) AbstractTable.stringtable.lookup(name);
+        s.codeRef(str);
+    }
+
+    /**
+     * emits code for object initializer
+     */
+    public void emitObjInit(PrintStream str) {
+        str.println(this + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
+    }
 }
 
 

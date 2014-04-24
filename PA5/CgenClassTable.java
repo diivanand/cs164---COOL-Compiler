@@ -408,23 +408,19 @@ class CgenClassTable extends SymbolTable {
 
         //                 Add your code to emit
         //                   - prototype objects
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).emitProtObj(str);
+        }
         //                   - class_nameTab
+        str.println(CgenSupport.CLASSNAMETAB + CgenSupport.LABEL);
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).emitNameTab(str);
+        }
         //                   - dispatch tables
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).emitDispatchTables(str);
+        }
         
-        str.println(CgenSupport.PROTOBJ_SUFFIX+CgenSupport.CLASSNAMETAB+CgenSupport.LABEL);
-        for( Enumeration en = nds.elements(); classes.hasMoreElments() ; ) {
-            CgenNode c = (CgenNode) en.nextElement();
-            str.print(CgenSupport.WORD);
-            StringSymbol s = (StringSymbol) AbstractTable.stringtable.lookup(c.getName().toString());
-            s.codeRef(str);
-            str.println("");
-        }
-
-
-        for( Enumeration en = nds.elements(); classes.hasMoreElments() ; ) {
-            CgenNode c = (CgenNode) en.nextElement();
-            c.codeObjectPrototype(str);
-        }
 
         if (Flags.cgen_debug) System.out.println("coding global text");
         codeGlobalText();
@@ -433,6 +429,10 @@ class CgenClassTable extends SymbolTable {
         //                   - object initializer
         //                   - the class methods
         //                   - etc...
+        SymbolTable symbolTable = new SymbolTable();
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).emitObjInit(str);
+        }
     }
 
     /** Gets the root of the inheritance tree */
