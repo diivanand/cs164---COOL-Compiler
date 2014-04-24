@@ -410,6 +410,21 @@ class CgenClassTable extends SymbolTable {
         //                   - prototype objects
         //                   - class_nameTab
         //                   - dispatch tables
+        
+        str.println(CgenSupport.PROTOBJ_SUFFIX+CgenSupport.CLASSNAMETAB+CgenSupport.LABEL);
+        for( Enumeration en = nds.elements(); classes.hasMoreElments() ; ) {
+            CgenNode c = (CgenNode) en.nextElement();
+            str.print(CgenSupport.WORD);
+            StringSymbol s = (StringSymbol) AbstractTable.stringtable.lookup(c.getName().toString());
+            s.codeRef(str);
+            str.println("");
+        }
+
+
+        for( Enumeration en = nds.elements(); classes.hasMoreElments() ; ) {
+            CgenNode c = (CgenNode) en.nextElement();
+            c.codeObjectPrototype(str);
+        }
 
         if (Flags.cgen_debug) System.out.println("coding global text");
         codeGlobalText();
