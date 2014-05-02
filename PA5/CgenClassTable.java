@@ -407,18 +407,18 @@ class CgenClassTable extends SymbolTable {
         codeConstants();
 
         //                 Add your code to emit
+        //                   - class_nameTab
+        str.print(CgenSupport.CLASSNAMETAB + CgenSupport.LABEL);
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).codeNameTab(str);
+        }
         //                   - prototype objects
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).emitProtObj(str);
-        }
-        //                   - class_nameTab
-        str.println(CgenSupport.CLASSNAMETAB + CgenSupport.LABEL);
-        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).emitNameTab(str);
+            ((CgenNode) en.nextElement()).codeProtObj(str);
         }
         //                   - dispatch tables
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).emitDispatchTables(str);
+            ((CgenNode) en.nextElement()).codeDispatchTables(str);
         }
         
 
@@ -431,7 +431,7 @@ class CgenClassTable extends SymbolTable {
         //                   - etc...
         SymbolTable symbolTable = new SymbolTable();
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).emitObjInit(str);
+            ((CgenNode) en.nextElement()).codeObjInit(str);
         }
     }
 

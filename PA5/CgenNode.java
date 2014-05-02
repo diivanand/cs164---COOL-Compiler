@@ -100,31 +100,32 @@ class CgenNode extends class_c {
     /** emits prototype objects
      *
      **/
-    public void emitProtObj(PrintStream str) {
-        str.println(this+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
+    public void codeProtObj(PrintStream str) {
+        str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
     }
     
     /**
      * emits dispatch tables
      **/
-    public void emitDispatchTables(PrintStream str) {
-        str.println(this+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
+    public void codeDispatchTables(PrintStream str) {
+        str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
     }
 
     /**
      * emits name tab
      **/
-    public void emitNameTab(PrintStream str) {
+    public void codeNameTab(PrintStream str) {
         str.print(CgenSupport.WORD);
         String name = this.getName().toString();
         StringSymbol s = (StringSymbol) AbstractTable.stringtable.lookup(name);
         s.codeRef(str);
+        str.println();
     }
 
     /**
      * emits code for object initializer
      */
-    public void emitObjInit(PrintStream str) {
+    public void codeObjInit(PrintStream str) {
         str.println(this + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
     }
 }
