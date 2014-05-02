@@ -100,6 +100,14 @@ class CgenNode extends class_c {
     /** emits prototype objects
      *
      **/
+    public void codeClassObjTab(PrintStream str) {
+        str.println(CgenSupport.WORD + this.getName() + CgenSupport.PROTOBJ_SUFFIX);
+        str.println(CgenSupport.WORD + this.getName() + CgenSupport.CLASSINIT_SUFFIX);
+    }
+
+    /** emits prototype objects
+     *
+     **/
     public void codeProtObj(PrintStream str) {
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
     }
