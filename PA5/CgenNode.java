@@ -97,7 +97,7 @@ class CgenNode extends class_c {
     //
     //
 
-    /** emits prototype objects
+    /** emits Class Object Table
      *
      **/
     public void codeClassObjTab(PrintStream str) {
