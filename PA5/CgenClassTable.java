@@ -412,6 +412,8 @@ class CgenClassTable extends SymbolTable {
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeNameTab(str);
         }
+        //  class ObjectTable
+        str.print(CgenSupport.CLASSOBJTAB + CgenSupport.LABEL);
         //                   - prototype objects
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeProtObj(str);
