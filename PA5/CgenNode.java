@@ -160,8 +160,13 @@ class CgenNode extends class_c {
             if (feat instanceof method) {
                 method met = (method) feat;
                 str.println(CgenSupport.WORD + this.getName()+"."+ met.name);
+                methodMap.put(met.name, methodMap.size());
             }
         }
+        //System.out.println(this.getName());
+        //for(AbstractSymbol met : methodMap.keySet()) {
+        //    System.out.println("Method "+met.getString() +" : " + methodMap.get(met).toString());
+        //}
     }
 
     /**
