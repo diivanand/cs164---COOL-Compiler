@@ -285,13 +285,55 @@ class CgenNode extends class_c {
      * emits code for object initializer
      */
     public void codeObjInit(PrintStream str) {
-        str.println(this + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
-        // push stack frame
+        str.print(this.getName() + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
 
-        // if the object has parent, return (jal) to the parent
-        
-        // for each attribute, emitStore
+        /** Pusing Down the Stack Pointer */
+        int offset = 3;
+        // addiu $sp $sp -12
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -offset * 4, str);
+        // sw $fp 12($sp)
+        CgenSupport.emitStore(CgenSupport.FP, offset--, CgenSupport.SP, str);
+        // sw $s0 8($sp)
+        CgenSupport.emitStore(CgenSupport.SELF, offset--, CgenSupport.SP, str);
+        // sw $ra 4($sp)
+        CgenSupport.emitStore(CgenSupport.RA, offset--, CgenSupport.SP, str);
+        // addiu $fp $sp 16
+        CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 16, str);
+        CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
 
+        if (! getName().equals(TreeConstants.Object_) ) {
+            CgenSupport.emitJal(getParentNd().getName()
+                    + CgenSupport.CLASSINIT_SUFFIX,
+                    str);
+        }
+
+
+        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+            Feature feat = (Feature) e.nextElement();
+            if (feat instanceof attr) {
+                attr at = (attr) feat;
+                String addr = "WRONG"; // I NEED THE RIGHT OFFSET
+                CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
+                offset  = -9999; // I NEED THE RIGHT ADDRESS
+                CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, str);
+            }
+        }
+
+        /** Popping Up the Stack Pointer */
+        offset = 3;
+        // move $a0 $s0
+        CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, str);
+        // lw $fp 12($sp)
+        CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
+        // lw $S0 8($sp)
+        CgenSupport.emitLoad(CgenSupport.SELF, offset--, CgenSupport.SP, str);
+        // lw $ra 4($sp)
+        CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
+        // addiu $sp $sp 12
+        offset = 3; 
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, offset * 4, str);
+        // jr $ra
+        CgenSupport.emitReturn(str);
     }
 }
 
