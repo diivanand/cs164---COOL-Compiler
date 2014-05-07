@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.*; // for map and stuff
 
 class CgenNode extends class_c {
+
     /** The parent of this node in the inheritance tree */
     private CgenNode parent;
 
@@ -46,6 +47,21 @@ class CgenNode extends class_c {
     /** Map from Class to Offset to the dispatch table */
     private Map<AbstractSymbol, Integer> methodMap;
 
+    // Queue of atrributes used when creating prototype object
+
+
+    //static variable that generates class tags
+    private final static int OBJECT_CLASS_TAG = 0;
+    private final static int IO_CLASS_TAG = 1;
+    private final static int MAIN_CLASS_TAG = 2;
+    private final static int INT_CLASS_TAG = 3;
+    private final static int BOOL_CLASS_TAG = 4;
+    private final static int STRING_CLASS_TAG = 5;
+    private static int CURR_CLASS_TAG = 6;
+
+    //this nodes class tag
+    private int tag;
+
 
     /** Constructs a new CgenNode to represent class "c".
      * @param c the class
@@ -59,6 +75,22 @@ class CgenNode extends class_c {
         this.basic_status = basic_status;
         this.methodMap = new HashMap<AbstractSymbol, Integer>(); // added
         AbstractTable.stringtable.addString(name.getString());
+        if(c.getName().toString().equals(TreeConstants.Object_.toString())){
+            this.tag = OBJECT_CLASS_TAG;
+        } else if (c.getName().toString().equals(TreeConstants.IO.toString())){
+            this.tag = IO_CLASS_TAG;
+        } else if (c.getName().toString().equals(TreeConstants.Main.toString())){
+            this.tag = MAIN_CLASS_TAG;
+        } else if (c.getName().toString().equals(TreeConstants.Int.toString())){
+            this.tag = INT_CLASS_TAG;
+        } else if (c.getName().toString().equals(TreeConstants.Bool.toString())){
+            this.tag = BOOL_CLASS_TAG;
+        } else if (c.getName().toString().equals(TreeConstants.Str.toString())){
+            this.tag = STRING_CLASS_TAG;
+        } else {
+            this.tag = CURR_CLASS_TAG;
+            CURR_CLASS_TAG++;
+        }
     }
 
     void addChild(CgenNode child) {
@@ -168,6 +200,12 @@ class CgenNode extends class_c {
         //    System.out.println("Method "+met.getString() +" : " + methodMap.get(met).toString());
         //}
     }
+
+    /**
+    * Helper function for codeProtObj
+    * Recursively goes up to the Object
+    **/
+    private void build
 
     /**
      * emits name tab
