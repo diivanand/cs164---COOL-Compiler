@@ -193,24 +193,24 @@ class CgenNode extends class_c {
         //DELETE ABOVE TWO LINES
         for(int i = 0;i < attrList.size(); i++) {
             attr at = attrList.get(i);
-            String attrType = at.type_decl.toString();
-            if(attrType.equals(TreeConstants.Object_.toString())){
+            AbstractSymbol attrType = at.type_decl;
+            if(attrType.equals(TreeConstants.Object_)){
                 str.println(CgenSupport.WORD + 0);
-            } else if (attrType.equals(TreeConstants.IO.toString())){
+            } else if (attrType.equals(TreeConstants.IO)){
                 str.println(CgenSupport.WORD + 0);
-            } else if (attrType.equals(TreeConstants.Main.toString())){
+            } else if (attrType.equals(TreeConstants.Main)){
                 str.println(CgenSupport.WORD + 0);
-            } else if (attrType.equals(TreeConstants.Int.toString())){   //default value of int is 0
+            } else if (attrType.equals(TreeConstants.Int)){   //default value of int is 0
                 str.print(CgenSupport.WORD);
                 IntSymbol defaultVal = (IntSymbol) AbstractTable.inttable.lookup("0");
                 defaultVal.codeRef(str);
                 str.println();
-            } else if (attrType.equals(TreeConstants.Bool.toString())){  //default for boolean is false bool const
+            } else if (attrType.equals(TreeConstants.Bool)){  //default for boolean is false bool const
                 str.print(CgenSupport.WORD);
                 BoolConst defaultVal = new BoolConst(false);
                 defaultVal.codeRef(str);
                 str.println();
-            } else if (attrType.equals(TreeConstants.Str.toString())){  //default for string is empty string
+            } else if (attrType.equals(TreeConstants.Str)){  //default for string is empty string
                 str.print(CgenSupport.WORD);
                 StringSymbol defaultVal = (StringSymbol) AbstractTable.stringtable.lookup("") ;
                 defaultVal.codeRef(str);
@@ -258,10 +258,6 @@ class CgenNode extends class_c {
                 methodMap.put(met.name, methodMap.size());
             }
         }
-        //System.out.println(this.getName());
-        //for(AbstractSymbol met : methodMap.keySet()) {
-        //    System.out.println("Method "+met.getString() +" : " + methodMap.get(met).toString());
-        //}
     }
 
     /**
