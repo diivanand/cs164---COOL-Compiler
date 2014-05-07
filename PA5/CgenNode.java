@@ -338,7 +338,7 @@ class CgenNode extends class_c {
                 attr at = (attr) feat;
                 String addr = "WRONG"; // I NEED THE RIGHT OFFSET
                 CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
-                offset  = -9999; // I NEED THE RIGHT ADDRESS
+                int offset  = -9999; // I NEED THE RIGHT ADDRESS
                 CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, str);
             }
         }
@@ -357,8 +357,8 @@ class CgenNode extends class_c {
         for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof method) {
-                str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
                 method met = (method) feat;
+                str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
                 pushStackFrame(str);
                 // lw $fp 16($sp)
                 CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
