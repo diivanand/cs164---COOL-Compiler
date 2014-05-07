@@ -258,7 +258,7 @@ class CgenNode extends class_c {
         }
         for(method met : methodList) {
             if(!oldMethodSet.contains(met.name)) {
-                str.println(CgenSupport.WORD + this.getName()+"."+ met.name);
+                str.println(CgenSupport.WORD + this.getName()+CgenSupport.METHOD_SEP+met.name);
                 methodMap.put(met.name, methodMap.size());
             }
         }
@@ -282,12 +282,10 @@ class CgenNode extends class_c {
     }
 
     /**
-     * emits code for object initializer
-     */
-    public void codeObjInit(PrintStream str) {
-        str.print(this.getName() + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
-
-        /** Pusing Down the Stack Pointer */
+     * Helper Function that Pushes the Stack Frame
+     * used in object init and class methods
+     **/
+    private void pushStackFrame(PrintStream str) {
         int offset = 3;
         // addiu $sp $sp -12
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -offset * 4, str);
@@ -299,7 +297,33 @@ class CgenNode extends class_c {
         CgenSupport.emitStore(CgenSupport.RA, offset--, CgenSupport.SP, str);
         // addiu $fp $sp 16
         CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 16, str);
+        // move $s0 $a0
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
+    }
+    /**
+     * Helper Function that pops the Stack Frame
+     * used in object init and class methods
+     **/
+    private void popStackFrame(PrintStream str) {
+        int offset = 3;
+        // lw $fp 12($sp)
+        CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
+        // lw $S0 8($sp)
+        CgenSupport.emitLoad(CgenSupport.SELF, offset--, CgenSupport.SP, str);
+        // lw $ra 4($sp)
+        CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
+        // addiu $sp $sp 12
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 12, str);
+        // jr $ra
+        CgenSupport.emitReturn(str);
+    }
+    /**
+     * emits code for object initializer
+     */
+    public void codeObjInit(PrintStream str) {
+        str.print(this.getName() + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
+
+        pushStackFrame(str);
 
         if (! getName().equals(TreeConstants.Object_) ) {
             CgenSupport.emitJal(getParentNd().getName()
@@ -319,21 +343,28 @@ class CgenNode extends class_c {
             }
         }
 
-        /** Popping Up the Stack Pointer */
-        offset = 3;
         // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, str);
-        // lw $fp 12($sp)
-        CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
-        // lw $S0 8($sp)
-        CgenSupport.emitLoad(CgenSupport.SELF, offset--, CgenSupport.SP, str);
-        // lw $ra 4($sp)
-        CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
-        // addiu $sp $sp 12
-        offset = 3; 
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, offset * 4, str);
-        // jr $ra
-        CgenSupport.emitReturn(str);
+        popStackFrame(str);
+    }
+
+
+    /**
+     * emits code for class methods 
+     */
+    public void codeClassMethods(PrintStream str) {
+
+        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+            Feature feat = (Feature) e.nextElement();
+            if (feat instanceof method) {
+                str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
+                method met = (method) feat;
+                pushStackFrame(str);
+                // lw $fp 16($sp)
+                CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
+                popStackFrame(str);
+            }
+        }
     }
 }
 

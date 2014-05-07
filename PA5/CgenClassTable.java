@@ -441,12 +441,14 @@ class CgenClassTable extends SymbolTable {
 
         //                 Add your code to emit
         //                   - object initializer
-        //                   - the class methods
-        //                   - etc...
-        SymbolTable symbolTable = new SymbolTable();
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeObjInit(str);
         }
+        //                   - the class methods
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).codeClassMethods(str);
+        }
+        //                   - etc...
     }
 
     /** Gets the root of the inheritance tree */
