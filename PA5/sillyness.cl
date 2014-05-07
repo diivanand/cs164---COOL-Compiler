@@ -7,6 +7,7 @@ Class A{
 
 Class B inherits A{
     b: String <- "b string";
+    c: Int <- 164;
     a_method(): String {
         b
     };
