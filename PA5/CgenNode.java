@@ -209,22 +209,30 @@ class CgenNode extends class_c {
      **/
     public void codeDispatchTables(PrintStream str) {
         str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
-        buildMethodMap(str); 
+        buildMethodMap(str, new HashSet<AbstractSymbol>()); 
     }
 
     /**
      * Helper function for codeDispatchTables()
      * Recursively goes up to the Object
      **/
-    private void buildMethodMap(PrintStream str) {
-        if(getParentNd() != null) {
-            getParentNd().buildMethodMap(str);
-        }
-
+    private void buildMethodMap(PrintStream str, Set<AbstractSymbol> oldMethodSet) {
+        Set<AbstractSymbol> newMethodSet = new HashSet<AbstractSymbol>(oldMethodSet);
+        List<method> methodList = new LinkedList<method>();  
         for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof method) {
                 method met = (method) feat;
+                methodList.add(met);
+                newMethodSet.add(met.name);
+            }
+        }
+        
+        if(getParentNd() != null) {
+            getParentNd().buildMethodMap(str, newMethodSet);
+        }
+        for(method met : methodList) {
+            if(!oldMethodSet.contains(met.name)) {
                 str.println(CgenSupport.WORD + this.getName()+"."+ met.name);
                 methodMap.put(met.name, methodMap.size());
             }
