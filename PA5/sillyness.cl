@@ -9,11 +9,16 @@ Class B inherits A{
     b: String <- "b string";
     c: Int <- 164;
     a_method(): String {
-        c <- c + 35 -- 189
-        b;
+      {
+        c <- 164 + 35; -- 189
+        b <- "new b string";
+      }
     };
     b_method(): String {
         b
+    };
+    c_method(): Int {
+        c <- c + 30 -- 194 
     };
 };
 

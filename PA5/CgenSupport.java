@@ -89,6 +89,9 @@ class CgenSupport {
     final static String FP  = "$fp";		// Frame pointer 
     final static String RA  = "$ra";		// Return address 
     
+    final static String S1  = "$s1"; // ADDED for SAVED TEMPORARIES
+    // we might NOT need S1
+    
     // Opcodes
     final static String JALR = "\tjalr\t";
     final static String JAL  = "\tjal\t";               

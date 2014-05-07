@@ -861,6 +861,9 @@ class block extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+        for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
+            ((Expression) e.nextElement()).code(s);
+        }
     }
 
 
@@ -963,6 +966,26 @@ class plus extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+        // just following the lecture note and 
+        // the reference-cgen implementaion
+        //// WARNING : INTs in cool are Object
+        ////       So we need to extract its value and
+        ////       stuff. = We can't just copy lecture 14
+        // cgen(e1)
+        e1.code(s);
+        // sw $a0 0($sp)
+        // addiu $sp $sp 4
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+
+        // cgen(e2)
+        e2.code(s);
+        // lw $t1 4($sp)
+        CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
+        // add $a0 $t1 $a0
+        CgenSupport.emitAdd(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+        // addiu $sp $sp 4
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
+
     }
 
 
@@ -1055,6 +1078,14 @@ class mul extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+        // cgen(e1)
+        e1.code(s);
+        // push $a0
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+        // cgen(e2)
+        e2.code(s);
+
+        //// MORE TO GO /////////////
     }
 
 
@@ -1142,6 +1173,13 @@ class neg extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+
+        // cgen(e1)
+        e1.code(s);
+        // push $a0
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+
+        /////// more to go.
     }
 
 
