@@ -158,11 +158,20 @@ class CgenNode extends class_c {
      **/
     public void codeProtObj(PrintStream str) {
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
+        List<attr> attrList = new LinkedList<attr>();
+
+        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+            Feature feat = (Feature) e.nextElement();
+            if (feat instanceof attr) {
+                attrList.add((attr) feat);
+            }
+        }
 
         // emit class tag id
-        //str.println(CgenSupport.WORD + this.tag);
+        str.println(CgenSupport.WORD + this.tag);
 
         // emit class size = # attribute + 3
+        str.println(CgenSupport.WORD + Integer.toString(3 + attrList.size()));
 
         // dispatch tables 
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.DISPTAB_SUFFIX);
@@ -172,31 +181,25 @@ class CgenNode extends class_c {
         //
         IntSymbol defaultVal = (IntSymbol) AbstractTable.inttable.lookup("0");
         String nodeName = getName().toString();
-        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
-            Feature feat = (Feature) e.nextElement();
-            if (feat instanceof attr) {
-                attr at = (attr) feat;
-                System.out.println(getName());
-                if (basic()) {
-                    System.out.println("BasIc");
-                    if(nodeName.equals("Int") || nodeName.equals("Bool")) {
+        for(attr at : attrList) {
+            if (basic()) {
+                if(nodeName.equals("Int") || nodeName.equals("Bool")) {
+                    str.println(CgenSupport.WORD + 0);
+                }else if(nodeName.equals("String")) {
+                    String attrName = at.name.toString();
+                    if(attrName.equals("_val")) {
+                        str.print(CgenSupport.WORD);
+                        defaultVal.codeRef(str);
+                        str.println("");
+                    } else if(attrName.equals("_str_field")) {
                         str.println(CgenSupport.WORD + 0);
-                    }else if(nodeName.equals("String")) {
-                        String attrName = at.name.toString();
-                        if(attrName.equals("_val")) {
-                            str.print(CgenSupport.WORD);
-                            defaultVal.codeRef(str);
-                            str.println("");
-                        } else if(attrName.equals("_str_field")) {
-                            str.println(CgenSupport.WORD + 0);
-                        }
                     }
-                    
-                } else {
-                    str.print(CgenSupport.WORD);
-                    defaultVal.codeRef(str);
-                    str.println("");
                 }
+                
+            } else {
+                str.print(CgenSupport.WORD);
+                defaultVal.codeRef(str);
+                str.println("");
             }
         }
     }
