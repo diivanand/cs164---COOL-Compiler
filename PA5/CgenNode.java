@@ -57,7 +57,7 @@ class CgenNode extends class_c {
     private final static int INT_CLASS_TAG = 3;
     private final static int BOOL_CLASS_TAG = 4;
     private final static int STRING_CLASS_TAG = 5;
-    private static int CURR_CLASS_TAG = 6;
+    private static int CURR_CLASS_TAG = 3; //strange hack since it starts at 3 more than what this says
 
     //this nodes class tag
     private int tag;
@@ -158,13 +158,22 @@ class CgenNode extends class_c {
      **/
     public void codeProtObj(PrintStream str) {
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
-        List<attr> attrList = new LinkedList<attr>();
+        Stack<attr> attrStack = new Stack<attr>();
 
-        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
-            Feature feat = (Feature) e.nextElement();
-            if (feat instanceof attr) {
-                attrList.add((attr) feat);
+        CgenNode curr = this;
+        while(curr != null) {
+            for(Enumeration e = curr.getFeatures().getElements(); e.hasMoreElements();){
+                Feature feat = (Feature) e.nextElement();
+                if (feat instanceof  attr){
+                    attrStack.push((attr) feat);
+                }
             }
+            curr = curr.getParentNd();
+        }
+
+        List<attr> attrList = new LinkedList<attr>();
+        while(!attrStack.empty()){
+            attrList.add(attrStack.pop());
         }
 
         // emit class tag id
@@ -179,27 +188,35 @@ class CgenNode extends class_c {
         // set up initial values for each attribute
         //
         //
-        IntSymbol defaultVal = (IntSymbol) AbstractTable.inttable.lookup("0");
-        String nodeName = getName().toString();
-        for(attr at : attrList) {
-            if (basic()) {
-                if(nodeName.equals("Int") || nodeName.equals("Bool")) {
-                    str.println(CgenSupport.WORD + 0);
-                }else if(nodeName.equals("String")) {
-                    String attrName = at.name.toString();
-                    if(attrName.equals("_val")) {
-                        str.print(CgenSupport.WORD);
-                        defaultVal.codeRef(str);
-                        str.println("");
-                    } else if(attrName.equals("_str_field")) {
-                        str.println(CgenSupport.WORD + 0);
-                    }
-                }
-                
-            } else {
+        //IntSymbol defaultVal = (IntSymbol) AbstractTable.inttable.lookup("0");
+        //String nodeName = getName().toString();
+        //DELETE ABOVE TWO LINES
+        for(int i = 0;i < attrList.size(); i++) {
+            attr at = attrList.get(i);
+            String attrType = at.type_decl.toString();
+            if(attrType.equals(TreeConstants.Object_.toString())){
+                str.println(CgenSupport.WORD + 0);
+            } else if (attrType.equals(TreeConstants.IO.toString())){
+                str.println(CgenSupport.WORD + 0);
+            } else if (attrType.equals(TreeConstants.Main.toString())){
+                str.println(CgenSupport.WORD + 0);
+            } else if (attrType.equals(TreeConstants.Int.toString())){   //default value of int is 0
                 str.print(CgenSupport.WORD);
+                IntSymbol defaultVal = (IntSymbol) AbstractTable.inttable.lookup("0");
                 defaultVal.codeRef(str);
-                str.println("");
+                str.println();
+            } else if (attrType.equals(TreeConstants.Bool.toString())){  //default for boolean is false bool const
+                str.print(CgenSupport.WORD);
+                BoolConst defaultVal = new BoolConst(false);
+                defaultVal.codeRef(str);
+                str.println();
+            } else if (attrType.equals(TreeConstants.Str.toString())){  //default for string is empty string
+                str.print(CgenSupport.WORD);
+                StringSymbol defaultVal = (StringSymbol) AbstractTable.stringtable.lookup("") ;
+                defaultVal.codeRef(str);
+                str.println();
+            } else {        //all other objects are void for default
+                str.println(CgenSupport.WORD + 0);
             }
         }
     }
