@@ -417,13 +417,24 @@ class CgenClassTable extends SymbolTable {
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeClassObjTab(str);
         }
-        //                   - prototype objects
+        //// parentTab
+        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+        //    ((CgenNode) en.nextElement()).codeParentTables(str);
+        //}
+        //// attrTabTab
+        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+        //    ((CgenNode) en.nextElement()).codeAttrTables(str);
+        //}
+        // Class attrTab
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).codeProtObj(str);
         }
         //                   - dispatch tables
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeDispatchTables(str);
+        }
+        //                   - prototype objects
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).codeProtObj(str);
         }
         
 

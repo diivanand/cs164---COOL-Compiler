@@ -105,11 +105,30 @@ class CgenNode extends class_c {
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.CLASSINIT_SUFFIX);
     }
 
+    /***
+     * Wonder if WE NEED TO PRINT 'class_parentTab' and
+     * 'class_attrTabTab'
+     * **/
+    public void codeParentTables(PrintStream str) {
+    }
+    public void codeAttrTables(PrintStream str) {
+    }
+
     /** emits prototype objects
      *
      **/
     public void codeProtObj(PrintStream str) {
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
+
+        // emit class tag id
+        //str.println(CgenSupport.WORD + this.tag);
+
+        // emit class size = # attribute + 3
+
+        // dispatch tables 
+        str.println(CgenSupport.WORD + this.getName() + CgenSupport.DISPTAB_SUFFIX);
+        
+        // set up initial values for each attribute
     }
     
     /**
@@ -135,6 +154,12 @@ class CgenNode extends class_c {
      */
     public void codeObjInit(PrintStream str) {
         str.println(this + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
+        // push stack frame
+
+        // if the object has parent, return (jal) to the parent
+        
+        // for each attribute, emitStore
+
     }
 }
 
