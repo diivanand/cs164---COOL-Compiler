@@ -48,7 +48,7 @@ class CgenNode extends class_c {
     private Map<AbstractSymbol, Integer> methodMap;
 
     // Queue of atrributes used when creating prototype object
-    private Queue<>
+
 
     //static variable that generates class tags
     private final static int OBJECT_CLASS_TAG = 0;
