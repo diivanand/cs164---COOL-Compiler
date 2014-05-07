@@ -142,9 +142,8 @@ class CgenNode extends class_c {
      * emits dispatch tables
      **/
     public void codeDispatchTables(PrintStream str) {
-        System.out.println("building method map");
         str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
-        //buildMethodMap(str); 
+        buildMethodMap(str); 
     }
 
     /**
@@ -152,7 +151,6 @@ class CgenNode extends class_c {
      * Recursively goes up to the Object
      **/
     private void buildMethodMap(PrintStream str) {
-        System.out.println(getParentNd().getName());
         if(getParentNd() != null) {
             getParentNd().buildMethodMap(str);
         }
@@ -161,7 +159,7 @@ class CgenNode extends class_c {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof method) {
                 method met = (method) feat;
-                str.println(CgenSupport.WORD + this.getName() + met.name);
+                str.println(CgenSupport.WORD + this.getName()+"."+ met.name);
             }
         }
     }
