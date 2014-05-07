@@ -24,6 +24,7 @@
 import java.io.PrintStream;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.*; // for map and stuff
 
 class CgenNode extends class_c {
     /** The parent of this node in the inheritance tree */
@@ -41,6 +42,11 @@ class CgenNode extends class_c {
     /** Does this node correspond to a basic class? */
     private int basic_status;
 
+    /** PRIVATE HELPER VARIABLES WE ADDED */
+    /** Map from Class to Offset to the dispatch table */
+    private Map<AbstractSymbol, Integer> methodMap;
+
+
     /** Constructs a new CgenNode to represent class "c".
      * @param c the class
      * @param basic_status is this class basic or not
@@ -51,6 +57,7 @@ class CgenNode extends class_c {
         this.parent = null;
         this.children = new Vector();
         this.basic_status = basic_status;
+        this.methodMap = new HashMap<AbstractSymbol, Integer>(); // added
         AbstractTable.stringtable.addString(name.getString());
     }
 
@@ -135,7 +142,28 @@ class CgenNode extends class_c {
      * emits dispatch tables
      **/
     public void codeDispatchTables(PrintStream str) {
+        System.out.println("building method map");
         str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
+        //buildMethodMap(str); 
+    }
+
+    /**
+     * Helper function for codeDispatchTables()
+     * Recursively goes up to the Object
+     **/
+    private void buildMethodMap(PrintStream str) {
+        System.out.println(getParentNd().getName());
+        if(getParentNd() != null) {
+            getParentNd().buildMethodMap(str);
+        }
+
+        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+            Feature feat = (Feature) e.nextElement();
+            if (feat instanceof method) {
+                method met = (method) feat;
+                str.println(CgenSupport.WORD + this.getName() + met.name);
+            }
+        }
     }
 
     /**

@@ -426,8 +426,6 @@ class CgenClassTable extends SymbolTable {
         //    ((CgenNode) en.nextElement()).codeAttrTables(str);
         //}
         // Class attrTab
-        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-        }
         //                   - dispatch tables
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeDispatchTables(str);
