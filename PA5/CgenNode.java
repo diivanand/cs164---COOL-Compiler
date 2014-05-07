@@ -162,11 +162,15 @@ class CgenNode extends class_c {
 
         CgenNode curr = this;
         while(curr != null) {
+            List<attr> tmp = new ArrayList<attr>();
             for(Enumeration e = curr.getFeatures().getElements(); e.hasMoreElements();){
                 Feature feat = (Feature) e.nextElement();
                 if (feat instanceof  attr){
-                    attrStack.push((attr) feat);
+                    tmp.add((attr) feat);
                 }
+            }
+            for(int i = tmp.size()-1;i >= 0; i--){
+                attrStack.push(tmp.get(i));
             }
             curr = curr.getParentNd();
         }
