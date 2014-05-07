@@ -168,6 +168,37 @@ class CgenNode extends class_c {
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.DISPTAB_SUFFIX);
         
         // set up initial values for each attribute
+        //
+        //
+        IntSymbol defaultVal = (IntSymbol) AbstractTable.inttable.lookup("0");
+        String nodeName = getName().toString();
+        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+            Feature feat = (Feature) e.nextElement();
+            if (feat instanceof attr) {
+                attr at = (attr) feat;
+                System.out.println(getName());
+                if (basic()) {
+                    System.out.println("BasIc");
+                    if(nodeName.equals("Int") || nodeName.equals("Bool")) {
+                        str.println(CgenSupport.WORD + 0);
+                    }else if(nodeName.equals("String")) {
+                        String attrName = at.name.toString();
+                        if(attrName.equals("_val")) {
+                            str.print(CgenSupport.WORD);
+                            defaultVal.codeRef(str);
+                            str.println("");
+                        } else if(attrName.equals("_str_field")) {
+                            str.println(CgenSupport.WORD + 0);
+                        }
+                    }
+                    
+                } else {
+                    str.print(CgenSupport.WORD);
+                    defaultVal.codeRef(str);
+                    str.println("");
+                }
+            }
+        }
     }
     
     /**
@@ -192,15 +223,20 @@ class CgenNode extends class_c {
             if (feat instanceof method) {
                 method met = (method) feat;
                 str.println(CgenSupport.WORD + this.getName()+"."+ met.name);
+                methodMap.put(met.name, methodMap.size());
             }
         }
+        //System.out.println(this.getName());
+        //for(AbstractSymbol met : methodMap.keySet()) {
+        //    System.out.println("Method "+met.getString() +" : " + methodMap.get(met).toString());
+        //}
     }
 
     /**
     * Helper function for codeProtObj
     * Recursively goes up to the Object
     **/
-    private void build
+//    private void build
 
     /**
      * emits name tab
