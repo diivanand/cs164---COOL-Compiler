@@ -215,6 +215,10 @@ class CgenNode extends class_c {
     /**
      * Helper function for codeDispatchTables()
      * Recursively goes up to the Object
+     * We collect the set of method names, so that it does not emit the decendant's
+     * overriden methods.
+     * @param str PrintStream to the code
+     * @Param oldMethodSet set of method names seen so far
      **/
     private void buildMethodMap(PrintStream str, Set<AbstractSymbol> oldMethodSet) {
         Set<AbstractSymbol> newMethodSet = new HashSet<AbstractSymbol>(oldMethodSet);
