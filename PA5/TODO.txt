@@ -15,7 +15,7 @@ Why do we need this? It is used in code generation in expressions like Object (c
 
 4. Finish up any unimplemented expressions in cool-tree.java
 
-5. Fix up code for init. I think it still might be slightly wrong?
+5. Fix up code for init, attribute, and method (in CgenNode). I think it still might be slightly wrong?
 
 6. Write tests
 
