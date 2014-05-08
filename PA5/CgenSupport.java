@@ -510,7 +510,7 @@ class CgenSupport {
      * @param str
      */
     static void emitComment(PrintStream s, String str) {
-        s.println("#"+str);
+        s.println("\t\t\t\t#"+str);
     }
     
     /** Emits code to manipulate garbage collector 

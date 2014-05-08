@@ -20,3 +20,7 @@ Why do we need this? It is used in code generation in expressions like Object (c
 6. Write tests
 
 7. Write README
+
+
+======Questions and Follow up======
+Are we allowed to change the method prototype in cool-tree.java? (i.e. code(PrintStream) to code(PrintStream, CgenClassTable))

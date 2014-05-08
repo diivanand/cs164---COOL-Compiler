@@ -428,6 +428,10 @@ class CgenNode extends class_c {
      * emits code for class methods 
      */
     public void codeClassMethods(PrintStream str) {
+        // no need to code methods for Int, Bool, String
+        if(this.basic()) {
+            return;
+        }
         CgenSupport.emitComment(str, "Entered codeClassMethods for " + this.name);
         for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
             Feature feat = (Feature) e.nextElement();
