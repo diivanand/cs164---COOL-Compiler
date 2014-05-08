@@ -230,7 +230,7 @@ class CgenNode extends class_c {
                 str.println(CgenSupport.WORD + 0);
             }
         }
-        CgenSupport.emitComment(str, "Leaving codeProtObj");
+        CgenSupport.emitComment(str, "Leaving codeProtObj for " + this.name);
     }
     
     /**
