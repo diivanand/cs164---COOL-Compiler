@@ -140,10 +140,10 @@ class CgenNode extends class_c {
      *
      **/
     public void codeClassObjTab(PrintStream str) {
-        CgenSupport.emitComment(str, "Entered codeClassObjTab");
+        //CgenSupport.emitComment(str, "Entered codeClassObjTab");
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.PROTOBJ_SUFFIX);
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.CLASSINIT_SUFFIX);
-        CgenSupport.emitComment(str, "Leaving codeClassObjTab");
+        //CgenSupport.emitComment(str, "Leaving codeClassObjTab");
     }
 
     /***
@@ -151,19 +151,19 @@ class CgenNode extends class_c {
      * 'class_attrTabTab'
      * **/
     public void codeParentTables(PrintStream str) {
-        CgenSupport.emitComment(str, "Entered codeParentTables");
-        CgenSupport.emitComment(str, "Leaving codeParentTables");
+        //CgenSupport.emitComment(str, "Entered codeParentTables");
+        //CgenSupport.emitComment(str, "Leaving codeParentTables");
     }
     public void codeAttrTables(PrintStream str) {
-        CgenSupport.emitComment(str, "Entered codeAttrTables");
-        CgenSupport.emitComment(str, "Leaving codeAttrTables");
+        //CgenSupport.emitComment(str, "Entered codeAttrTables");
+        //CgenSupport.emitComment(str, "Leaving codeAttrTables");
     }
 
     /** emits prototype objects
      *
      **/
     public void codeProtObj(PrintStream str) {
-        CgenSupport.emitComment(str, "Entered codeProtObj");
+        CgenSupport.emitComment(str, "Entered codeProtObj for " + this.name);
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
         Stack<attr> attrStack = new Stack<attr>();
 
