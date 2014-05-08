@@ -379,7 +379,7 @@ class CgenClassTable extends SymbolTable {
 
     /** Constructs a new class table and invokes the code generator */
     public CgenClassTable(Classes cls, PrintStream str) {
-        dispOffsetMap = new HashMap<AbstractSymbol, <AbstractSymbol, Integer>>();
+        dispOffsetMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, Integer>>();
         nds = new Vector();
 
         this.str = str;

@@ -229,6 +229,8 @@ class Cases extends ListNode {
   See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class programc extends Program {
     protected Classes classes;
+
+    protected static CgenClassTable codegen_classtable;
     /** Creates "programc" AST node. 
      *
      * @param lineNumber the line in the source file from which this node came.
@@ -286,7 +288,7 @@ class programc extends Program {
      * @see CgenClassTable
      * */
     public void cgen(PrintStream s) {
-        CgenClassTable codegen_classtable = new CgenClassTable(classes, s);
+        codegen_classtable = new CgenClassTable(classes, s);
 
 
     }
@@ -682,6 +684,24 @@ class dispatch extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        AbstractSymbol exprType = expr.get_type();
+        if (exprType.equals(TreeConstants.SELF_TYPE)) {
+            // assign the current type to exprType 
+        }
+        CgenNode c1 = (CgenNode) programc.codegen_classtable.probe(exprType);
+        
+        this.pushArgs(actual.getElements(), cgenTable, s);
+    }
+    /**
+     * Helper method that recursively code arguments in order.
+     */
+    private void pushArgs(Enumeration en, CgenClassTable cct, PrintStream s) {
+        Expression argExpr = (Expression) en.nextElement();
+        if(en.hasMoreElements()) {
+            pushArgs(en,cct,s);
+        }
+        argExpr.code(s, cct);
+        CgenSupport.emitPush(CgenSupport.ACC, s);
     }
 
 
