@@ -382,8 +382,11 @@ class CgenNode extends class_c {
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
                 pushStackFrame(str);
+
                 // lw $fp 16($sp)
                 CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
+                met.expr.code(str);
+
                 popStackFrame(str);
                 CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
             }
