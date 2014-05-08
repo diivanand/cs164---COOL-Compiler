@@ -336,6 +336,7 @@ class CgenNode extends class_c {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof attr) {
                 attr at = (attr) feat;
+                CgenSupport.emitComment(str, "Generating code for attribute " + at.name  +  " in class " + this.name);
                 String addr = "WRONG"; // I NEED THE RIGHT OFFSET
                 CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
                 int offset  = -9999; // I NEED THE RIGHT ADDRESS
@@ -353,11 +354,12 @@ class CgenNode extends class_c {
      * emits code for class methods 
      */
     public void codeClassMethods(PrintStream str) {
-
+        CgenSupport.emitComment(str, "Entered codeClassMethods for " + this.name);
         for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof method) {
                 method met = (method) feat;
+                CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
                 pushStackFrame(str);
                 // lw $fp 16($sp)

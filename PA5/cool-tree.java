@@ -287,6 +287,8 @@ class programc extends Program {
      * */
     public void cgen(PrintStream s) {
         CgenClassTable codegen_classtable = new CgenClassTable(classes, s);
+
+
     }
 
 }
@@ -971,10 +973,11 @@ class plus extends Expression {
         //// WARNING : INTs in cool are Object
         ////       So we need to extract its value and
         ////       stuff. = We can't just copy lecture 14
+        CgenSupport.emitComment(s, "Entered cgen for addition");
         // cgen(e1)
         e1.code(s);
         // sw $a0 0($sp)
-        // addiu $sp $sp 4
+        // addiu $sp $sp -4
         CgenSupport.emitPush(CgenSupport.ACC, s);
 
         // cgen(e2)
@@ -1032,6 +1035,21 @@ class sub extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+        CgenSupport.emitComment(s, "Entered cgen for subtract");
+        // cgen(e1)
+        e1.code(s);
+        // sw $a0 0($sp)
+        // addiu $sp $sp -4
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+
+        // cgen(e2)
+        e2.code(s);
+        // lw $t1 4($sp)
+        CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
+        // add $a0 $t1 $a0
+        CgenSupport.emitSub(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+        // addiu $sp $sp 4
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
     }
 
 
@@ -1078,14 +1096,21 @@ class mul extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+        CgenSupport.emitComment(s, "Entered cgen for multiply");
         // cgen(e1)
         e1.code(s);
-        // push $a0
+        // sw $a0 0($sp)
+        // addiu $sp $sp -4
         CgenSupport.emitPush(CgenSupport.ACC, s);
+
         // cgen(e2)
         e2.code(s);
-
-        //// MORE TO GO /////////////
+        // lw $t1 4($sp)
+        CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
+        // add $a0 $t1 $a0
+        CgenSupport.emitMul(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+        // addiu $sp $sp 4
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
     }
 
 
@@ -1132,6 +1157,21 @@ class divide extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s) {
+        CgenSupport.emitComment(s, "Entered cgen for divide");
+        // cgen(e1)
+        e1.code(s);
+        // sw $a0 0($sp)
+        // addiu $sp $sp -4
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+
+        // cgen(e2)
+        e2.code(s);
+        // lw $t1 4($sp)
+        CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
+        // add $a0 $t1 $a0
+        CgenSupport.emitDiv(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+        // addiu $sp $sp 4
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
     }
 
 

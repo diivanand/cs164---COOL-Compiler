@@ -502,6 +502,14 @@ class CgenSupport {
     static void emitStoreInt(String source, String dest, PrintStream s) {
 	emitStore(source, DEFAULT_OBJFIELDS, dest, s);
     }
+
+    /**
+     * Emits a comment into the assembly code
+     * @param str
+     */
+    static void emitComment(PrintStream s, String str) {
+        s.println("#"+str);
+    }
     
     /** Emits code to manipulate garbage collector 
      * @param s the output stream
