@@ -140,8 +140,10 @@ class CgenNode extends class_c {
      *
      **/
     public void codeClassObjTab(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered codeClassObjTab");
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.PROTOBJ_SUFFIX);
         str.println(CgenSupport.WORD + this.getName() + CgenSupport.CLASSINIT_SUFFIX);
+        CgenSupport.emitComment(str, "Leaving codeClassObjTab");
     }
 
     /***
@@ -149,14 +151,19 @@ class CgenNode extends class_c {
      * 'class_attrTabTab'
      * **/
     public void codeParentTables(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered codeParentTables");
+        CgenSupport.emitComment(str, "Leaving codeParentTables");
     }
     public void codeAttrTables(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered codeAttrTables");
+        CgenSupport.emitComment(str, "Leaving codeAttrTables");
     }
 
     /** emits prototype objects
      *
      **/
     public void codeProtObj(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered codeProtObj");
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
         Stack<attr> attrStack = new Stack<attr>();
 
@@ -223,6 +230,7 @@ class CgenNode extends class_c {
                 str.println(CgenSupport.WORD + 0);
             }
         }
+        CgenSupport.emitComment(str, "Leaving codeProtObj");
     }
     
     /**
@@ -274,11 +282,13 @@ class CgenNode extends class_c {
      * emits name tab
      **/
     public void codeNameTab(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered codeNameTab");
         str.print(CgenSupport.WORD);
         String name = this.getName().toString();
         StringSymbol s = (StringSymbol) AbstractTable.stringtable.lookup(name);
         s.codeRef(str);
         str.println();
+        CgenSupport.emitComment(str, "Leaving codeNameTab");
     }
 
     /**
@@ -286,6 +296,7 @@ class CgenNode extends class_c {
      * used in object init and class methods
      **/
     private void pushStackFrame(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered pushStackFrame");
         int offset = 3;
         // addiu $sp $sp -12
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -offset * 4, str);
@@ -299,12 +310,14 @@ class CgenNode extends class_c {
         CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 16, str);
         // move $s0 $a0
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
+        CgenSupport.emitComment(str, "Leaving pushStackFrame");
     }
     /**
      * Helper Function that pops the Stack Frame
      * used in object init and class methods
      **/
     private void popStackFrame(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered popStackFrame");
         int offset = 3;
         // lw $fp 12($sp)
         CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
@@ -316,6 +329,7 @@ class CgenNode extends class_c {
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 12, str);
         // jr $ra
         CgenSupport.emitReturn(str);
+        CgenSupport.emitComment(str, "Leaving popStackFrame");
     }
     /**
      * emits code for object initializer
