@@ -348,6 +348,7 @@ class CgenNode extends class_c {
         // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, str);
         popStackFrame(str);
+        CgenSupport.emitComment(str, "Leaving codeObjInit for " + this.name);
     }
 
 
@@ -368,6 +369,7 @@ class CgenNode extends class_c {
                 popStackFrame(str);
             }
         }
+        CgenSupport.emitComment(str, "Leaving codeClassMethods for " + this.name);
     }
 }
 
