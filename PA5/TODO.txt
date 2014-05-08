@@ -2,7 +2,7 @@ Things we still need to have/do:
 
 1. Some kind of 2D hashmap that given a class name and an attribute name, returns the attribute index
 (like if color is the first attribute in a class called crayon, it should return 1,
-or if length is the second attribute in a class called crayton, it should return 2)
+or if length is the second attribute in a class called crayon, it should return 2)
 *return -1 if hashmap returns null
 
 

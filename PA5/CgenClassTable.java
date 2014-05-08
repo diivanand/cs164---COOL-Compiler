@@ -43,6 +43,9 @@ class CgenClassTable extends SymbolTable {
     private int boolclasstag;
 
 
+    private Map<AbstractSymbol, Map<AbstractSymbol, Integer>> dispOffsetMap;
+
+
     // The following methods emit code for constants and global
     // declarations.
 
@@ -376,6 +379,7 @@ class CgenClassTable extends SymbolTable {
 
     /** Constructs a new class table and invokes the code generator */
     public CgenClassTable(Classes cls, PrintStream str) {
+        dispOffsetMap = new HashMap<AbstractSymbol, <AbstractSymbol, Integer>>();
         nds = new Vector();
 
         this.str = str;

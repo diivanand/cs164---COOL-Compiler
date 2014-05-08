@@ -1784,6 +1784,7 @@ class no_expr extends Expression {
     public void code(PrintStream s, CgenClassTable cgenTable) {
         //no expressions means generate no code right so this should be blank I think
         CgenSupport.emitComment(s, "Entered and exited cgen for no expression");
+        CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
     }
 
 
