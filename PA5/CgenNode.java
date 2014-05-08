@@ -282,13 +282,13 @@ class CgenNode extends class_c {
      * emits name tab
      **/
     public void codeNameTab(PrintStream str) {
-        CgenSupport.emitComment(str, "Entered codeNameTab");
+        //CgenSupport.emitComment(str, "Entered codeNameTab");
         str.print(CgenSupport.WORD);
         String name = this.getName().toString();
         StringSymbol s = (StringSymbol) AbstractTable.stringtable.lookup(name);
         s.codeRef(str);
         str.println();
-        CgenSupport.emitComment(str, "Leaving codeNameTab");
+        //CgenSupport.emitComment(str, "Leaving codeNameTab");
     }
 
     /**
