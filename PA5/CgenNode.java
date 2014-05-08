@@ -356,6 +356,7 @@ class CgenNode extends class_c {
                 CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
                 int offset  = -9999; // I NEED THE RIGHT ADDRESS
                 CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, str);
+                CgenSupport.emitComment(str, "Done Generating code for attribute " + at.name  +  " in class " + this.name);
             }
         }
 
