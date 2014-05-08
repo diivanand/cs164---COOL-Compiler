@@ -560,6 +560,13 @@ class assign extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for assign");
+        expr.code(s, cgenTable);
+        //the offset in the object that this attribute is located in
+        int offset = 9999;
+        //Store object in appropriate spot in frame pointer
+        CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.FP, s);
+        CgenSupport.emitComment(s, "Leaving cgen for assign");
     }
 
 
@@ -726,6 +733,24 @@ class cond extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for conditional");
+        int ifFalseLabel = CgenNode.getLabelCountAndIncrement();
+        int ifTrueLabel = CgenNode.getLabelCountAndIncrement();
+        int ifEndLabel = CgenNode.getLabelCountAndIncrement();
+        //evaluate predicate
+        pred.code(s, cgenTable);
+        CgenSupport.emitLoadBool(CgenSupport.T1, BoolConst.truebool, s);
+        //branch on predicate value
+        CgenSupport.emitBeq(CgenSupport.ACC, CgenSupport.T1, ifTrueLabel, s);
+        //if pred is false
+        CgenSupport.emitLabelDef(ifFalseLabel, s);
+        else_exp.code(s, cgenTable);
+        CgenSupport.emitBranch(ifEndLabel, s);
+        CgenSupport.emitLabelDef(ifTrueLabel, s);
+        then_exp.code(s, cgenTable);
+        CgenSupport.emitLabelDef(ifEndLabel, s);
+        CgenSupport.emitComment(s, "Leaving cgen for conditional");
+
     }
 
 
@@ -772,6 +797,26 @@ class loop extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for loop");
+        //make two labels one for while loop and one for end of while loop
+        int whileLabel = CgenNode.getLabelCountAndIncrement();
+        int whileEndLabel = CgenNode.getLabelCountAndIncrement();
+        //while loop label definition
+        CgenSupport.emitLabelDef(whileLabel, s);
+        //evaluate predicate
+        pred.code(s, cgenTable);
+        //load true boolean const
+        CgenSupport.emitLoadBool(CgenSupport.T1, BoolConst.truebool, s);
+        //check to see if predicate value is not equal to true
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.T1, whileEndLabel,s);
+        CgenSupport.emitLabelRef(whileLabel, s);
+        //evaluate body
+        body.code(s, cgenTable);
+        //end of while loop label
+        CgenSupport.emitLabelDef(whileEndLabel, s);
+        CgenSupport.emitLoadImm(CgenSupport.ACC, 0, s);
+        CgenSupport.emitComment(s, "Leaving cgen for loop");
+
     }
 
 
@@ -863,9 +908,11 @@ class block extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for block");
         for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
             ((Expression) e.nextElement()).code(s, cgenTable);
         }
+        CgenSupport.emitComment(s, "Leaving cgen for block");
     }
 
 
@@ -1342,6 +1389,7 @@ class lt extends Expression {
         //check if $t1 < $a0 is true or false
         int labelCountTrue = CgenNode.getLabelCountAndIncrement();
         int labelCountFalse = CgenNode.getLabelCountAndIncrement();
+        int labelCountEnd = CgenNode.getLabelCountAndIncrement();
         //remember these are int objects, so load their actual values
 
         //remember these is an int objects so gotta get the ints themselves
@@ -1352,8 +1400,10 @@ class lt extends Expression {
         CgenSupport.emitBlt(CgenSupport.T1, CgenSupport.ACC, labelCountTrue, s);
         CgenSupport.emitLabelDef(labelCountFalse, s);
         CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.falsebool,s);
+        CgenSupport.emitBranch(labelCountEnd, s);
         CgenSupport.emitLabelDef(labelCountTrue,s);
         CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool,s);
+        CgenSupport.emitLabelDef(labelCountEnd, s);
         CgenSupport.emitComment(s, "Leaving cgen for less than");
     }
 
@@ -1401,6 +1451,19 @@ class eq extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entering cgen for equal to");
+
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool, s);
+        CgenSupport.emitLoadBool(CgenSupport.A1, BoolConst.falsebool, s);
+
+        e1.code(s, cgenTable);
+        CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC, s);
+        e2.code(s, cgenTable);
+        CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
+
+        //This functions returns what's in a0 if objects in t1 and t2 are same type and equal, else it returns whats in a1
+        CgenSupport.emitJal("equality_test", s);
+        CgenSupport.emitComment(s, "Leaving cgen for equal to");
     }
 
 
@@ -1458,6 +1521,7 @@ class leq extends Expression {
         //check if $t1 < $a0 is true or false
         int labelCountTrue = CgenNode.getLabelCountAndIncrement();
         int labelCountFalse = CgenNode.getLabelCountAndIncrement();
+        int labelCountEnd = CgenNode.getLabelCountAndIncrement();
         //remember these are int objects, so load their actual values
 
         //remember these is an int objects so gotta get the ints themselves
@@ -1468,8 +1532,10 @@ class leq extends Expression {
         CgenSupport.emitBleq(CgenSupport.T1, CgenSupport.ACC, labelCountTrue, s);
         CgenSupport.emitLabelDef(labelCountFalse, s);
         CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.falsebool,s);
+        CgenSupport.emitBranch(labelCountEnd, s);
         CgenSupport.emitLabelDef(labelCountTrue,s);
         CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool,s);
+        CgenSupport.emitLabelDef(labelCountEnd, s);
         CgenSupport.emitComment(s, "Leaving cgen for less than or equal to");
     }
 
@@ -1512,7 +1578,37 @@ class comp extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        /*
+        comp.expr->accept(*this);
+        emit_lw("t1", 12, "a0");
+        emit_not("t1", "t1");
+        emit_sw("t1", 12, "a0");
+         */
 
+        CgenSupport.emitComment(s, "Entered cgen for not");
+        e1.code(s, cgenTable);
+        //Get the value of the boolean
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.ACC, s);
+        //compare with true
+        CgenSupport.emitLoadImm(CgenSupport.T2, 1, s);
+
+        //check if $t1 < $a0 is true or false
+        int labelCountTrue = CgenNode.getLabelCountAndIncrement();
+        int labelCountFalse = CgenNode.getLabelCountAndIncrement();
+        int labelCountEnd = CgenNode.getLabelCountAndIncrement();
+        //remember these are int objects, so load their actual values
+
+        //If e1 <= e2 return true boolean constant else return false boolean constant
+        CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, labelCountTrue, s);
+        CgenSupport.emitLabelDef(labelCountFalse, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool, s);
+        CgenSupport.emitBranch(labelCountEnd, s);
+        CgenSupport.emitLabelDef(labelCountTrue,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.falsebool, s);
+
+        CgenSupport.emitLabelDef(labelCountEnd,s);
+
+        CgenSupport.emitComment(s, "Leaving cgen for not");
     }
 
 
