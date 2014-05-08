@@ -1,0 +1,22 @@
+Things we still need to have/do:
+
+1. Some kind of 2D hashmap that given a class name and an attribute name, returns the attribute index
+(like if color is the first attribute in a class called crayon, it should return 1,
+or if length is the second attribute in a class called crayton, it should return 2)
+*return -1 if hashmap returns null
+
+Why do we need this? It is used in code generation in expressions like Object (cool-tree.java)
+
+2. Some way to get the offset of a variable that is in scope. (Look at Object again in cool-tree.java to see what I mean)
+   Basically there are local variables in a given activation frame so if a local variable is the 1st argument/variable
+   in the frame then maybe a hashmap that takes in this variable name will return 1, or -1 if variable not in frame
+
+3. Finish up parentTab attrTabTab (will make case expression easier to handle) (THIS IS DONE)
+
+4. Finish up any unimplemented expressions in cool-tree.java
+
+5. Fix up code for init. I think it still might be slightly wrong?
+
+6. Write tests
+
+7. Write README
