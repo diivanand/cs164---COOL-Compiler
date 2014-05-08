@@ -321,6 +321,7 @@ class CgenNode extends class_c {
      * emits code for object initializer
      */
     public void codeObjInit(PrintStream str) {
+        CgenSupport.emitComment(str, "Entered codeObjInit for " + this.name);
         str.print(this.getName() + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
 
         pushStackFrame(str);
