@@ -43,38 +43,44 @@ Are we allowed to change the method prototype in cool-tree.java? (i.e. code(Prin
     // 3. return address
     final static int FRAME_INITIAL_SIZE = 3;
 
+    REMEMBER STACK GROWS FROM HIGH ADDRESS TO LOW ADDRESS
+
     # Our activation frame layout is as follows:
     */
+    HIGH ADDRESS
 -----------------------
 | OLD FRAME POINTER |
 -----------------------
 | SELF OBJECT |
 -----------------------
-| ARGUMENT1 |
+| ARGUMENT1 |             <- $fp + N*WORDSIZE    OR oldfp + 3*WORDSIZE
 -----------------------
-| ARGUMENTN |
+| ARGUMENTN |             <- $fp + 1*WORDSIZE    OR oldfp + (N+2)*WORDSIZE
 -----------------------
-| RETURN ADDRESS | <---- current frame pointer
+| RETURN ADDRESS | <---- current frame pointer  ($fp)
 -----------------------
+LOW ADDRESS
 */
+
 And to remind you of object layout:
 
 
---------------------
+--------------------         <- a0
 | class Tag |
 ----------------------
-| object size (words)
+| object size (words)        <- a0 + 1*WORDSIZE
 ---------------------
-| Dispatch Table Ptr. |
+| Dispatch Table Ptr. |      <- a0 + 2*WORDSIZE
 -----------------------
-| Attribute1 |
+| Attribute1 |               <- a0 + 3*WORDSIZE
 -------------------------
-| AttributeN |
+| AttributeN |               <- a0 + (N+2)*WORDSIZE
 -------------------------
+
 
 
 so the actual size of a frame will be
 
-actual_frame_size = FRAME_INITIAL_SIZE + # of params the function has (or in the case of init/object initialiazation (Like Main_init: for example), # of attributes the object has)
+actual_frame_size = FRAME_INITIAL_SIZE + (# of params the function has.)
 
 
