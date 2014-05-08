@@ -59,6 +59,9 @@ class CgenNode extends class_c {
     private final static int STRING_CLASS_TAG = 5;
     private static int CURR_CLASS_TAG = 3; //strange hack since it starts at 3 more than what this says
 
+    //label counter
+    private static int CURR_LABEL_COUNT = 0;
+
     //this nodes class tag
     private int tag;
 
@@ -386,6 +389,10 @@ class CgenNode extends class_c {
             }
         }
         CgenSupport.emitComment(str, "Leaving codeClassMethods for " + this.name);
+    }
+
+    public int getLabelCountAndIncrement(){
+        return CURR_LABEL_COUNT++;
     }
 }
 
