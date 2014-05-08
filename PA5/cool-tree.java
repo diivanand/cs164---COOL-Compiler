@@ -155,7 +155,7 @@ abstract class Expression extends TreeNode {
         else
         { out.println(Utilities.pad(n) + ": _no_type"); }
     }
-    public abstract void code(PrintStream s);
+    public abstract void code(PrintStream s, CgenClassTable cgenTable);
 
 }
 
@@ -232,7 +232,7 @@ class programc extends Program {
     /** Creates "programc" AST node. 
      *
      * @param lineNumber the line in the source file from which this node came.
-     * @param a0 initial value for classes
+     * @param a1 initial value for classes
      */
     public programc(int lineNumber, Classes a1) {
         super(lineNumber);
@@ -559,7 +559,7 @@ class assign extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -619,7 +619,7 @@ class static_dispatch extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -674,7 +674,7 @@ class dispatch extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -725,7 +725,7 @@ class cond extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -771,7 +771,7 @@ class loop extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -819,7 +819,7 @@ class typcase extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -862,9 +862,9 @@ class block extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
         for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
-            ((Expression) e.nextElement()).code(s);
+            ((Expression) e.nextElement()).code(s, cgenTable);
         }
     }
 
@@ -921,7 +921,7 @@ class let extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -967,28 +967,37 @@ class plus extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
-        // just following the lecture note and 
-        // the reference-cgen implementaion
-        //// WARNING : INTs in cool are Object
-        ////       So we need to extract its value and
-        ////       stuff. = We can't just copy lecture 14
+    public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for addition");
-        // cgen(e1)
-        e1.code(s);
-        // sw $a0 0($sp)
-        // addiu $sp $sp -4
+        // evaluate e1
+        e1.code(s, cgenTable);
+        // push result onto the stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
 
         // cgen(e2)
-        e2.code(s);
-        // lw $t1 4($sp)
+        e2.code(s, cgenTable);
+
+        //create a new integer object that is a copy of current one (since $a0 currently contains an integer object)
+        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
+
+        // load result of evaluating e1
         CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
-        // add $a0 $t1 $a0
-        CgenSupport.emitAdd(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+
+        //remember these are int objects not ints so gotta get the ints themselves
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T2, 3, CgenSupport.ACC, s);
+
+
+        // perform the arithmetic $a0 $t1 $a0
+        CgenSupport.emitAdd(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
+
+        //store the sum in the new object
+        CgenSupport.emitStore(CgenSupport.T1, 3, CgenSupport.ACC, s);
+
+
         // addiu $sp $sp 4
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
-
+        CgenSupport.emitComment(s, "Leaving cgen for addition");
     }
 
 
@@ -1034,22 +1043,37 @@ class sub extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for subtract");
-        // cgen(e1)
-        e1.code(s);
-        // sw $a0 0($sp)
-        // addiu $sp $sp -4
+        // evaluate e1
+        e1.code(s, cgenTable);
+        // push result onto the stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
 
         // cgen(e2)
-        e2.code(s);
-        // lw $t1 4($sp)
+        e2.code(s, cgenTable);
+
+        //create a new integer object that is a copy of current one (since $a0 currently contains an integer object)
+        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
+
+        // load result of evaluating e1
         CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
-        // add $a0 $t1 $a0
-        CgenSupport.emitSub(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+
+        //remember these are int objects not ints so gotta get the ints themselves
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T2, 3, CgenSupport.ACC, s);
+
+
+        // perform the arithmetic $a0 $t1 $a0
+        CgenSupport.emitSub(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
+
+        //store the sum in the new object
+        CgenSupport.emitStore(CgenSupport.T1, 3, CgenSupport.ACC, s);
+
+
         // addiu $sp $sp 4
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
+        CgenSupport.emitComment(s, "Leaving cgen for subtract");
     }
 
 
@@ -1095,22 +1119,38 @@ class mul extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for multiply");
-        // cgen(e1)
-        e1.code(s);
-        // sw $a0 0($sp)
-        // addiu $sp $sp -4
+        // evaluate e1
+        e1.code(s, cgenTable);
+        // push result onto the stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
 
         // cgen(e2)
-        e2.code(s);
-        // lw $t1 4($sp)
+        e2.code(s, cgenTable);
+
+        //create a new integer object that is a copy of current one (since $a0 currently contains an integer object)
+        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
+
+        // load result of evaluating e1
         CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
-        // add $a0 $t1 $a0
-        CgenSupport.emitMul(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+
+        //remember these are int objects not ints so gotta get the ints themselves
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T2, 3, CgenSupport.ACC, s);
+
+
+        // perform the arithmetic $a0 $t1 $a0
+        CgenSupport.emitMul(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
+
+        //store the sum in the new object
+        CgenSupport.emitStore(CgenSupport.T1, 3, CgenSupport.ACC, s);
+
+
         // addiu $sp $sp 4
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
+        CgenSupport.emitComment(s, "Leaving cgen for multiply");
+
     }
 
 
@@ -1156,22 +1196,37 @@ class divide extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for divide");
-        // cgen(e1)
-        e1.code(s);
-        // sw $a0 0($sp)
-        // addiu $sp $sp -4
+        // evaluate e1
+        e1.code(s, cgenTable);
+        // push result onto the stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
 
         // cgen(e2)
-        e2.code(s);
-        // lw $t1 4($sp)
+        e2.code(s, cgenTable);
+
+        //create a new integer object that is a copy of current one (since $a0 currently contains an integer object)
+        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
+
+        // load result of evaluating e1
         CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.SP, s);
-        // add $a0 $t1 $a0
-        CgenSupport.emitDiv(CgenSupport.ACC, CgenSupport.T1, CgenSupport.ACC, s);
+
+        //remember these are int objects not ints so gotta get the ints themselves
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T2, 3, CgenSupport.ACC, s);
+
+
+        // perform the arithmetic $a0 $t1 $a0
+        CgenSupport.emitDiv(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
+
+        //store the sum in the new object
+        CgenSupport.emitStore(CgenSupport.T1, 3, CgenSupport.ACC, s);
+
+
         // addiu $sp $sp 4
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
+        CgenSupport.emitComment(s, "Leaving cgen for divide");
     }
 
 
@@ -1212,14 +1267,24 @@ class neg extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entering cgen for negate");
+        // evaluate e1
+        e1.code(s, cgenTable);
 
-        // cgen(e1)
-        e1.code(s);
-        // push $a0
-        CgenSupport.emitPush(CgenSupport.ACC, s);
+        //create a new integer object that is a copy of current one (since $a0 currently contains an integer object)
+        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
 
-        /////// more to go.
+        //remember these is an int object so gotta get the int itself
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.ACC, s);
+
+        // perform the arithmetic $a0 $t1 $a0
+        CgenSupport.emitNeg(CgenSupport.T1, CgenSupport.T1, s);
+
+        //store the negation in the new object
+        CgenSupport.emitStore(CgenSupport.T1, 3, CgenSupport.ACC, s);
+
+        CgenSupport.emitComment(s, "Leaving cgen for negate");
     }
 
 
@@ -1265,7 +1330,31 @@ class lt extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entering cgen for less than");
+        //Generate code for first expression
+        e1.code(s, cgenTable);
+        //Move it to a temp
+        CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC, s);
+        //Generate Code for second expression
+        e1.code(s, cgenTable);
+
+        //check if $t1 < $a0 is true or false
+        int labelCountTrue = CgenNode.getLabelCountAndIncrement();
+        int labelCountFalse = CgenNode.getLabelCountAndIncrement();
+        //remember these are int objects, so load their actual values
+
+        //remember these is an int objects so gotta get the ints themselves
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.ACC, 3, CgenSupport.ACC, s);
+
+        //If e1 < e2 return true boolean constant else return false boolean constant
+        CgenSupport.emitBlt(CgenSupport.T1, CgenSupport.ACC, labelCountTrue, s);
+        CgenSupport.emitLabelDef(labelCountFalse, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.falsebool,s);
+        CgenSupport.emitLabelDef(labelCountTrue,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool,s);
+        CgenSupport.emitComment(s, "Leaving cgen for less than");
     }
 
 
@@ -1311,7 +1400,7 @@ class eq extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
     }
 
 
@@ -1357,7 +1446,31 @@ class leq extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entering cgen for less than or equal to");
+        //Generate code for first expression
+        e1.code(s, cgenTable);
+        //Move it to a temp
+        CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC, s);
+        //Generate Code for second expression
+        e1.code(s, cgenTable);
+
+        //check if $t1 < $a0 is true or false
+        int labelCountTrue = CgenNode.getLabelCountAndIncrement();
+        int labelCountFalse = CgenNode.getLabelCountAndIncrement();
+        //remember these are int objects, so load their actual values
+
+        //remember these is an int objects so gotta get the ints themselves
+        CgenSupport.emitLoad(CgenSupport.T1, 3, CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.ACC, 3, CgenSupport.ACC, s);
+
+        //If e1 <= e2 return true boolean constant else return false boolean constant
+        CgenSupport.emitBleq(CgenSupport.T1, CgenSupport.ACC, labelCountTrue, s);
+        CgenSupport.emitLabelDef(labelCountFalse, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.falsebool,s);
+        CgenSupport.emitLabelDef(labelCountTrue,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool,s);
+        CgenSupport.emitComment(s, "Leaving cgen for less than or equal to");
     }
 
 
@@ -1398,7 +1511,8 @@ class comp extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+
     }
 
 
@@ -1438,9 +1552,11 @@ class int_const extends Expression {
      * to you as an example of code generation.
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for int const expression");
         CgenSupport.emitLoadInt(CgenSupport.ACC,
                 (IntSymbol)AbstractTable.inttable.lookup(token.getString()), s);
+        CgenSupport.emitComment(s, "Leaving cgen for int const expression");
     }
 
 }
@@ -1479,8 +1595,10 @@ class bool_const extends Expression {
      * to you as an example of code generation.
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for bool const expression");
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(val), s);
+        CgenSupport.emitComment(s, "Leaving cgen for bool const expression");
     }
 
 }
@@ -1521,9 +1639,11 @@ class string_const extends Expression {
      * to you as an example of code generation.
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for string const expression");
         CgenSupport.emitLoadString(CgenSupport.ACC,
                 (StringSymbol)AbstractTable.stringtable.lookup(token.getString()), s);
+        CgenSupport.emitComment(s, "Leaving cgen for string const expression");
     }
 
 }
@@ -1563,7 +1683,15 @@ class new_ extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for new");
+        //load address of prototype definition
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, this.type_name.toString()+"_protObj", s);
+        //use function Object.copy to create new object using prototype definition
+        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
+        //initialize new object using object's init function
+        CgenSupport.emitJal(this.type_name.toString()+"_init", s);
+        CgenSupport.emitComment(s, "Leaving cgen for new");
     }
 
 
@@ -1604,7 +1732,20 @@ class isvoid extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for isvoid");
+        //generate code for expression
+        e1.code(s, cgenTable);
+        //check if object in $a0 is null/void ($a0 = 0)
+        int labelCountTrue = CgenNode.getLabelCountAndIncrement();
+        int labelCountFalse = CgenNode.getLabelCountAndIncrement();
+        //If a0 contains 0 that means null object so returns true boolean constant else return false boolean constant
+        CgenSupport.emitBeq(CgenSupport.ACC,"0", labelCountTrue, s);
+        CgenSupport.emitLabelDef(labelCountFalse, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.falsebool,s);
+        CgenSupport.emitLabelDef(labelCountTrue,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool,s);
+        CgenSupport.emitComment(s, "Leaving cgen for isvoid");
     }
 
 
@@ -1640,7 +1781,9 @@ class no_expr extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        //no expressions means generate no code right so this should be blank I think
+        CgenSupport.emitComment(s, "Entered and exited cgen for no expression");
     }
 
 
@@ -1655,7 +1798,7 @@ class object extends Expression {
     /** Creates "object" AST node. 
      *
      * @param lineNumber the line in the source file from which this node came.
-     * @param a0 initial value for name
+     * @param a1 initial value for name
      */
     public object(int lineNumber, AbstractSymbol a1) {
         super(lineNumber);
@@ -1681,7 +1824,26 @@ class object extends Expression {
      * you wish.)
      * @param s the output stream 
      * */
-    public void code(PrintStream s) {
+    public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for object");
+        //First check to see if this is a self object, if so, then copy s0 to a0, easy peasy!
+        if(this.name.equals(TreeConstants.self)){
+            CgenSupport.emitMove(CgenSupport.ACC,CgenSupport.SELF, s);
+        }else {
+            //it's not a self object so could be an attribute of the class or in scope (like a let variable for example)
+            //First check if this variable is in current scope
+            if(cgenTable.probe(this.name) == null) {
+                //not in current scope so it must be an attribute, so get offset of attribute
+                // and load into current scope
+                int attrOffset = 9999;
+                CgenSupport.emitLoad(CgenSupport.ACC, CgenSupport.WORD_SIZE * (2+attrOffset), CgenSupport.SELF, s);
+            } else {
+                //is in the current scope, so get offset in frame and load into $a0
+                int frameOffset = 9999;
+                CgenSupport.emitLoad(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
+            }
+        }
+        CgenSupport.emitComment(s, "Exited cgen for object");
     }
 
 

@@ -22,6 +22,8 @@
 // This is a project skeleton file
 
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.Enumeration;
 
@@ -378,9 +380,9 @@ class CgenClassTable extends SymbolTable {
 
         this.str = str;
 
-        stringclasstag = 4 /* Change to your String class tag here */;
-        intclasstag =    2 /* Change to your Int class tag here */;
-        boolclasstag =   3 /* Change to your Bool class tag here */;
+        stringclasstag = CgenNode.STRING_CLASS_TAG /* Change to your String class tag here */;
+        intclasstag =    CgenNode.INT_CLASS_TAG /* Change to your Int class tag here */;
+        boolclasstag =   CgenNode.BOOL_CLASS_TAG /* Change to your Bool class tag here */;
 
         enterScope();
         if (Flags.cgen_debug) System.out.println("Building CgenClassTable");
@@ -397,6 +399,12 @@ class CgenClassTable extends SymbolTable {
     /** This method is the meat of the code generator.  It is to be
       filled in programming assignment 5 */
     public void code() {
+        Map<AbstractSymbol, Integer> classTagMap = new HashMap<AbstractSymbol, Integer>();
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            CgenNode tmpNode = (CgenNode) en.nextElement();
+            classTagMap.put(tmpNode.name, tmpNode.getTag());
+        }
+
         if (Flags.cgen_debug) System.out.println("coding global data");
         codeGlobalData();
 
@@ -417,15 +425,23 @@ class CgenClassTable extends SymbolTable {
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeClassObjTab(str);
         }
-        //// parentTab
-        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-        //    ((CgenNode) en.nextElement()).codeParentTables(str);
-        //}
-        //// attrTabTab
-        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-        //    ((CgenNode) en.nextElement()).codeAttrTables(str);
-        //}
+        // parentTab
+        str.println("class_parentTab:");
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).codeParentTables(str);
+        }
+
+        // attrTabTab
+        str.println("class_attrTabTab:");
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).codeAttrTableTables(str);
+        }
+
         // Class attrTab
+        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+            ((CgenNode) en.nextElement()).codeAttrTables(str);
+        }
+
         //                   - dispatch tables
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeDispatchTables(str);

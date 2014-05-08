@@ -120,6 +120,8 @@ class CgenSupport {
     final static String BLT     = "\tblt\t";
     final static String BGT     = "\tbgt\t";
 
+    final static String OBJECT_DOT_COPY = "Object.copy";
+
     /** Emits an LW instruction.
      * @param dest_reg the destination register
      * @param offset the word offset from source register

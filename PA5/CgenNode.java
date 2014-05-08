@@ -51,19 +51,21 @@ class CgenNode extends class_c {
 
 
     //static variable that generates class tags
-    private final static int OBJECT_CLASS_TAG = 0;
-    private final static int IO_CLASS_TAG = 1;
-    private final static int MAIN_CLASS_TAG = 2;
-    private final static int INT_CLASS_TAG = 3;
-    private final static int BOOL_CLASS_TAG = 4;
-    private final static int STRING_CLASS_TAG = 5;
-    private static int CURR_CLASS_TAG = 3; //strange hack since it starts at 3 more than what this says
+    public final static int OBJECT_CLASS_TAG = 0;
+    public final static int IO_CLASS_TAG = 1;
+    public final static int INT_CLASS_TAG = 2;
+    public final static int BOOL_CLASS_TAG = 3;
+    public final static int STRING_CLASS_TAG = 4;
+    private static int CURR_CLASS_TAG = 2; //strange hack since it starts at some weird offset
 
-    //label counter
+    //label counters
     private static int CURR_LABEL_COUNT = 0;
 
     //this nodes class tag
     private int tag;
+
+    //a reference to the CgenClassTable
+    private CgenClassTable cgenTable;
 
 
     /** Constructs a new CgenNode to represent class "c".
@@ -82,8 +84,6 @@ class CgenNode extends class_c {
             this.tag = OBJECT_CLASS_TAG;
         } else if (c.getName().toString().equals(TreeConstants.IO.toString())){
             this.tag = IO_CLASS_TAG;
-        } else if (c.getName().toString().equals(TreeConstants.Main.toString())){
-            this.tag = MAIN_CLASS_TAG;
         } else if (c.getName().toString().equals(TreeConstants.Int.toString())){
             this.tag = INT_CLASS_TAG;
         } else if (c.getName().toString().equals(TreeConstants.Bool.toString())){
@@ -94,6 +94,7 @@ class CgenNode extends class_c {
             this.tag = CURR_CLASS_TAG;
             CURR_CLASS_TAG++;
         }
+        this.cgenTable = table;
     }
 
     void addChild(CgenNode child) {
@@ -139,6 +140,10 @@ class CgenNode extends class_c {
     //
     //
 
+    public int getTag(){
+        return this.tag;
+    }
+
     /** emits Class Object Table
      *
      **/
@@ -152,14 +157,63 @@ class CgenNode extends class_c {
     /***
      * Wonder if WE NEED TO PRINT 'class_parentTab' and
      * 'class_attrTabTab'
+     * Yes I think we do, it will help for case expressions I think
      * **/
     public void codeParentTables(PrintStream str) {
         //CgenSupport.emitComment(str, "Entered codeParentTables");
         //CgenSupport.emitComment(str, "Leaving codeParentTables");
+        if(this.tag != 0) //if this node isn't Object
+            str.println(CgenSupport.WORD + this.getParentNd().tag);
+        else
+            str.println(CgenSupport.WORD + -2);
+    }
+    public void codeAttrTableTables(PrintStream str) {
+        str.println(CgenSupport.WORD + this.name + "_attrTab");
     }
     public void codeAttrTables(PrintStream str) {
         //CgenSupport.emitComment(str, "Entered codeAttrTables");
         //CgenSupport.emitComment(str, "Leaving codeAttrTables");
+
+        Stack<attr> attrStack = new Stack<attr>();
+        CgenNode curr = this;
+        while(curr != null) {
+            List<attr> tmp = new ArrayList<attr>();
+            for(Enumeration e = curr.getFeatures().getElements(); e.hasMoreElements();){
+                Feature feat = (Feature) e.nextElement();
+                if (feat instanceof  attr){
+                    tmp.add((attr) feat);
+                }
+            }
+            for(int i = tmp.size()-1;i >= 0; i--){
+                attrStack.push(tmp.get(i));
+            }
+            curr = curr.getParentNd();
+        }
+
+        List<attr> attrList = new LinkedList<attr>();
+        while(!attrStack.empty()){
+            attrList.add(attrStack.pop());
+        }
+
+        str.println(this.name + "_attrTab:");
+        for(attr at : attrList){
+            CgenNode tmp = (CgenNode) this.cgenTable.probe(at.type_decl);
+            if (this.name.equals(TreeConstants.Int)){
+                str.println(CgenSupport.WORD + -2);
+            } else if (this.name.equals(TreeConstants.Bool)){
+                str.println(CgenSupport.WORD + -2);
+            } else if (this.name.equals(TreeConstants.Str)){
+                if(tmp.tag != CgenNode.INT_CLASS_TAG){
+                    str.println(CgenSupport.WORD + -2);
+                } else {
+                    str.println(CgenSupport.WORD + tmp.tag);
+                }
+            }  else {
+                str.println(CgenSupport.WORD + tmp.tag);
+            }
+
+        }
+
     }
 
     /** emits prototype objects
@@ -385,7 +439,7 @@ class CgenNode extends class_c {
 
                 // lw $fp 16($sp)
                 CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
-                met.expr.code(str);
+                met.expr.code(str, this.cgenTable);
 
                 popStackFrame(str);
                 CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
@@ -394,7 +448,7 @@ class CgenNode extends class_c {
         CgenSupport.emitComment(str, "Leaving codeClassMethods for " + this.name);
     }
 
-    public int getLabelCountAndIncrement(){
+    public static int getLabelCountAndIncrement(){
         return CURR_LABEL_COUNT++;
     }
 }
