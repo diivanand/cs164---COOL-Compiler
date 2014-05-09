@@ -121,6 +121,7 @@ class CgenSupport {
     final static String BLT     = "\tblt\t";
     final static String BGT     = "\tbgt\t";
 
+    /** Things we have added */
     final static String OBJECT_DOT_COPY = "Object.copy";
 
     /** Emits an LW instruction.
