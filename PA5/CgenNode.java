@@ -46,6 +46,9 @@ class CgenNode extends class_c {
     /** PRIVATE HELPER VARIABLES WE ADDED */
     /** Map from Class to Offset to the dispatch table */
     private Map<AbstractSymbol, Integer> methodMap;
+
+    public static Map<AbstractSymbol, Map<AbstractSymbol, Integer>> attrOffsetMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, Integer>>();
+
     /** record the containing Type its in */
     private static AbstractSymbol currentType;
 
@@ -253,9 +256,15 @@ class CgenNode extends class_c {
         }
 
         List<attr> attrList = new LinkedList<attr>();
+        Map<AbstractSymbol, Integer> attrNameIndexMap = new HashMap<AbstractSymbol, Integer>();
+        int j = 1;
         while(!attrStack.empty()){
-            attrList.add(attrStack.pop());
+            attr tmp = attrStack.pop();
+            attrList.add(tmp);
+            attrNameIndexMap.put(tmp.name, j);
+            j++;
         }
+        CgenNode.attrOffsetMap.put(this.name, attrNameIndexMap);
 
         // emit class tag id
         str.println(CgenSupport.WORD + this.tag);
@@ -466,25 +475,12 @@ class CgenNode extends class_c {
                     attr at = (attr) feat;
                     CgenSupport.emitComment(str, "Generating code for attribute " + at.name  + " of type " + at.type_decl  + " in class " + this.name);
 
-                    if(at.type_decl.equals(TreeConstants.Bool) || at.type_decl.equals(TreeConstants.Str) || at.type_decl.equals(TreeConstants.Int)){
-                        String addr = "WRONG"; // I NEED THE RIGHT OFFSET
-                        CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
-                        int offset  = -9999; // I NEED THE RIGHT ADDRESS
-                        CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, str);
-                    } else {
-                        String addr = "WRONG"; // I NEED THE RIGHT OFFSET
-                        CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
+                    at.init.code(str, this.cgenTable);
 
-                        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, str);
-                        CgenSupport.emitJal(at.type_decl + "_init", str);
+                    int offset = CgenNode.attrOffsetMap.get(this.name).get(at.name) + 2;
+                    CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, str);
 
-                        int offset  = -9999; // I NEED THE RIGHT ADDRESS
-                        CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, str);
-                    }
-
-
-
-                    CgenSupport.emitComment(str, "Done Generating code for attribute " + at.name  + " of type " + at.type_decl  +  " in class " + this.name);
+                    CgenSupport.emitComment(str, " Done Generating code for attribute " + at.name  + " of type " + at.type_decl  + " in class " + this.name);
                 }
             }
         }
