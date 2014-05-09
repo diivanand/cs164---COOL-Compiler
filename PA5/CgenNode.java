@@ -273,6 +273,9 @@ class CgenNode extends class_c {
      *
      **/
     public void codeProtObj(PrintStream str) {
+        //Add -1 eyecatcher
+        str.println(CgenSupport.WORD + "-1");
+
         CgenSupport.emitComment(str, "Entered codeProtObj for " + this.name);
         str.print(this.getName()+CgenSupport.PROTOBJ_SUFFIX+CgenSupport.LABEL);
         Stack<attr> attrStack = new Stack<attr>();
