@@ -451,13 +451,8 @@ class CgenClassTable extends SymbolTable {
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeAttrTables(str);
         }
-
         //                   - dispatch tables
-        //root().buildDispatchTAbles(str,new LinkedHashMap<AbstractSymbol, >());
         root().buildDispatchTables(str, new LinkedList<AbstractSymbol>(), new HashMap<AbstractSymbol, AbstractSymbol>());
-        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-        //    ((CgenNode) en.nextElement()).codeDispatchTables(str);
-        //}
         //                   - prototype objects
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeProtObj(str);

@@ -33,6 +33,7 @@ Class B inherits A{
 Class Main inherits IO{
     aObj : A <- new A;
     bObj: B <- new B;
+    abObj : A <- new B;
     main(): SELF_TYPE{
 
 

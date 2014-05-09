@@ -352,6 +352,11 @@ class CgenNode extends class_c {
         CgenSupport.emitComment(str, "Leaving codeProtObj for " + this.name);
     }
 
+    ///**
+    // * emits dispatch tables
+    // * and build dispatch tables
+    // * with right offsets
+    // **/
     public void buildDispatchTables(PrintStream str, LinkedList<AbstractSymbol> ancestorMethodList, HashMap<AbstractSymbol,AbstractSymbol> ancestorMethodClass) {
         this.methodList = (LinkedList) ancestorMethodList.clone();
         HashSet<AbstractSymbol> methodSet = new HashSet<AbstractSymbol>(); // set of declared methods in this CgenNode
@@ -376,48 +381,6 @@ class CgenNode extends class_c {
         }
     }
     
-    ///**
-    // * emits dispatch tables
-    // **/
-    //public void codeDispatchTables(PrintStream str) {
-    //    str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
-    //    buildMethodMap(str, new HashSet<AbstractSymbol>()); 
-    //}
-
-    ///**
-    // * Helper function for codeDispatchTables()
-    // * Recursively goes up to the Object
-    // * We collect the set of method names, so that it does not emit the decendant's
-    // * overriden methods.
-    // * @param str PrintStream to the code
-    // * @Param oldMethodSet set of method names seen so far
-    // **/
-    //private void buildMethodMap(PrintStream str, Set<AbstractSymbol> oldMethodSet) {
-    //    Set<AbstractSymbol> newMethodSet = new HashSet<AbstractSymbol>(oldMethodSet);
-    //    List<method> methodList = new LinkedList<method>();  
-    //    for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
-    //        Feature feat = (Feature) e.nextElement();
-    //        if (feat instanceof method) {
-    //            method met = (method) feat;
-    //            methodList.add(met);
-    //            newMethodSet.add(met.name);
-    //        }
-    //    }
-    //    
-    //    if(getParentNd() != null) {
-    //        getParentNd().buildMethodMap(str, newMethodSet);
-    //    }
-    //    int offset = 0;
-    //    for(method met : methodList) {
-    //        //if(methodOffsetMap.get(this.getName()) == null) {
-    //        //    methodOffsetMap.put(new HashMap<AbstractSymbol, Integer>());
-    //        //}
-    //        //methodOffsetMap.get(getName()).put(met.name, offset++);
-    //        if(!oldMethodSet.contains(met.name)) {
-    //            str.println(CgenSupport.WORD + this.getName()+CgenSupport.METHOD_SEP+met.name);
-    //        }
-    //    }
-    //}
 
     /**
     * Helper function for codeProtObj
