@@ -464,12 +464,27 @@ class CgenNode extends class_c {
                 Feature feat = (Feature) e.nextElement();
                 if (feat instanceof attr) {
                     attr at = (attr) feat;
-                    CgenSupport.emitComment(str, "Generating code for attribute " + at.name  +  " in class " + this.name);
-                    String addr = "WRONG"; // I NEED THE RIGHT OFFSET
-                    CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
-                    int offset  = -9999; // I NEED THE RIGHT ADDRESS
-                    CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, str);
-                    CgenSupport.emitComment(str, "Done Generating code for attribute " + at.name  +  " in class " + this.name);
+                    CgenSupport.emitComment(str, "Generating code for attribute " + at.name  + " of type " + at.type_decl  + " in class " + this.name);
+
+                    if(at.type_decl.equals(TreeConstants.Bool) || at.type_decl.equals(TreeConstants.Str) || at.type_decl.equals(TreeConstants.Int)){
+                        String addr = "WRONG"; // I NEED THE RIGHT OFFSET
+                        CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
+                        int offset  = -9999; // I NEED THE RIGHT ADDRESS
+                        CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, str);
+                    } else {
+                        String addr = "WRONG"; // I NEED THE RIGHT OFFSET
+                        CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
+
+                        CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, str);
+                        CgenSupport.emitJal(at.type_decl + "_init", str);
+
+                        int offset  = -9999; // I NEED THE RIGHT ADDRESS
+                        CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, str);
+                    }
+
+
+
+                    CgenSupport.emitComment(str, "Done Generating code for attribute " + at.name  + " of type " + at.type_decl  +  " in class " + this.name);
                 }
             }
         }
