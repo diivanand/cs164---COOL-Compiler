@@ -40,6 +40,7 @@ class CgenSupport {
     final static int MAXINT = 100000000;
     final static int WORD_SIZE = 4;
     final static int LOG_WORD_SIZE = 2;     // for logical shifts
+    final static int FRAME_SIZE_INITIAL = 3; //initialize size of a frame
 
     // Global names
     final static String CLASSNAMETAB = "class_nameTab";

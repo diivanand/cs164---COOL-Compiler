@@ -627,6 +627,9 @@ class static_dispatch extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        CgenSupport.emitComment(s, "Entered cgen for static dispatch");
+
+        CgenSupport.emitComment(s, "Leaving cgen for static dispatch");
     }
 
 
@@ -682,6 +685,7 @@ class dispatch extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+
     }
 
 

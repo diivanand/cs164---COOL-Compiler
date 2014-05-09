@@ -352,11 +352,12 @@ class CgenNode extends class_c {
      * Helper Function that Pushes the Stack Frame
      * used in object init and class methods
      **/
-    private void pushStackFrame(PrintStream str) {
+    private void pushStackFrame(PrintStream str, int paramCount) {
         CgenSupport.emitComment(str, "Entered pushStackFrame");
-        int offset = 3;
+        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
+        int offset = CgenSupport.DEFAULT_OBJFIELDS;
         // addiu $sp $sp -12
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -offset * 4, str);
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -frame_size_offset * CgenSupport.WORD_SIZE, str);
         // sw $fp 12($sp)
         CgenSupport.emitStore(CgenSupport.FP, offset--, CgenSupport.SP, str);
         // sw $s0 8($sp)
@@ -373,9 +374,10 @@ class CgenNode extends class_c {
      * Helper Function that pops the Stack Frame
      * used in object init and class methods
      **/
-    private void popStackFrame(PrintStream str) {
+    private void popStackFrame(PrintStream str, int paramCount) {
         CgenSupport.emitComment(str, "Entered popStackFrame");
-        int offset = 3;
+        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
+        int offset = CgenSupport.DEFAULT_OBJFIELDS;
         // lw $fp 12($sp)
         CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
         // lw $S0 8($sp)
@@ -383,7 +385,7 @@ class CgenNode extends class_c {
         // lw $ra 4($sp)
         CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
         // addiu $sp $sp 12
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 12, str);
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, frame_size_offset, str);
         // jr $ra
         CgenSupport.emitReturn(str);
         CgenSupport.emitComment(str, "Leaving popStackFrame");
@@ -395,7 +397,15 @@ class CgenNode extends class_c {
         CgenSupport.emitComment(str, "Entered codeObjInit for " + this.name);
         str.print(this.getName() + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
 
-        pushStackFrame(str);
+        int attrCount = 0;
+        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+            Feature feat = (Feature) e.nextElement();
+            if (feat instanceof attr) {
+                attrCount++;
+            }
+        }
+
+        pushStackFrame(str, attrCount);
 
         if (! getName().equals(TreeConstants.Object_) ) {
             CgenSupport.emitJal(getParentNd().getName()
@@ -419,7 +429,7 @@ class CgenNode extends class_c {
 
         // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, str);
-        popStackFrame(str);
+        popStackFrame(str, attrCount);
         CgenSupport.emitComment(str, "Leaving codeObjInit for " + this.name);
     }
 
@@ -439,13 +449,18 @@ class CgenNode extends class_c {
                 method met = (method) feat;
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
-                pushStackFrame(str);
+                pushStackFrame(str, met.formals.getLength());
 
+                //not sure if we need this
                 // lw $fp 16($sp)
-                CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
+                //CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
+                //
+
+                //Now that I have a new frame with enough spots to store the results of my formals
+                //
                 met.expr.code(str, this.cgenTable);
 
-                popStackFrame(str);
+                popStackFrame(str, met.formals.getLength());
                 CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
             }
         }
