@@ -152,6 +152,8 @@ class CgenClassTable extends SymbolTable {
         AbstractTable.stringtable.codeStringTable(stringclasstag, str);
         AbstractTable.inttable.codeStringTable(intclasstag, str);
         codeBools(boolclasstag);
+
+        //create
     }
 
 
@@ -398,6 +400,9 @@ class CgenClassTable extends SymbolTable {
         code();
 
         exitScope();
+
+        System.out.println("attrOffsetMap: ");
+        System.out.println(CgenNode.attrOffsetMap);
     }
 
     /** This method is the meat of the code generator.  It is to be
@@ -462,11 +467,15 @@ class CgenClassTable extends SymbolTable {
         //                 Add your code to emit
         //                   - object initializer
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).codeObjInit(str);
+            CgenNode tmp = (CgenNode) en.nextElement();
+            this.addId(TreeConstants.self, tmp);
+            tmp.codeObjInit(str);
         }
         //                   - the class methods
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).codeClassMethods(str);
+            CgenNode tmp = (CgenNode) en.nextElement();
+            this.addId(TreeConstants.self, tmp);
+            tmp.codeClassMethods(str);
         }
         //                   - etc...
     }

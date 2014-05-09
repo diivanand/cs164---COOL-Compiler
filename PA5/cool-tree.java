@@ -567,9 +567,7 @@ class assign extends Expression {
         CgenSupport.emitComment(s, "Entered cgen for assign");
 
         expr.code(s, cgenTable);
-        //the offset in the object that this attribute is located in
         int offset = 9999;
-        //Store object in appropriate spot in frame pointer
         CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.FP, s);
         CgenSupport.emitComment(s, "Leaving cgen for assign");
     }
