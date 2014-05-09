@@ -11,6 +11,8 @@ Class B inherits A{
     a_method(): String {
       {
         c <- c_method(c, 25,"useless comment"); -- 189
+        b <- b_method();
+        b <- a;
         b <- "new b string";
       }
     };

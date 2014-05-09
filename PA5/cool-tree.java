@@ -633,7 +633,29 @@ class static_dispatch extends Expression {
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for static dispatch");
+        AbstractSymbol staticType = type_name;
+        if(type_name.equals(TreeConstants.SELF_TYPE)){
+            staticType = CgenNode.getCurrentType();
+        }
 
+        CgenNode c1 = (CgenNode) cgenTable.probe(staticType);
+        
+        for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
+            ((Expression) en.nextElement()).code(s, cgenTable);
+            CgenSupport.emitPush(CgenSupport.ACC,s);
+        }
+        int newLabel = CgenNode.getLabelCountAndIncrement();
+        // check if dispatch on void
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
+
+        expr.code(s, cgenTable);
+        CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
+        CgenSupport.emitDispTableRef(c1.name, s);
+        s.println();
+        System.out.println(c1);
+        CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodIndex(name), CgenSupport.T1, s);
+        CgenSupport.emitJalr(CgenSupport.T1, s);
+        //CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
         CgenSupport.emitComment(s, "Leaving cgen for static dispatch");
     }
 
@@ -657,9 +679,9 @@ class dispatch extends Expression {
      */
     public dispatch(int lineNumber, Expression a1, AbstractSymbol a2, Expressions a3) {
         super(lineNumber);
-        expr = a1;
-        name = a2;
-        actual = a3;
+        expr = a1; // name of type
+        name = a2; // dispatch name
+        actual = a3; // param
     }
     public TreeNode copy() {
         return new dispatch(lineNumber, (Expression)expr.copy(), copy_AbstractSymbol(name), (Expressions)actual.copy());
@@ -690,8 +712,7 @@ class dispatch extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
-
-        CgenSupport.emitComment(s, "dispatch code START");
+        CgenSupport.emitComment(s, "BEGIN dispatch on "+name);
         AbstractSymbol exprType = expr.get_type();
         if (exprType.equals(TreeConstants.SELF_TYPE)) {
             // assign the current type to exprType 
@@ -708,14 +729,26 @@ class dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC,s);
         }
 
-        expr.code(s, cgenTable);
-        CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
-        CgenSupport.emitDispTableRef(c1.name, s);
-        s.println();
-        System.out.println(c1);
-        CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodIndex(name), CgenSupport.T1, s);
-        CgenSupport.emitJalr(CgenSupport.T1, s);
+        // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+        int newLabel = CgenNode.getLabelCountAndIncrement();
+        // check if dispatch on void (self==void)
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
+        // la $a0 file_name
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX+"0",s); 
+        CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
+        CgenSupport.emitJal("_dispatch_abort",s);
+
+        CgenSupport.emitLabelDef(newLabel, s);
+
+
+        //expr.code(s, cgenTable);
+        //CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
+        CgenSupport.emitDispTableRef(c1.name, s);
+        //s.println();
+        //System.out.println(c1);
+        //CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodIndex(name), CgenSupport.T1, s);
+        //CgenSupport.emitJalr(CgenSupport.T1, s);
         CgenSupport.emitComment(s, "dispatch code done");
     }
     ///**
@@ -1070,7 +1103,8 @@ class plus extends Expression {
         // cgen(e2)
         e2.code(s, cgenTable);
 
-        //create a new integer object that is a copy of current one (since $a0 currently contains an integer object)
+        // create a new integer object that is a copy of current one
+        // (since $a0 currently contains an integer object)
         CgenSupport.emitJal(CgenSupport.OBJECT_DOT_COPY, s);
 
         // load result of evaluating e1
@@ -1968,7 +2002,7 @@ class object extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
-        CgenSupport.emitComment(s, "Entered cgen for object");
+        CgenSupport.emitComment(s, "Entered cgen for object: "+name);
         //First check to see if this is a self object, if so, then copy s0 to a0, easy peasy!
         if(this.name.equals(TreeConstants.self)){
             CgenSupport.emitMove(CgenSupport.ACC,CgenSupport.SELF, s);
