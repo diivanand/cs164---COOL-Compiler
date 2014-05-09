@@ -367,9 +367,9 @@ class CgenNode extends class_c {
      **/
     private void pushStackFrame(PrintStream str, int paramCount) {
         CgenSupport.emitComment(str, "Entered pushStackFrame");
-        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
+        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount - 1;
         int offset = CgenSupport.DEFAULT_OBJFIELDS;
-        // addiu $sp $sp -12
+        // addiu $sp $sp -4*frame_size_offset
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -frame_size_offset * CgenSupport.WORD_SIZE, str);
         // sw $fp 12($sp)
         CgenSupport.emitStore(CgenSupport.FP, offset--, CgenSupport.SP, str);
@@ -389,7 +389,7 @@ class CgenNode extends class_c {
      **/
     private void popStackFrame(PrintStream str, int paramCount) {
         CgenSupport.emitComment(str, "Entered popStackFrame");
-        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
+        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount - 1;
         int offset = CgenSupport.DEFAULT_OBJFIELDS;
         // lw $fp 12($sp)
         CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
@@ -397,12 +397,51 @@ class CgenNode extends class_c {
         CgenSupport.emitLoad(CgenSupport.SELF, offset--, CgenSupport.SP, str);
         // lw $ra 4($sp)
         CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
-        // addiu $sp $sp 12
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, frame_size_offset, str);
+        // addiu $sp $sp 4*frame_size_offset
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, frame_size_offset * CgenSupport.WORD_SIZE, str);
         // jr $ra
         CgenSupport.emitReturn(str);
         CgenSupport.emitComment(str, "Leaving popStackFrame");
     }
+
+    private void objectInitPrologue(PrintStream str){
+
+        CgenSupport.emitComment(str, "Entered objectInitPrologue");
+        int offset = CgenSupport.DEFAULT_OBJFIELDS;
+
+        // addiu $sp $sp -12
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -offset * CgenSupport.WORD_SIZE, str);
+        // sw $fp 12($sp)
+        CgenSupport.emitStore(CgenSupport.FP, offset--, CgenSupport.SP, str);
+        // sw $s0 8($sp)
+        CgenSupport.emitStore(CgenSupport.SELF, offset--, CgenSupport.SP, str);
+        // sw $ra 4($sp)
+        CgenSupport.emitStore(CgenSupport.RA, offset--, CgenSupport.SP, str);
+        // addiu $fp $sp 16
+        CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 16, str);
+        // move $s0 $a0
+        CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
+
+        CgenSupport.emitComment(str, "Leaving objectInitPrologue");
+
+    }
+
+    private void popObjectInitEpilogue(PrintStream str){
+        CgenSupport.emitComment(str, "Entered objectInitEpilogue");
+        int offset = CgenSupport.DEFAULT_OBJFIELDS;
+        // lw $fp 12($sp)
+        CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
+        // lw $S0 8($sp)
+        CgenSupport.emitLoad(CgenSupport.SELF, offset--, CgenSupport.SP, str);
+        // lw $ra 4($sp)
+        CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
+        // addiu $sp $sp 4*frame_size_offset
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.DEFAULT_OBJFIELDS * CgenSupport.WORD_SIZE, str);
+        // jr $ra
+        CgenSupport.emitReturn(str);
+        CgenSupport.emitComment(str, "Leaving objectInitEpilogue");
+    }
+
     /**
      * emits code for object initializer
      */
@@ -410,15 +449,7 @@ class CgenNode extends class_c {
         CgenSupport.emitComment(str, "Entered codeObjInit for " + this.name);
         str.print(this.getName() + CgenSupport.CLASSINIT_SUFFIX + CgenSupport.LABEL);
 
-        int attrCount = 0;
-        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
-            Feature feat = (Feature) e.nextElement();
-            if (feat instanceof attr) {
-                attrCount++;
-            }
-        }
-
-        pushStackFrame(str, attrCount);
+        objectInitPrologue(str);
 
         if (! getName().equals(TreeConstants.Object_) ) {
             CgenSupport.emitJal(getParentNd().getName()
@@ -426,23 +457,26 @@ class CgenNode extends class_c {
                     str);
         }
 
-
-        for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
-            Feature feat = (Feature) e.nextElement();
-            if (feat instanceof attr) {
-                attr at = (attr) feat;
-                CgenSupport.emitComment(str, "Generating code for attribute " + at.name  +  " in class " + this.name);
-                String addr = "WRONG"; // I NEED THE RIGHT OFFSET
-                CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
-                int offset  = -9999; // I NEED THE RIGHT ADDRESS
-                CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, str);
-                CgenSupport.emitComment(str, "Done Generating code for attribute " + at.name  +  " in class " + this.name);
+        if(this.name.equals(TreeConstants.Bool) || this.name.equals(TreeConstants.Str) || this.name.equals(TreeConstants.Int)){
+            //do nothing with the attributes
+        }   else {
+            for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+                Feature feat = (Feature) e.nextElement();
+                if (feat instanceof attr) {
+                    attr at = (attr) feat;
+                    CgenSupport.emitComment(str, "Generating code for attribute " + at.name  +  " in class " + this.name);
+                    String addr = "WRONG"; // I NEED THE RIGHT OFFSET
+                    CgenSupport.emitLoadAddress(CgenSupport.ACC, addr, str);
+                    int offset  = -9999; // I NEED THE RIGHT ADDRESS
+                    CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, str);
+                    CgenSupport.emitComment(str, "Done Generating code for attribute " + at.name  +  " in class " + this.name);
+                }
             }
         }
 
         // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, str);
-        popStackFrame(str, attrCount);
+        popObjectInitEpilogue(str);
         CgenSupport.emitComment(str, "Leaving codeObjInit for " + this.name);
     }
 
