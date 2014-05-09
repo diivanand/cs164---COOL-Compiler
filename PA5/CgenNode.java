@@ -532,6 +532,7 @@ class CgenNode extends class_c {
         for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof method) {
+                this.cgenTable.enterScope();
                 method met = (method) feat;
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
@@ -545,9 +546,18 @@ class CgenNode extends class_c {
                 CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
 
 
+                int i = 1;
+                for(Enumeration e2 = met.formals.getElements(); e2.hasMoreElements(); ) {
+                    formalc formy = (formalc) e2.nextElement();
+                    this.cgenTable.addId(formy.name, i);
+                    i++;
+                }
+
                 int AR_size = (3+met.formals.getLength()) * CgenSupport.WORD_SIZE;
                 CgenSupport.emitComment(str, "method.expr.code with size "+AR_size);
                 met.expr.code(str, this.cgenTable);
+
+
                 CgenSupport.emitComment(str, "Restroing FP, SELF, RA, return RA");
                 CgenSupport.emitLoad(CgenSupport.FP, 3, CgenSupport.SP, str);
                 CgenSupport.emitLoad(CgenSupport.SELF, 2, CgenSupport.SP, str);
@@ -555,7 +565,7 @@ class CgenNode extends class_c {
                 CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, AR_size, str);
 
                 CgenSupport.emitReturn(str);
-
+                this.cgenTable.exitScope();
 
                 ////frame pointer now points to the top of current activation frame
                 //CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);

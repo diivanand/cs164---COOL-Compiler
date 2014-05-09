@@ -567,8 +567,20 @@ class assign extends Expression {
         CgenSupport.emitComment(s, "Entered cgen for assign");
 
         expr.code(s, cgenTable);
-        //int frameOffset = (Integer) cgenTable.probe(name);
-        //CgenSupport.emitStore(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
+
+        //First check if this variable is in current scope
+        if(cgenTable.probe(name) == null) {
+            //not in current scope so it must be an attribute, so get offset of attribute
+            // and load into current scope
+            CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
+            int attrOffset = CgenNode.attrOffsetMap.get(nd.name).get(name);
+            CgenSupport.emitStore(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);
+        } else {
+            //is in the current scope, so get offset in frame and load into $a0
+            int frameOffset = (Integer) cgenTable.probe(name);
+            CgenSupport.emitStore(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
+        }
+
         CgenSupport.emitComment(s, "Leaving cgen for assign");
     }
 
@@ -710,7 +722,6 @@ class dispatch extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
-        CgenSupport.emitComment(s, "BEGIN dispatch on "+name);
         AbstractSymbol exprType = expr.get_type();
         if (exprType.equals(TreeConstants.SELF_TYPE)) {
             // assign the current type to exprType 
@@ -718,6 +729,7 @@ class dispatch extends Expression {
             exprType = CgenNode.getCurrentType();
             System.out.println("SELF_TYPE converted to "+exprType);
         }
+        CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in class " + exprType);
    //     // check if dispatch on void (self==void)
    //     CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
    //     // la $a0 file_name
@@ -725,24 +737,35 @@ class dispatch extends Expression {
    //     CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
    //     CgenSupport.emitJal("_dispatch_abort",s);
         //CgenNode c1 = (CgenNode) programc.codegen_classtable.probe(exprType);
-        CgenNode c1 = (CgenNode) cgenTable.probe(exprType);
+        CgenNode c1 = (CgenNode) cgenTable.lookup(exprType);
         
         //this.pushArgs(actual.getElements(), cgenTable, s);
         for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
-            ((Expression) en.nextElement()).code(s, cgenTable);
+            Expression tmp = (Expression) en.nextElement();
+            CgenSupport.emitComment(s, "Evaluating and pushing argument of type "+tmp.get_type()+ " to stack");
+            tmp.code(s, cgenTable);
             CgenSupport.emitPush(CgenSupport.ACC,s);
+            CgenSupport.emitComment(s, "Done pushing argument of type "+tmp.get_type()+ " to stack");
         }
 
         expr.code(s, cgenTable);
+
+        //The reference cgen doesn't explicity call dispatch table cuz that coudl lead to bugs, use $a0 instead so I'm changing it
+        /*
         CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
         CgenSupport.emitDispTableRef(c1.name, s);
         s.println();
+        */
+        CgenSupport.emitLoad(CgenSupport.T1, 2, CgenSupport.ACC, s);
+        //
+
+
         c1.printMethodOffsets();
         CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
-        CgenSupport.emitComment(s, "dispatch code done");
+        CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in class " + exprType);
    //     // move $a0 $s0
    //     CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
    //     int newLabel = CgenNode.getLabelCountAndIncrement();
@@ -2020,7 +2043,7 @@ class object extends Expression {
                 // and load into current scope
                 CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
                 int attrOffset = CgenNode.attrOffsetMap.get(nd.name).get(name);
-                CgenSupport.emitLoad(CgenSupport.ACC, CgenSupport.WORD_SIZE * (2+attrOffset), CgenSupport.SELF, s);
+                CgenSupport.emitLoad(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);
             } else {
                 //is in the current scope, so get offset in frame and load into $a0
                 int frameOffset = (Integer) cgenTable.probe(name);
