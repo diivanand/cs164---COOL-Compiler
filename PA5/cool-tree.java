@@ -731,7 +731,7 @@ class dispatch extends Expression {
         }
         CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in class " + exprType);
    //     // check if dispatch on void (self==void)
-   //     CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
+   //     CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s);
    //     // la $a0 file_name
    //     CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX+"0",s); 
    //     CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
@@ -744,12 +744,20 @@ class dispatch extends Expression {
             Expression tmp = (Expression) en.nextElement();
             CgenSupport.emitComment(s, "Evaluating and pushing argument of type "+tmp.get_type()+ " to stack");
             tmp.code(s, cgenTable);
-            CgenSupport.emitPush(CgenSupport.ACC,s);
+            //CgenSupport.emitPush(CgenSupport.ACC,s);
             CgenSupport.emitComment(s, "Done pushing argument of type "+tmp.get_type()+ " to stack");
         }
 
         expr.code(s, cgenTable);
 
+        int notVoidDispatchLabel = CgenNode.getLabelCountAndIncrement();
+
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const1", s);
+        CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
+        CgenSupport.emitJal("_dispatch_abort",s);
+
+        CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
         //The reference cgen doesn't explicity call dispatch table cuz that coudl lead to bugs, use $a0 instead so I'm changing it
         /*
         CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
@@ -763,9 +771,14 @@ class dispatch extends Expression {
         c1.printMethodOffsets();
         CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
+
+
+
         // move $a0 $s0
-        CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
-        CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in class " + exprType);
+        //CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+
+
+        CgenSupport.emitComment(s, "DONE dispatch for method "+name+ " in class " + exprType);
    //     // move $a0 $s0
    //     CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
    //     int newLabel = CgenNode.getLabelCountAndIncrement();
@@ -2032,6 +2045,7 @@ class object extends Expression {
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for object: "+name);
+        CgenSupport.emitPush(CgenSupport.ACC, s);
         //First check to see if this is a self object, if so, then copy s0 to a0, easy peasy!
         if(this.name.equals(TreeConstants.self)){
             CgenSupport.emitMove(CgenSupport.ACC,CgenSupport.SELF, s);

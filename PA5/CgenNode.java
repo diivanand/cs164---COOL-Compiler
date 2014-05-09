@@ -538,25 +538,31 @@ class CgenNode extends class_c {
                 //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
                 // save FP, SELf, and RA
-                CgenSupport.emitPush(CgenSupport.FP, str); 
-                CgenSupport.emitPush(CgenSupport.SELF, str);
-                CgenSupport.emitPush(CgenSupport.RA, str);
-                // frame pointer now points to the top of current activation frame
-                CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);
-                CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
+                CgenSupport.emitPush(CgenSupport.FP, str); //store OLDFP
+                CgenSupport.emitPush(CgenSupport.SELF, str); //store SELF
+                CgenSupport.emitPush(CgenSupport.RA, str);   //store RA
 
 
                 int i = 1;
                 for(Enumeration e2 = met.formals.getElements(); e2.hasMoreElements(); ) {
                     formalc formy = (formalc) e2.nextElement();
                     this.cgenTable.addId(formy.name, i);
+                    CgenSupport.emitComment(str, "Creating space in frame for formal of name " + formy.name  +  " with type " + formy.type_decl);
+                    CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE, str);
                     i++;
                 }
+
+                // Make frame pointer point to the top of current activation frame
+                CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 4*CgenSupport.WORD_SIZE, str);
+
+                // save self object
+                CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
 
                 int AR_size = (3+met.formals.getLength()) * CgenSupport.WORD_SIZE;
                 CgenSupport.emitComment(str, "method.expr.code with size "+AR_size);
                 met.expr.code(str, this.cgenTable);
-
+                //Push result onto the stack
+                //CgenSupport.emitPush(CgenSupport.ACC, str);
 
                 CgenSupport.emitComment(str, "Restroing FP, SELF, RA, return RA");
                 CgenSupport.emitLoad(CgenSupport.FP, 3, CgenSupport.SP, str);
@@ -565,6 +571,7 @@ class CgenNode extends class_c {
                 CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, AR_size, str);
 
                 CgenSupport.emitReturn(str);
+
                 this.cgenTable.exitScope();
 
                 ////frame pointer now points to the top of current activation frame
