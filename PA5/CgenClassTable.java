@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.LinkedList;
 
 /** This class is used for representing the inheritance tree during code
   generation. You will need to fill in some of its methods and
@@ -452,9 +453,11 @@ class CgenClassTable extends SymbolTable {
         }
 
         //                   - dispatch tables
-        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).codeDispatchTables(str);
-        }
+        //root().buildDispatchTAbles(str,new LinkedHashMap<AbstractSymbol, >());
+        root().buildDispatchTables(str, new LinkedList<AbstractSymbol>(), new HashMap<AbstractSymbol, AbstractSymbol>());
+        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+        //    ((CgenNode) en.nextElement()).codeDispatchTables(str);
+        //}
         //                   - prototype objects
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             ((CgenNode) en.nextElement()).codeProtObj(str);

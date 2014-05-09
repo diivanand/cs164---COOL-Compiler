@@ -44,8 +44,12 @@ class CgenNode extends class_c {
     private int basic_status;
 
     /** PRIVATE HELPER VARIABLES WE ADDED */
+    private LinkedList<AbstractSymbol> methodList; // list of all methods in the current CgenNode
+    private HashMap<AbstractSymbol, AbstractSymbol> methodClass; // find class of a method
+    //private HashMap<AbstractSymbol, Integer> methodOffset; // find offset of a method
     /** Map from Class to Offset to the dispatch table */
-    private Map<AbstractSymbol, Integer> methodMap;
+    //private Map<AbstractSymbol, Integer> methodMap;
+    //private static Map<AbstractSymbol, Map<AbstractSymbol, Integer>> methodOffsetMap;
 
     public static Map<AbstractSymbol, Map<AbstractSymbol, Integer>> attrOffsetMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, Integer>>();
 
@@ -55,13 +59,45 @@ class CgenNode extends class_c {
     public static AbstractSymbol getCurrentType() {
         return currentType;
     }
-
-    public Integer getMethodIndex(AbstractSymbol method_name) {
-        System.out.println("getMethodIndex on " + method_name);
-        System.out.println("the method map: "+ methodMap.get(method_name));
-        return 1;
-        //return this.methodMap.get(method_name);
+    public Integer getMethodOffset(AbstractSymbol method_name) {
+        assert methodList!=null;
+        assert methodList.contains(method_name);
+        return methodList.indexOf(method_name);
     }
+    public void printMethodOffsets() {
+        System.out.println("Method Offsets for "+getName());
+        for(AbstractSymbol name : methodList) {
+            System.out.println(methodClass.get(name) + "." +name+"="+methodList.indexOf(name));
+        }
+    }
+
+    //public static int getMethodOffset(AbstractSymbol class_name, AbstractSymbol method_name) {
+    //    Map<AbstractSymbol, Integer> methodOffset = methodOffsetMap.get(class_name);
+    //    if(methodOffset == null) {
+    //        System.out.println("no such class name "+class_name+" exists:");
+    //    }
+    //    Integer off = methodOffset.get(method_name); 
+    //    if(off==null) {
+    //        System.out.println("no such method name "+method_name+" exists in class "+class_name);
+    //    }
+    //    return off;
+    //}
+    //public void printMethodMap() {
+    //    System.out.println("Printing method map");
+    //    Iterator it = methodMap.entrySet().iterator();
+    //    while(it.hasNext()) {
+    //        Map.Entry pairs= (Map.Entry) it.next();
+    //        System.out.println(pairs.getKey() + " = " + pairs.getValue());
+    //        it.remove();
+    //    }
+    //}
+
+    //public Integer getMethodIndex(AbstractSymbol method_name) {
+    //    System.out.println("getMethodIndex on " + method_name);
+    //    System.out.println("the method map: "+ methodMap.get(method_name));
+    //    return 1;
+    //    //return this.methodMap.get(method_name);
+    //}
 
     // Queue of atrributes used when creating prototype object
 
@@ -94,7 +130,8 @@ class CgenNode extends class_c {
         this.parent = null;
         this.children = new Vector();
         this.basic_status = basic_status;
-        this.methodMap = new HashMap<AbstractSymbol, Integer>(); // added
+        //this.methodMap = new HashMap<AbstractSymbol, Integer>(); // added
+        //this.methodOffsetMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, Integer>>();
         AbstractTable.stringtable.addString(name.getString());
         if(c.getName().toString().equals(TreeConstants.Object_.toString())){
             this.tag = OBJECT_CLASS_TAG;
@@ -311,45 +348,73 @@ class CgenNode extends class_c {
         }
         CgenSupport.emitComment(str, "Leaving codeProtObj for " + this.name);
     }
-    
-    /**
-     * emits dispatch tables
-     **/
-    public void codeDispatchTables(PrintStream str) {
-        str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
-        buildMethodMap(str, new HashSet<AbstractSymbol>()); 
-    }
 
-    /**
-     * Helper function for codeDispatchTables()
-     * Recursively goes up to the Object
-     * We collect the set of method names, so that it does not emit the decendant's
-     * overriden methods.
-     * @param str PrintStream to the code
-     * @Param oldMethodSet set of method names seen so far
-     **/
-    private void buildMethodMap(PrintStream str, Set<AbstractSymbol> oldMethodSet) {
-        Set<AbstractSymbol> newMethodSet = new HashSet<AbstractSymbol>(oldMethodSet);
-        List<method> methodList = new LinkedList<method>();  
+    public void buildDispatchTables(PrintStream str, LinkedList<AbstractSymbol> ancestorMethodList, HashMap<AbstractSymbol,AbstractSymbol> ancestorMethodClass) {
+        this.methodList = (LinkedList) ancestorMethodList.clone();
+        HashSet<AbstractSymbol> methodSet = new HashSet<AbstractSymbol>(); // set of declared methods in this CgenNode
+        this.methodClass = (HashMap<AbstractSymbol, AbstractSymbol>) ancestorMethodClass.clone();
+        str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
         for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
             Feature feat = (Feature) e.nextElement();
             if (feat instanceof method) {
                 method met = (method) feat;
-                methodList.add(met);
-                newMethodSet.add(met.name);
+                // if this method is newly seen, add
+                if(!methodList.contains(met.name)) {
+                    methodList.add(met.name);
+                } 
+                methodClass.put(met.name, getName());
             }
         }
-        
-        if(getParentNd() != null) {
-            getParentNd().buildMethodMap(str, newMethodSet);
+        for(AbstractSymbol method_name : methodList) {
+            str.println(CgenSupport.WORD + methodClass.get(method_name) + CgenSupport.METHOD_SEP+method_name);
         }
-        for(method met : methodList) {
-            if(!oldMethodSet.contains(met.name)) {
-                str.println(CgenSupport.WORD + this.getName()+CgenSupport.METHOD_SEP+met.name);
-                methodMap.put(met.name, methodMap.size());
-            }
+        for(Enumeration en = getChildren() ; en.hasMoreElements(); ) {
+            ((CgenNode) en.nextElement()).buildDispatchTables(str, methodList, methodClass);
         }
     }
+    
+    ///**
+    // * emits dispatch tables
+    // **/
+    //public void codeDispatchTables(PrintStream str) {
+    //    str.print(this.getName()+CgenSupport.DISPTAB_SUFFIX+CgenSupport.LABEL);
+    //    buildMethodMap(str, new HashSet<AbstractSymbol>()); 
+    //}
+
+    ///**
+    // * Helper function for codeDispatchTables()
+    // * Recursively goes up to the Object
+    // * We collect the set of method names, so that it does not emit the decendant's
+    // * overriden methods.
+    // * @param str PrintStream to the code
+    // * @Param oldMethodSet set of method names seen so far
+    // **/
+    //private void buildMethodMap(PrintStream str, Set<AbstractSymbol> oldMethodSet) {
+    //    Set<AbstractSymbol> newMethodSet = new HashSet<AbstractSymbol>(oldMethodSet);
+    //    List<method> methodList = new LinkedList<method>();  
+    //    for(Enumeration e = getFeatures().getElements() ; e.hasMoreElements() ; ) {
+    //        Feature feat = (Feature) e.nextElement();
+    //        if (feat instanceof method) {
+    //            method met = (method) feat;
+    //            methodList.add(met);
+    //            newMethodSet.add(met.name);
+    //        }
+    //    }
+    //    
+    //    if(getParentNd() != null) {
+    //        getParentNd().buildMethodMap(str, newMethodSet);
+    //    }
+    //    int offset = 0;
+    //    for(method met : methodList) {
+    //        //if(methodOffsetMap.get(this.getName()) == null) {
+    //        //    methodOffsetMap.put(new HashMap<AbstractSymbol, Integer>());
+    //        //}
+    //        //methodOffsetMap.get(getName()).put(met.name, offset++);
+    //        if(!oldMethodSet.contains(met.name)) {
+    //            str.println(CgenSupport.WORD + this.getName()+CgenSupport.METHOD_SEP+met.name);
+    //        }
+    //    }
+    //}
 
     /**
     * Helper function for codeProtObj
@@ -468,19 +533,39 @@ class CgenNode extends class_c {
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
-
-                //frame pointer now points to the top of current activation frame
-                CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);
-                //save return address in case this function has another function call inside it
+                // save FP, SELf, and RA
+                CgenSupport.emitPush(CgenSupport.FP, str); 
+                CgenSupport.emitPush(CgenSupport.SELF, str);
                 CgenSupport.emitPush(CgenSupport.RA, str);
-                //generate code
+                // frame pointer now points to the top of current activation frame
+                CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);
+                CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
+
+
+                int AR_size = (3+met.formals.getLength()) * CgenSupport.WORD_SIZE;
+                CgenSupport.emitComment(str, "method.expr.code with size "+AR_size);
                 met.expr.code(str, this.cgenTable);
-                //restore the old values before the function call and jump register
+                CgenSupport.emitComment(str, "Restroing FP, SELF, RA, return RA");
+                CgenSupport.emitLoad(CgenSupport.FP, 3, CgenSupport.SP, str);
+                CgenSupport.emitLoad(CgenSupport.SELF, 2, CgenSupport.SP, str);
                 CgenSupport.emitLoad(CgenSupport.RA, 1, CgenSupport.SP, str);
-                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE*met.formals.getLength() + 8, str);
-                CgenSupport.emitLoad(CgenSupport.FP, 0, CgenSupport.SP, str);
+                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, AR_size, str);
+
                 CgenSupport.emitReturn(str);
-                CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
+
+
+                ////frame pointer now points to the top of current activation frame
+                //CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);
+                ////save return address in case this function has another function call inside it
+                //CgenSupport.emitPush(CgenSupport.RA, str);
+                ////generate code
+                //met.expr.code(str, this.cgenTable);
+                ////restore the old values before the function call and jump register
+                //CgenSupport.emitLoad(CgenSupport.RA, 1, CgenSupport.SP, str);
+                //CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE*met.formals.getLength() + 8, str);
+                //CgenSupport.emitLoad(CgenSupport.FP, 0, CgenSupport.SP, str);
+                //CgenSupport.emitReturn(str);
+                //CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
             }
         }
         CgenSupport.emitComment(str, "Leaving codeClassMethods for " + this.name);
@@ -490,6 +575,4 @@ class CgenNode extends class_c {
         return CURR_LABEL_COUNT++;
     }
 }
-
-
 

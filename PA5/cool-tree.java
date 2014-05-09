@@ -567,8 +567,8 @@ class assign extends Expression {
         CgenSupport.emitComment(s, "Entered cgen for assign");
 
         expr.code(s, cgenTable);
-        int frameOffset = (Integer) cgenTable.probe(name);
-        CgenSupport.emitStore(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
+        //int frameOffset = (Integer) cgenTable.probe(name);
+        //CgenSupport.emitStore(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
         CgenSupport.emitComment(s, "Leaving cgen for assign");
     }
 
@@ -651,7 +651,7 @@ class static_dispatch extends Expression {
         CgenSupport.emitDispTableRef(c1.name, s);
         s.println();
         System.out.println(c1);
-        CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodIndex(name), CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         //CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
         CgenSupport.emitComment(s, "Leaving cgen for static dispatch");
@@ -718,6 +718,12 @@ class dispatch extends Expression {
             exprType = CgenNode.getCurrentType();
             System.out.println("SELF_TYPE converted to "+exprType);
         }
+   //     // check if dispatch on void (self==void)
+   //     CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
+   //     // la $a0 file_name
+   //     CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX+"0",s); 
+   //     CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
+   //     CgenSupport.emitJal("_dispatch_abort",s);
         //CgenNode c1 = (CgenNode) programc.codegen_classtable.probe(exprType);
         CgenNode c1 = (CgenNode) cgenTable.probe(exprType);
         
@@ -727,27 +733,29 @@ class dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC,s);
         }
 
+        expr.code(s, cgenTable);
+        CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
+        CgenSupport.emitDispTableRef(c1.name, s);
+        s.println();
+        c1.printMethodOffsets();
+        CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
+        CgenSupport.emitJalr(CgenSupport.T1, s);
         // move $a0 $s0
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
-        int newLabel = CgenNode.getLabelCountAndIncrement();
-        // check if dispatch on void (self==void)
-        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
-        // la $a0 file_name
-        CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX+"0",s); 
-        CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
-        CgenSupport.emitJal("_dispatch_abort",s);
-
-        CgenSupport.emitLabelDef(newLabel, s);
-
-
-        //expr.code(s, cgenTable);
-        //CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
-        CgenSupport.emitDispTableRef(c1.name, s);
-        //s.println();
-        //System.out.println(c1);
-        //CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodIndex(name), CgenSupport.T1, s);
-        //CgenSupport.emitJalr(CgenSupport.T1, s);
         CgenSupport.emitComment(s, "dispatch code done");
+   //     // move $a0 $s0
+   //     CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+   //     int newLabel = CgenNode.getLabelCountAndIncrement();
+   //     // check if dispatch on void (self==void)
+   //     CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
+   //     // la $a0 file_name
+   //     CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX+"0",s); 
+   //     CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
+   //     CgenSupport.emitJal("_dispatch_abort",s);
+
+   //     CgenSupport.emitLabelDef(newLabel, s);
+
+
     }
     ///**
     // * Helper method that recursively code arguments in order.

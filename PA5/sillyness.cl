@@ -1,7 +1,13 @@
 Class A{
     a: String <- "a string";
     a_method(): String {
-        a
+        --a
+      { 3;
+        "dummy string in class a";
+      }
+    };
+    dummy_method(): Int{
+        3
     };
 };
 
