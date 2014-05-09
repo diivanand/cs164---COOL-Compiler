@@ -376,7 +376,7 @@ class CgenNode extends class_c {
      **/
     private void pushStackFrame(PrintStream str, int paramCount) {
         CgenSupport.emitComment(str, "Entered pushStackFrame");
-        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount - 1;
+        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
         int offset = CgenSupport.DEFAULT_OBJFIELDS;
         // addiu $sp $sp -4*frame_size_offset
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -frame_size_offset * CgenSupport.WORD_SIZE, str);
@@ -398,7 +398,7 @@ class CgenNode extends class_c {
      **/
     private void popStackFrame(PrintStream str, int paramCount) {
         CgenSupport.emitComment(str, "Entered popStackFrame");
-        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount - 1;
+        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
         int offset = CgenSupport.DEFAULT_OBJFIELDS;
         // lw $fp 12($sp)
         CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
@@ -507,16 +507,11 @@ class CgenNode extends class_c {
             if (feat instanceof method) {
                 method met = (method) feat;
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
+                //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
                 pushStackFrame(str, met.formals.getLength());
 
-                //not sure if we need this
-                // lw $fp 16($sp)
-                //CgenSupport.emitLoad(CgenSupport.FP, 4, CgenSupport.SP, str);
-                //
 
-                //Now that I have a new frame with enough spots to store the results of my formals
-                //
                 met.expr.code(str, this.cgenTable);
 
                 popStackFrame(str, met.formals.getLength());

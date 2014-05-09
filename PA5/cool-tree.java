@@ -567,8 +567,8 @@ class assign extends Expression {
         CgenSupport.emitComment(s, "Entered cgen for assign");
 
         expr.code(s, cgenTable);
-        int offset = 9999;
-        CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.FP, s);
+        int frameOffset = (Integer) cgenTable.probe(name);
+        CgenSupport.emitStore(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
         CgenSupport.emitComment(s, "Leaving cgen for assign");
     }
 
@@ -1976,11 +1976,12 @@ class object extends Expression {
             if(cgenTable.probe(this.name) == null) {
                 //not in current scope so it must be an attribute, so get offset of attribute
                 // and load into current scope
-                int attrOffset = 9999;
+                CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
+                int attrOffset = CgenNode.attrOffsetMap.get(nd.name).get(name);
                 CgenSupport.emitLoad(CgenSupport.ACC, CgenSupport.WORD_SIZE * (2+attrOffset), CgenSupport.SELF, s);
             } else {
                 //is in the current scope, so get offset in frame and load into $a0
-                int frameOffset = 9999;
+                int frameOffset = (Integer) cgenTable.probe(name);
                 CgenSupport.emitLoad(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
             }
         }
