@@ -370,48 +370,7 @@ class CgenNode extends class_c {
         //CgenSupport.emitComment(str, "Leaving codeNameTab");
     }
 
-    /**
-     * Helper Function that Pushes the Stack Frame
-     * used in object init and class methods
-     **/
-    private void pushStackFrame(PrintStream str, int paramCount) {
-        CgenSupport.emitComment(str, "Entered pushStackFrame");
-        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
-        int offset = CgenSupport.DEFAULT_OBJFIELDS;
-        // addiu $sp $sp -4*frame_size_offset
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -frame_size_offset * CgenSupport.WORD_SIZE, str);
-        // sw $fp 12($sp)
-        CgenSupport.emitStore(CgenSupport.FP, offset--, CgenSupport.SP, str);
-        // sw $s0 8($sp)
-        CgenSupport.emitStore(CgenSupport.SELF, offset--, CgenSupport.SP, str);
-        // sw $ra 4($sp)
-        CgenSupport.emitStore(CgenSupport.RA, offset--, CgenSupport.SP, str);
-        // addiu $fp $sp 16
-        CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 16, str);
-        // move $s0 $a0
-        CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
-        CgenSupport.emitComment(str, "Leaving pushStackFrame");
-    }
-    /**
-     * Helper Function that pops the Stack Frame
-     * used in object init and class methods
-     **/
-    private void popStackFrame(PrintStream str, int paramCount) {
-        CgenSupport.emitComment(str, "Entered popStackFrame");
-        int frame_size_offset = CgenSupport.FRAME_SIZE_INITIAL + paramCount;
-        int offset = CgenSupport.DEFAULT_OBJFIELDS;
-        // lw $fp 12($sp)
-        CgenSupport.emitLoad(CgenSupport.FP, offset--, CgenSupport.SP, str);
-        // lw $S0 8($sp)
-        CgenSupport.emitLoad(CgenSupport.SELF, offset--, CgenSupport.SP, str);
-        // lw $ra 4($sp)
-        CgenSupport.emitLoad(CgenSupport.RA, offset, CgenSupport.SP, str);
-        // addiu $sp $sp 4*frame_size_offset
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, frame_size_offset * CgenSupport.WORD_SIZE, str);
-        // jr $ra
-        CgenSupport.emitReturn(str);
-        CgenSupport.emitComment(str, "Leaving popStackFrame");
-    }
+
 
     private void objectInitPrologue(PrintStream str){
 
@@ -509,12 +468,18 @@ class CgenNode extends class_c {
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
-                pushStackFrame(str, met.formals.getLength());
 
-
+                //frame pointer now points to the top of current activation frame
+                CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);
+                //save return address in case this function has another function call inside it
+                CgenSupport.emitPush(CgenSupport.RA, str);
+                //generate code
                 met.expr.code(str, this.cgenTable);
-
-                popStackFrame(str, met.formals.getLength());
+                //restore the old values before the function call and jump register
+                CgenSupport.emitLoad(CgenSupport.RA, 1, CgenSupport.SP, str);
+                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE*met.formals.getLength() + 8, str);
+                CgenSupport.emitLoad(CgenSupport.FP, 0, CgenSupport.SP, str);
+                CgenSupport.emitReturn(str);
                 CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
             }
         }
