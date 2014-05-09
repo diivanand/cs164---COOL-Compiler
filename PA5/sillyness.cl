@@ -10,15 +10,15 @@ Class B inherits A{
     c: Int <- 164;
     a_method(): String {
       {
-        c <- 164 + 35; -- 189
+        c <- c_method(c, 25,"useless comment"); -- 189
         b <- "new b string";
       }
     };
     b_method(): String {
         b
     };
-    c_method(): Int {
-        c <- c + 30 -- 194 
+    c_method(a:Int, b:Int, c:String): Int {
+        a+b
     };
 };
 

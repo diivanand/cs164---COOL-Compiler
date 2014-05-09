@@ -229,6 +229,8 @@ class Cases extends ListNode {
   See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class programc extends Program {
     protected Classes classes;
+
+    protected static CgenClassTable codegen_classtable;
     /** Creates "programc" AST node. 
      *
      * @param lineNumber the line in the source file from which this node came.
@@ -286,7 +288,7 @@ class programc extends Program {
      * @see CgenClassTable
      * */
     public void cgen(PrintStream s) {
-        CgenClassTable codegen_classtable = new CgenClassTable(classes, s);
+        codegen_classtable = new CgenClassTable(classes, s);
 
 
     }
@@ -302,6 +304,8 @@ class class_c extends Class_ {
     protected AbstractSymbol parent;
     protected Features features;
     protected AbstractSymbol filename;
+
+    // protected static class_c lastClass;
     /** Creates "class_c" AST node. 
      *
      * @param lineNumber the line in the source file from which this node came.
@@ -561,6 +565,7 @@ class assign extends Expression {
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entered cgen for assign");
+
         expr.code(s, cgenTable);
         //the offset in the object that this attribute is located in
         int offset = 9999;
@@ -686,7 +691,44 @@ class dispatch extends Expression {
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
 
+        CgenSupport.emitComment(s, "dispatch code START");
+        AbstractSymbol exprType = expr.get_type();
+        if (exprType.equals(TreeConstants.SELF_TYPE)) {
+            // assign the current type to exprType 
+            //exprType = class_c.lastClass.name;
+            exprType = CgenNode.getCurrentType();
+            System.out.println("SELF_TYPE converted to "+exprType);
+        }
+        //CgenNode c1 = (CgenNode) programc.codegen_classtable.probe(exprType);
+        CgenNode c1 = (CgenNode) cgenTable.probe(exprType);
+        
+        //this.pushArgs(actual.getElements(), cgenTable, s);
+        for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
+            ((Expression) en.nextElement()).code(s, cgenTable);
+            CgenSupport.emitPush(CgenSupport.ACC,s);
+        }
+
+        expr.code(s, cgenTable);
+        CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
+        CgenSupport.emitDispTableRef(c1.name, s);
+        s.println();
+        System.out.println(c1);
+        CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodIndex(name), CgenSupport.T1, s);
+        CgenSupport.emitJalr(CgenSupport.T1, s);
+        CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+        CgenSupport.emitComment(s, "dispatch code done");
     }
+    ///**
+    // * Helper method that recursively code arguments in order.
+    // */
+    //private void pushArgs(Enumeration en, CgenClassTable cct, PrintStream s) {
+    //    if(en.hasMoreElements()) {
+    //        Expression argExpr = (Expression) en.nextElement();
+    //        pushArgs(en,cct,s);
+    //        argExpr.code(s, cct);
+    //        CgenSupport.emitPush(CgenSupport.ACC, s);
+    //    }
+    //}
 
 
 }
@@ -1884,6 +1926,7 @@ class no_expr extends Expression {
     public void code(PrintStream s, CgenClassTable cgenTable) {
         //no expressions means generate no code right so this should be blank I think
         CgenSupport.emitComment(s, "Entered and exited cgen for no expression");
+        CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
     }
 
 

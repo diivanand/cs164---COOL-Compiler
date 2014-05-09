@@ -46,6 +46,19 @@ class CgenNode extends class_c {
     /** PRIVATE HELPER VARIABLES WE ADDED */
     /** Map from Class to Offset to the dispatch table */
     private Map<AbstractSymbol, Integer> methodMap;
+    /** record the containing Type its in */
+    private static AbstractSymbol currentType;
+
+    public static AbstractSymbol getCurrentType() {
+        return currentType;
+    }
+
+    public Integer getMethodIndex(AbstractSymbol method_name) {
+        System.out.println("getMethodIndex on " + method_name);
+        System.out.println("the method map: "+ methodMap.get(method_name));
+        return 1;
+        //return this.methodMap.get(method_name);
+    }
 
     // Queue of atrributes used when creating prototype object
 
@@ -439,6 +452,7 @@ class CgenNode extends class_c {
      */
     public void codeClassMethods(PrintStream str) {
         // no need to code methods for Int, Bool, String
+        this.currentType = this.getName();
         if(this.basic()) {
             return;
         }

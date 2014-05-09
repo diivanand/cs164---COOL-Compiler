@@ -2,7 +2,7 @@ Things we still need to have/do:
 
 1. Some kind of 2D hashmap that given a class name and an attribute name, returns the attribute index
 (like if color is the first attribute in a class called crayon, it should return 1,
-or if length is the second attribute in a class called crayton, it should return 2)
+or if length is the second attribute in a class called crayon, it should return 2)
 *return -1 if hashmap returns null
 
 
@@ -84,3 +84,13 @@ so the actual size of a frame will be
 actual_frame_size = FRAME_INITIAL_SIZE + (# of params the function has.)
 
 
+=================== Things to consider MAY 8 : 6:40PM ==================
+TRY TO THINK
+(1) How to deal with multiple lets. We may need to count let Id's or how many lets we have (remember when we did PA2 parsing , we had let expr counter)
+(2) We might need to keep track of Offset and Type for each names (identifiers)
+
+
+
+
+======================QUESTIONS TO ASK======================
+*** What to do if we try to assign to identifer self?
