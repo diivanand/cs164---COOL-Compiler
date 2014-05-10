@@ -1531,7 +1531,7 @@ class lt extends Expression {
         //Move it to a temp
         CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC, s);
         //Generate Code for second expression
-        e1.code(s, cgenTable);
+        e2.code(s, cgenTable);
 
         //check if $t1 < $a0 is true or false
         int labelCountTrue = CgenNode.getLabelCountAndIncrement();
@@ -1663,7 +1663,7 @@ class leq extends Expression {
         //Move it to a temp
         CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC, s);
         //Generate Code for second expression
-        e1.code(s, cgenTable);
+        e2.code(s, cgenTable);
 
         //check if $t1 < $a0 is true or false
         int labelCountTrue = CgenNode.getLabelCountAndIncrement();
