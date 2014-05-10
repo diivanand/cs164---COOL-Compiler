@@ -2075,7 +2075,7 @@ class object extends Expression {
                 CgenSupport.emitLoad(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);
             } else {
                 //is in the current scope, so get offset in frame and load into $a0
-                int frameOffset = (Integer) cgenTable.probe(name);
+                int frameOffset = (Integer) cgenTable.probe(name) + 1;
                 CgenSupport.emitLoad(CgenSupport.ACC, frameOffset, CgenSupport.FP, s);
             }
         }
