@@ -454,9 +454,10 @@ class CgenClassTable extends SymbolTable {
         //                   - dispatch tables
         root().buildDispatchTables(str, new LinkedList<AbstractSymbol>(), new HashMap<AbstractSymbol, AbstractSymbol>());
         //                   - prototype objects
-        for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
-            ((CgenNode) en.nextElement()).codeProtObj(str);
-        }
+        //for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
+        //    ((CgenNode) en.nextElement()).codeProtObj(str);
+        //}
+        root().codeObjProt(str);
         
 
         if (Flags.cgen_debug) System.out.println("coding global text");
