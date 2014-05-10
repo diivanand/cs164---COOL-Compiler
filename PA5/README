@@ -167,11 +167,35 @@ Instructions
 Write-up for PA5
 ----------------
 
+Useful design strategies:
+
+1.Created a method called CgenSupport.emitComment(Printstream str, String msg)
+that prints a tabbed comment into the MIPS file making it easier to find assembly code bugs,
+since I had a "entered" and "exit" comment for basically each COOL expression, attr init, and method def.
+
+2. Used the symbol table aspect of the CgenClassTable to create scopes to help us realize if a certain variable
+   was either a formal/let-variable or an class attribute, which is important is deciding offsets.
+
+3. Our activation frames look like
+
+                 |arg n|
+                 |  .  |
+                 |  .  |
+                 |arg 1|
+                 | ra  |       $fp+8 is first arg1,fp+4 is arg2, etc., Stack pointer always points to next free/unused spot.
+                 |oldso|
+                 |oldfp|
+
+   Our calling convention is that the accumulator contains the
+   current self object corresponding to the dispatch and the frame looks like above.
 
 
+4. Code generation for expressions was done via a recursive descent of tree and using the code() methods
+   in each expression which we filled out.
 
+5. Error handling: we handle dispatch on void.
 
-
+We have so far passed 1.cl and 2.cl in the tests folder. And our 3.cl is ALMOST the same.
 
 
 Coolaid Feedback (optional)
@@ -180,25 +204,26 @@ Coolaid Feedback (optional)
    means that it was counter-productive, 3 means that it neither
    helped nor hindered you, and 6 means that you can't imagine
    developing/debugging a code generator without it.
-
+   5
 
 
 2. What aspects of Coolaid particularly helped you?
 
-
+   The step by step debugging and the assembly type checking helped us spot bugs.
 
 
 
 3. What aspects of Coolaid would you like to see improved?
 
-
+   The ability to go to the code when a jalR is called. Right now it just execuates the JalR
+   but doesn't let in step in.
 
 
 
 
 4. Describe bugs, if any, that Coolaid helped you find or fix?
 
-
+   Mostly memory bugs, like bad stack or frame pointer referencing.
 
 
 
