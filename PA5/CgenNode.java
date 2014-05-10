@@ -587,6 +587,9 @@ class CgenNode extends class_c {
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
+                // dispatch should have saved its actuals, so we consider this offset
+                int offsetFormals = CgenSupport.WORD_SIZE*(met.formals.getLength() + 1);
+                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, -offsetFormals,str);
                 //push fp, so, and ra in that order
                 CgenSupport.emitPush(CgenSupport.FP, str);
                 CgenSupport.emitPush(CgenSupport.SELF, str);
@@ -617,6 +620,8 @@ class CgenNode extends class_c {
                 CgenSupport.emitLoad(CgenSupport.RA, 1, CgenSupport.SP, str);
                 //pop the frame by incrementing the stack pointer
                 CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, AR_size, str);
+                // now pop the arguments saved by dispatch
+                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, offsetFormals,str);
                 //return to caller
                 CgenSupport.emitReturn(str);
 
