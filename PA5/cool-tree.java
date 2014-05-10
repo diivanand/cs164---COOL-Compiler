@@ -641,31 +641,43 @@ class static_dispatch extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
-        CgenSupport.emitComment(s, "Entered cgen for static dispatch");
-        AbstractSymbol staticType = type_name;
-        if(type_name.equals(TreeConstants.SELF_TYPE)){
-            staticType = CgenNode.getCurrentType();
-        }
+        CgenNode c1 = (CgenNode) cgenTable.lookup(type_name);
+        CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in static class " + type_name);
 
-        CgenNode c1 = (CgenNode) cgenTable.probe(staticType);
-        
+
+
+
         for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
-            ((Expression) en.nextElement()).code(s, cgenTable);
+            Expression tmp = (Expression) en.nextElement();
+            CgenSupport.emitComment(s, "Evaluating and pushing argument of type "+tmp.get_type()+ " to current frame");
+            //Evaluate expression
+            tmp.code(s, cgenTable);
+            //push value of expression to stack
             CgenSupport.emitPush(CgenSupport.ACC,s);
+            CgenSupport.emitComment(s, "Done pushing argument of type "+tmp.get_type()+ " to current frame");
         }
-        int newLabel = CgenNode.getLabelCountAndIncrement();
-        // check if dispatch on void
-        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO,newLabel, s); 
 
+        //evaluate object expression
         expr.code(s, cgenTable);
-        CgenSupport.emitPartialLoadAddress(CgenSupport.T1, s);
-        CgenSupport.emitDispTableRef(c1.name, s);
-        s.println();
-        System.out.println(c1);
+
+        //handle dispatch on void
+        int notVoidDispatchLabel = CgenNode.getLabelCountAndIncrement();
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const1", s);
+        CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
+        CgenSupport.emitJal("_dispatch_abort",s);
+        CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
+
+        //if not void continue as normal
+
+        //load dispatch table into T1
+        CgenSupport.emitLoad(CgenSupport.T1, 2, CgenSupport.ACC, s);
+        c1.printMethodOffsets();
+        //get offset in distpatch table to desired method and execute method
         CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
-        //CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
-        CgenSupport.emitComment(s, "Leaving cgen for static dispatch");
+
+        CgenSupport.emitComment(s, "DONE dispatch for method "+name+ " in static class " + type_name);
     }
 
 }
