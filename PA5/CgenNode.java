@@ -500,55 +500,33 @@ class CgenNode extends class_c {
                 CgenSupport.emitComment(str, "Generating code for method " + met.name  +  " in class " + this.name);
                 //System.out.println("Method " + met.name + " in class " + this.name + " has " + met.formals.getLength() + " arguments");
                 str.print(this.getName()+CgenSupport.METHOD_SEP+met.name+CgenSupport.LABEL);
-                // save FP, SELf, and RA
-                CgenSupport.emitPush(CgenSupport.FP, str); //store OLDFP
-                CgenSupport.emitPush(CgenSupport.SELF, str); //store SELF
-                CgenSupport.emitPush(CgenSupport.RA, str);   //store RA
 
 
+                //add formal parameter order to label to be able to calculate frame offsets ]
                 int i = 1;
                 for(Enumeration e2 = met.formals.getElements(); e2.hasMoreElements(); ) {
                     formalc formy = (formalc) e2.nextElement();
                     this.cgenTable.addId(formy.name, i);
-                    CgenSupport.emitComment(str, "Creating space in frame for formal of name " + formy.name  +  " with type " + formy.type_decl);
-                    CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE, str);
                     i++;
                 }
 
-                // Make frame pointer point to the top of current activation frame
-                CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 4*CgenSupport.WORD_SIZE, str);
-
-                // save self object
-                CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, str);
-
-                int AR_size = (3+met.formals.getLength()) * CgenSupport.WORD_SIZE;
-                CgenSupport.emitComment(str, "method.expr.code with size "+AR_size);
+                int AR_size = 12 + met.formals.getLength()*CgenSupport.WORD_SIZE;
+                CgenSupport.emitComment(str, "Generating inner code for method " + met.name +" with AR_size of " + AR_size);
                 met.expr.code(str, this.cgenTable);
-                //Push result onto the stack
-                //CgenSupport.emitPush(CgenSupport.ACC, str);
+                CgenSupport.emitComment(str, "Done Generating inner code for method " + met.name +" with AR_size of " + AR_size);
 
-                CgenSupport.emitComment(str, "Restroing FP, SELF, RA, return RA");
+                //restore fp, so, ra
+                CgenSupport.emitComment(str, "Incrementing Stack pointer and Restoring FP, SELF, and then jumping");
+
                 CgenSupport.emitLoad(CgenSupport.FP, 3, CgenSupport.SP, str);
                 CgenSupport.emitLoad(CgenSupport.SELF, 2, CgenSupport.SP, str);
                 CgenSupport.emitLoad(CgenSupport.RA, 1, CgenSupport.SP, str);
-                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, AR_size, str);
-
+                //pop the frame by incrementing the stack pointer
+                CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, AR_size,str);
+                //return to caller
                 CgenSupport.emitReturn(str);
 
                 this.cgenTable.exitScope();
-
-                ////frame pointer now points to the top of current activation frame
-                //CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, str);
-                ////save return address in case this function has another function call inside it
-                //CgenSupport.emitPush(CgenSupport.RA, str);
-                ////generate code
-                //met.expr.code(str, this.cgenTable);
-                ////restore the old values before the function call and jump register
-                //CgenSupport.emitLoad(CgenSupport.RA, 1, CgenSupport.SP, str);
-                //CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE*met.formals.getLength() + 8, str);
-                //CgenSupport.emitLoad(CgenSupport.FP, 0, CgenSupport.SP, str);
-                //CgenSupport.emitReturn(str);
-                //CgenSupport.emitComment(str, "Done Generating code for method " + met.name  +  " in class " + this.name);
             }
         }
         CgenSupport.emitComment(str, "Leaving codeClassMethods for " + this.name);
