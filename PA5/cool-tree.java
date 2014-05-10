@@ -574,6 +574,11 @@ class assign extends Expression {
             CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
             int attrOffset = CgenNode.attrOffsetMap.get(nd.name).get(name);
             CgenSupport.emitStore(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);
+            // garbage collect
+            if (Flags.cgen_Memmgr != Flags.GC_NOGC) {
+                CgenSupport.emitAddiu(CgenSupport.A1, CgenSupport.SELF, attrOffset,s);
+                CgenSupport.emitJal("_GenGC_Assign", s);
+            }
         } else {
             //is in the current scope, so get offset in frame and load into $a0
             int frameOffset = (Integer) cgenTable.probe(name);
@@ -642,10 +647,7 @@ class static_dispatch extends Expression {
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenNode c1 = (CgenNode) cgenTable.lookup(type_name);
-        CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in static class " + type_name);
-
-
-
+        CgenSupport.emitComment(s, "BEGIN static dispatch for method "+name+ " in static class " + type_name);
 
         for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
             Expression tmp = (Expression) en.nextElement();
@@ -662,8 +664,9 @@ class static_dispatch extends Expression {
 
         //handle dispatch on void
         int notVoidDispatchLabel = CgenNode.getLabelCountAndIncrement();
+        CgenNode selfie = (CgenNode) cgenTable.lookup(TreeConstants.self);
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
-        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const1", s);
+        CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol) selfie.getFilename(), s);        
         CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
         CgenSupport.emitJal("_dispatch_abort",s);
         CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
@@ -671,7 +674,10 @@ class static_dispatch extends Expression {
         //if not void continue as normal
 
         //load dispatch table into T1
-        CgenSupport.emitLoad(CgenSupport.T1, 2, CgenSupport.ACC, s);
+
+        //CgenSupport.emitLoad(CgenSupport.T1, 2, CgenSupport.ACC, s);
+        CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
+        CgenSupport.emitLoad(CgenSupport.T1, 2, CgenSupport.T1, s);
         c1.printMethodOffsets();
         //get offset in distpatch table to desired method and execute method
         CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
@@ -735,15 +741,10 @@ class dispatch extends Expression {
         AbstractSymbol exprType = expr.get_type();
         if (exprType.equals(TreeConstants.SELF_TYPE)) {
             // assign the current type to exprType 
-            //exprType = class_c.lastClass.name;
             exprType = CgenNode.getCurrentType();
-            System.out.println("SELF_TYPE converted to "+exprType);
         }
         CgenNode c1 = (CgenNode) cgenTable.lookup(exprType);
         CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in class " + exprType);
-
-
-
 
         for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
             Expression tmp = (Expression) en.nextElement();
@@ -770,7 +771,7 @@ class dispatch extends Expression {
 
         //load dispatch table into T1
         CgenSupport.emitLoad(CgenSupport.T1, 2, CgenSupport.ACC, s);
-        c1.printMethodOffsets();
+        //c1.printMethodOffsets();
         //get offset in distpatch table to desired method and execute method
         CgenSupport.emitLoad(CgenSupport.T1, c1.getMethodOffset(name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
@@ -913,12 +914,12 @@ class loop extends Expression {
         CgenSupport.emitLoadBool(CgenSupport.T1, BoolConst.truebool, s);
         //check to see if predicate value is not equal to true
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.T1, whileEndLabel,s);
-        CgenSupport.emitLabelRef(whileLabel, s);
+        //CgenSupport.emitLabelDef(whileLabel, s);
         //evaluate body
         body.code(s, cgenTable);
         //end of while loop label
         CgenSupport.emitLabelDef(whileEndLabel, s);
-        CgenSupport.emitLoadImm(CgenSupport.ACC, 0, s);
+        //CgenSupport.emitLoadImm(CgenSupport.ACC, 0, s);
         CgenSupport.emitComment(s, "Leaving cgen for loop");
 
     }
@@ -1600,16 +1601,24 @@ class eq extends Expression {
     public void code(PrintStream s, CgenClassTable cgenTable) {
         CgenSupport.emitComment(s, "Entering cgen for equal to");
 
-        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool, s);
-        CgenSupport.emitLoadBool(CgenSupport.A1, BoolConst.falsebool, s);
+        int equalLabel = CgenNode.getLabelCountAndIncrement();
 
         e1.code(s, cgenTable);
         CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC, s);
         e2.code(s, cgenTable);
         CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
 
+        // first see if pointers are equal (= same object)
+//        CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, CgenSupport.emitLabelRef(equalLabel, s), s);
+
+        CgenSupport.emitLoadBool(CgenSupport.ACC, BoolConst.truebool, s);
+        CgenSupport.emitLoadBool(CgenSupport.A1, BoolConst.falsebool, s);
+
         //This functions returns what's in a0 if objects in t1 and t2 are same type and equal, else it returns whats in a1
         CgenSupport.emitJal("equality_test", s);
+
+        CgenSupport.emitLabelDef(equalLabel, s);
+
         CgenSupport.emitComment(s, "Leaving cgen for equal to");
     }
 
@@ -2084,7 +2093,7 @@ class object extends Expression {
                 CgenNode nd = (CgenNode) lookUpSelf;
                 //CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
                 int attrOffset = CgenNode.attrOffsetMap.get(nd.name).get(name);
-                CgenSupport.emitLoad(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);
+                CgenSupport.emitLoad(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);// check if 2 or 3
             } else {
                 //is in the current scope, so get offset in frame and load into $a0
                 int frameOffset = (Integer) cgenTable.probe(name) + 1;
