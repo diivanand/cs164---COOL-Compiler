@@ -195,8 +195,6 @@ since I had a "entered" and "exit" comment for basically each COOL expression, a
 
 5. Error handling: we handle dispatch on void.
 
-We have so far passed 1.cl and 2.cl in the tests folder. And our 3.cl is ALMOST the same.
-
 
 Coolaid Feedback (optional)
 ----------------------------
