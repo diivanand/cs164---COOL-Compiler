@@ -664,8 +664,9 @@ class static_dispatch extends Expression {
 
         //handle dispatch on void
         int notVoidDispatchLabel = CgenNode.getLabelCountAndIncrement();
+        CgenNode selfie = (CgenNode) cgenTable.lookup(TreeConstants.self);
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
-        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const1", s);
+        CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol) selfie.getFilename(), s);
         CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
         CgenSupport.emitJal("_dispatch_abort", s);
         CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
@@ -762,8 +763,9 @@ class dispatch extends Expression {
 
         //handle dispatch on void
         int notVoidDispatchLabel = CgenNode.getLabelCountAndIncrement();
+        CgenNode selfie = (CgenNode) cgenTable.lookup(TreeConstants.self);
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
-        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const1", s);
+        CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol) selfie.getFilename(), s);
         CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
         CgenSupport.emitJal("_dispatch_abort",s);
         CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
@@ -984,10 +986,11 @@ class typcase extends Expression {
 
         //handle dispatch on void
         int notVoidDispatchLabel = CgenNode.getLabelCountAndIncrement();
+        CgenNode selfie = (CgenNode) cgenTable.lookup(TreeConstants.self);
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
-        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const1", s);
+        CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol) selfie.getFilename(), s);
         CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
-        CgenSupport.emitJal("_dispatch_abort",s);
+        CgenSupport.emitJal("case_abort2", s);
         CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
 
         CgenNode c1 = (CgenNode) cgenTable.lookup(expr.get_type());
@@ -996,11 +999,14 @@ class typcase extends Expression {
         //if not void continue as normal
         int caseBeginLabel = CgenNode.getLabelCountAndIncrement();
         int lubMatchLabel = CgenNode.getLabelCountAndIncrement();
+        int noMatchLabel = CgenNode.getLabelCountAndIncrement();
 
 
         //begin tag equal check chain of branches
         CgenSupport.emitLoadImm(CgenSupport.T1, curr_tag, s);
         CgenSupport.emitLabelDef(caseBeginLabel, s);
+        //Null means there was never any match
+        CgenSupport.emitBeq(CgenSupport.T1, "-2", noMatchLabel, s);
         for(branch b : caseList){
             int next_branch_label = CgenNode.getLabelCountAndIncrement();
             int branch_tag = cgenTable.getTagId(b.type_decl);
@@ -1015,6 +1021,11 @@ class typcase extends Expression {
         //load parents tag and then try case matches again
         CgenSupport.emitLoad(CgenSupport.T1, curr_tag, CgenSupport.T1, s);
         CgenSupport.emitBranch(caseBeginLabel, s);
+
+        //we didn't match so we are done but gotta abort
+        CgenSupport.emitLabelDef(noMatchLabel, s);
+        CgenSupport.emitJal("case_abort", s);
+
         //we matched so we are done
         CgenSupport.emitLabelDef(lubMatchLabel, s);
 
@@ -1123,14 +1134,20 @@ class let extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
-        cgenTable.enterScope();
+        //cgenTable.enterScope();
         CgenSupport.emitComment(s, "Entered cgen for let with identifier " + identifier);
 
-
+        // basically a let is like dispatching a function with one formal parameter
+        //Evaluate expression
+        //init.code(s, cgenTable);
+        //push value of expression to stack
+        //CgenSupport.emitPush(CgenSupport.ACC,s);
+        //frame offset to this let variable
+        //int offsetLet = CgenSupport.WORD_SIZE*2;
 
 
         CgenSupport.emitComment(s, "Leaving cgen for let with identifier " + identifier);
-        cgenTable.exitScope();
+        //cgenTable.exitScope();
     }
 
 
