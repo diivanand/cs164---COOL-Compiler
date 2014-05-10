@@ -199,6 +199,8 @@ since I had a "entered" and "exit" comment for basically each COOL expression, a
 
 6. Garbage Collections in cool-tree.assign and object initialization in CgenNode
 
+NOTE: We Unfortunately do not have let implemented, so our code generator can't handle code with let expressions
+
 
 Coolaid Feedback (optional)
 ----------------------------
