@@ -962,6 +962,20 @@ class typcase extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        // case expr of cases esac
+        expr.code(s, cgenTable);
+        CgenSupport.emitMove(CgenSupport.T3, CgenSupport.ACC,s);
+
+        // label for case expression
+        int caseLabel = CgenNode.getLabelCountAndIncrement();
+
+        // abort label when there is no matching
+        // or there is an error
+        int caseAbortLabel = CgenNode.getLabelCountAndIncrement();
+        CgenSupport.emitLabelRef(caseAbortLabel,s);
+        CgenSupport.emitJal("_case_abort",s);
+
+        
     }
 
 
@@ -1066,6 +1080,17 @@ class let extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
+        cgenTable.enterScope();
+
+        System.out.println("Let identifier: "+identifier);
+        cgenTable.addId(identifier, 1);
+
+        //init.code(s, cgenTable);
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+
+        body.code(s, cgenTable);
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, CgenSupport.WORD_SIZE, s);
+        cgenTable.exitScope();
     }
 
 
