@@ -10,6 +10,12 @@ class B_Class inherits A_Class{
     a_method() : Int {
         b
     };
+    b_method1(num : Int, st : String) :Int {
+        num
+    };
+    b_method2(num : Int, st : String) :String {
+        st
+    };
 };
 
 class Main inherits IO {
@@ -17,6 +23,7 @@ class Main inherits IO {
     num_a : Int <- 5;
     while_var:Int <- 2;
     b_var : A_Class <- new B_Class;
+    b_var2 : B_Class <- new B_Class;
     recite( num : Int ) : Int {
         {
             out_int(num);
@@ -68,6 +75,8 @@ class Main inherits IO {
            --     out_string("should be printed\n") else
            --     out_string("should not be printed\n") fi;
             recite(b_var.a_method());
+            out_int(b_var2.b_method1(333, "no"));
+            out_string(b_var2.b_method2(666, "yes"));
            -- recite(b_var@A_Class.a_method());
             dummy_return;        
         }

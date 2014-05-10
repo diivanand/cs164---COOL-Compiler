@@ -178,6 +178,7 @@ since I had a "entered" and "exit" comment for basically each COOL expression, a
 
 3. Our activation frames look like
 
+                high
                  |arg n|
                  |  .  |
                  |  .  |
@@ -185,6 +186,7 @@ since I had a "entered" and "exit" comment for basically each COOL expression, a
                  | ra  |       $fp+8 is first arg1,fp+4 is arg2, etc., Stack pointer always points to next free/unused spot.
                  |oldso|
                  |oldfp|
+                low
 
    Our calling convention is that the accumulator contains the
    current self object corresponding to the dispatch and the frame looks like above.
@@ -194,6 +196,8 @@ since I had a "entered" and "exit" comment for basically each COOL expression, a
    in each expression which we filled out.
 
 5. Error handling: we handle dispatch on void.
+
+6. Garbage Collections in cool-tree.assign and object initialization in CgenNode
 
 
 Coolaid Feedback (optional)
