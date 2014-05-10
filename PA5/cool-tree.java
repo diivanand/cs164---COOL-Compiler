@@ -920,6 +920,7 @@ class loop extends Expression {
         //CgenSupport.emitLabelDef(whileLabel, s);
         //evaluate body
         body.code(s, cgenTable);
+        CgenSupport.emitBranch(whileLabel,s);
         //end of while loop label
         CgenSupport.emitLabelDef(whileEndLabel, s);
         //CgenSupport.emitLoadImm(CgenSupport.ACC, 0, s);
