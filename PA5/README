@@ -195,7 +195,7 @@ since I had a "entered" and "exit" comment for basically each COOL expression, a
 4. Code generation for expressions was done via a recursive descent of tree and using the code() methods
    in each expression which we filled out.
 
-5. Error handling: we handle dispatch on void.
+5. Error handling: we handle dispatch on void, dispatch on case, and no matching case (all three tested)
 
 6. Garbage Collections in cool-tree.assign and object initialization in CgenNode
 
