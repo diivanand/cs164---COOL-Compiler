@@ -44,8 +44,13 @@ class CgenClassTable extends SymbolTable {
     private int boolclasstag;
 
 
-    private Map<AbstractSymbol, Map<AbstractSymbol, Integer>> dispOffsetMap;
+    /** Maps from class to tag number */
+    private static Map<AbstractSymbol, Integer> classTagMap
+        = new HashMap<AbstractSymbol, Integer>();
 
+    public int getTagId(AbstractSymbol class_name) {
+        return classTagMap.get(class_name);
+    }
 
     // The following methods emit code for constants and global
     // declarations.
@@ -382,7 +387,6 @@ class CgenClassTable extends SymbolTable {
 
     /** Constructs a new class table and invokes the code generator */
     public CgenClassTable(Classes cls, PrintStream str) {
-        dispOffsetMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, Integer>>();
         nds = new Vector();
 
         this.str = str;
@@ -409,7 +413,7 @@ class CgenClassTable extends SymbolTable {
     /** This method is the meat of the code generator.  It is to be
       filled in programming assignment 5 */
     public void code() {
-        Map<AbstractSymbol, Integer> classTagMap = new HashMap<AbstractSymbol, Integer>();
+        //classTagMap = new HashMap<AbstractSymbol, Integer>();
         for( Enumeration en = nds.elements(); en.hasMoreElements() ; ) {
             CgenNode tmpNode = (CgenNode) en.nextElement();
             classTagMap.put(tmpNode.name, tmpNode.getTag());

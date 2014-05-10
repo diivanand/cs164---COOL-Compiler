@@ -957,12 +957,29 @@ class typcase extends Expression {
      * @param s the output stream 
      * */
     public void code(PrintStream s, CgenClassTable cgenTable) {
-        // case expr of cases esac
-        expr.code(s, cgenTable);
-        CgenSupport.emitMove(CgenSupport.T3, CgenSupport.ACC,s);
-
         // label for case expression
         int caseLabel = CgenNode.getLabelCountAndIncrement();
+        // case expr of cases esac
+        expr.code(s, cgenTable);
+        // move ACC to t1
+        CgenSupport.emitMove(CgenSupport.T1, CgenSupport.ACC,s);
+        // test case on void
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, caseLabel, s);
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, "str_const0", s);
+        CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
+        CgenSupport.emitJal("_dispatch_abort",s);
+        
+        Enumeration caseElements = cases.getElements();
+        // the start node
+        // assume semantics makes sure it has at least one case!
+        branch firstBranch = (branch) caseElements.nextElement();
+        int branchTag = cgenTable.getTagId(firstBranch.type_decl);
+        // get the tag from expression
+        CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.T1,s);
+
+
+
+
 
         // abort label when there is no matching
         // or there is an error
@@ -2051,7 +2068,9 @@ class object extends Expression {
             if(cgenTable.probe(this.name) == null) {
                 //not in current scope so it must be an attribute, so get offset of attribute
                 // and load into current scope
-                CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
+                Object lookUpSelf = cgenTable.lookup(TreeConstants.self);
+                CgenNode nd = (CgenNode) lookUpSelf;
+                //CgenNode nd = (CgenNode) cgenTable.lookup(TreeConstants.self);
                 int attrOffset = CgenNode.attrOffsetMap.get(nd.name).get(name);
                 CgenSupport.emitLoad(CgenSupport.ACC, (2+attrOffset), CgenSupport.SELF, s);
             } else {
