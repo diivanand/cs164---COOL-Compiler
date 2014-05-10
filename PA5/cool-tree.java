@@ -729,14 +729,9 @@ class dispatch extends Expression {
         }
         CgenNode c1 = (CgenNode) cgenTable.lookup(exprType);
         CgenSupport.emitComment(s, "BEGIN dispatch for method "+name+ " in class " + exprType);
-        //push fp, so, and ra in that order
-        CgenSupport.emitPush(CgenSupport.FP, s);
-        CgenSupport.emitPush(CgenSupport.SELF, s);
-        CgenSupport.emitPush(CgenSupport.RA, s);
 
-        //move frame pointer to point to top of current activation frame and save current self object
-        CgenSupport.emitAddiu(CgenSupport.FP, CgenSupport.SP, 16, s);
-        CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
+
+
 
         for(Enumeration en = actual.getElements(); en.hasMoreElements(); ) {
             Expression tmp = (Expression) en.nextElement();
