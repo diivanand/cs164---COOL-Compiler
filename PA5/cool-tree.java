@@ -990,7 +990,7 @@ class typcase extends Expression {
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, notVoidDispatchLabel, s);
         CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol) selfie.getFilename(), s);
         CgenSupport.emitLoadImm(CgenSupport.T1, this.lineNumber, s);
-        CgenSupport.emitJal("case_abort2", s);
+        CgenSupport.emitJal("_case_abort2", s);
         CgenSupport.emitLabelDef(notVoidDispatchLabel, s);
 
         CgenNode c1 = (CgenNode) cgenTable.lookup(expr.get_type());
@@ -1024,7 +1024,7 @@ class typcase extends Expression {
 
         //we didn't match so we are done but gotta abort
         CgenSupport.emitLabelDef(noMatchLabel, s);
-        CgenSupport.emitJal("case_abort", s);
+        CgenSupport.emitJal("_case_abort", s);
 
         //we matched so we are done
         CgenSupport.emitLabelDef(lubMatchLabel, s);
